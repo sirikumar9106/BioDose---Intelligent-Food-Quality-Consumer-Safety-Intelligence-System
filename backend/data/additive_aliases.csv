@@ -1,0 +1,201 @@
+additive_id,e_number,canonical_name,synonyms,INS_code,pubchem_cid,category,source
+ADD001,E100,Curcumin,Turmeric yellow;Curcuma;Natural yellow 3;CI 75300,INS100,969516,Color,EFSA/PubChem
+ADD002,E101,Riboflavin,"Vitamin B2;Lactoflavin;Vitamin G;7,8-Dimethyl-10-ribitylisoalloxazine",INS101,493570,Color,EFSA/PubChem
+ADD003,E102,Tartrazine,FD&C Yellow 5;CI Food Yellow 4;Acid Yellow 23;Trisodium tartrazine,INS102,164825,Color,EFSA/FDA
+ADD004,E104,Quinoline Yellow,Quinoline Yellow SS;CI Food Yellow 13;D&C Yellow 10,INS104,5282238,Color,EFSA
+ADD005,E110,Sunset Yellow FCF,FD&C Yellow 6;Orange Yellow S;CI Food Yellow 3;Disodium sunset yellow,INS110,6093428,Color,EFSA/FDA
+ADD006,E120,Cochineal,Carmine;Carminic acid;Natural Red 4;CI 75470;E120,INS120,11953832,Color,EFSA/PubChem
+ADD007,E122,Azorubine,Carmoisine;CI Food Red 3;Acid Red 14,INS122,12886,Color,EFSA
+ADD008,E123,Amaranth,FD&C Red 2;CI Food Red 9;Acid Red 27,INS123,5360464,Color,EFSA/FDA
+ADD009,E124,Ponceau 4R,Cochineal Red A;CI Food Red 7;Brilliant Scarlet 3R,INS124,6093538,Color,EFSA
+ADD010,E127,Erythrosine,FD&C Red 3;CI Food Red 14;Iodeosin,INS127,11693725,Color,EFSA/FDA
+ADD011,E129,Allura Red AC,FD&C Red 40;CI Food Red 17;Red 40,INS129,6093547,Color,EFSA/FDA
+ADD012,E131,Patent Blue V,Food Blue 5;Sulphan Blue;CI Food Blue 5,INS131,12939,Color,EFSA
+ADD013,E132,Indigotine,FD&C Blue 2;Indigo Carmine;CI Food Blue 1,INS132,11673283,Color,EFSA/FDA
+ADD014,E133,Brilliant Blue FCF,FD&C Blue 1;CI Food Blue 2;Erioglaucine,INS133,19700,Color,EFSA/FDA
+ADD015,E140,Chlorophylls,Chlorophyll;Natural Green 3;CI 75810,INS140,6433579,Color,EFSA/PubChem
+ADD016,E141,Copper complexes of chlorophylls,Copper chlorophyllin;Chlorophyllin copper complex,INS141,13145366,Color,EFSA
+ADD017,E150a,Plain caramel,Caramel color class I;Burnt sugar,INS150a,,Color,EFSA/FDA
+ADD018,E150d,Sulphite ammonia caramel,Caramel color class IV;Ammonia sulphite caramel,INS150d,,Color,EFSA/FDA
+ADD019,E151,Brilliant Black BN,Black PN;CI Food Black 1;Brilliant Black PN,INS151,6093314,Color,EFSA
+ADD020,E153,Vegetable carbon,Carbon black;Activated charcoal;CI Food Black 2,INS153,,Color,EFSA
+ADD021,E160a,Beta-carotene,Beta carotene;Carotene;Pro-vitamin A;CI 75130,INS160a,5280489,Color,EFSA/PubChem
+ADD022,E160c,Paprika extract,Capsanthin;Capsorubin;Paprika oleoresin,INS160c,5281238,Color,EFSA/PubChem
+ADD023,E162,Beetroot red,Betanin;Betacyanin;Beet red,INS162,6419539,Color,EFSA/PubChem
+ADD024,E163,Anthocyanins,Anthocyan;Natural red 14;Grape skin extract,INS163,5281807,Color,EFSA/PubChem
+ADD025,E171,Titanium dioxide,TiO2;Titanium white;CI Pigment White 6,INS171,26042,Color,EFSA/FDA
+ADD026,E172,Iron oxides and hydroxides,Iron oxide;Ferric oxide;CI Pigment Red 101,INS172,518696,Color,EFSA/FDA
+ADD027,E200,Sorbic acid,"2,4-Hexadienoic acid;trans,trans-Sorbic acid",INS200,643460,Preservative,EFSA/FDA/PubChem
+ADD028,E202,Potassium sorbate,"Potassium (E,E)-sorbate;2,4-Hexadienoic acid potassium salt",INS202,23676745,Preservative,EFSA/FDA/PubChem
+ADD029,E210,Benzoic acid,Benzenecarboxylic acid;Phenylformic acid;Dracylic acid,INS210,243,Preservative,EFSA/FDA/PubChem
+ADD030,E211,Sodium benzoate,Benzoate of soda;Sodium benzenecarboxylate,INS211,517055,Preservative,EFSA/FDA/PubChem
+ADD031,E212,Potassium benzoate,Potassium benzenecarboxylate,INS212,516750,Preservative,EFSA/FDA
+ADD032,E220,Sulphur dioxide,Sulfur dioxide;SO2;Sulfurous anhydride,INS220,1119,Preservative,EFSA/FDA/PubChem
+ADD033,E221,Sodium sulphite,Sodium sulfite;Disodium sulfite,INS221,24436,Preservative,EFSA/FDA
+ADD034,E223,Sodium metabisulphite,Sodium pyrosulfite;Sodium metabisulfite;Disodium disulfite,INS223,657238,Preservative,EFSA/FDA
+ADD035,E224,Potassium metabisulphite,Potassium pyrosulfite;Potassium metabisulfite,INS224,516900,Preservative,EFSA/FDA
+ADD036,E234,Nisin,Nisin A;Nisaplin;Lactococcus lactis bacteriocin,INS234,16130278,Preservative,EFSA/FDA
+ADD037,E235,Natamycin,Pimaricin;Tennecetin;Antibiotic A5283,INS235,5284447,Preservative,EFSA/FDA
+ADD038,E249,Potassium nitrite,Potassium dioxonitrate,INS249,516922,Preservative,EFSA/FDA
+ADD039,E250,Sodium nitrite,NaNO2;Erinitrit,INS250,23668197,Preservative,EFSA/FDA
+ADD040,E251,Sodium nitrate,Soda niter;Chile saltpeter;NaNO3,INS251,24268,Preservative,EFSA/FDA
+ADD041,E252,Potassium nitrate,Saltpeter;Niter;KNO3,INS252,24434,Preservative,EFSA/FDA
+ADD042,E260,Acetic acid,Ethanoic acid;Vinegar acid;Glacial acetic acid,INS260,176,Preservative,EFSA/FDA/PubChem
+ADD043,E261,Potassium acetate,Potassium ethanoate,INS261,517044,Preservative,EFSA/FDA
+ADD044,E262,Sodium acetate,Sodium ethanoate;Acetic acid sodium salt,INS262,517045,Preservative,EFSA/FDA
+ADD045,E270,Lactic acid,L-Lactic acid;2-Hydroxypropanoic acid;Milk acid,INS270,107689,Preservative,EFSA/FDA/PubChem
+ADD046,E280,Propionic acid,Propanoic acid;Methylacetic acid,INS280,1032,Preservative,EFSA/FDA/PubChem
+ADD047,E281,Sodium propionate,Sodium propanoate,INS281,16211201,Preservative,EFSA/FDA
+ADD048,E282,Calcium propionate,Calcium propanoate;Propionic acid calcium salt,INS282,6096288,Preservative,EFSA/FDA
+ADD049,E283,Potassium propionate,Potassium propanoate,INS283,517030,Preservative,EFSA/FDA
+ADD050,E290,Carbon dioxide,CO2;Carbonic anhydride;Dry ice gas,INS290,280,Preservative,EFSA/FDA/PubChem
+ADD051,E300,Ascorbic acid,Vitamin C;L-Ascorbic acid;Cevitamic acid,INS300,54670067,Antioxidant,EFSA/FDA/PubChem
+ADD052,E301,Sodium ascorbate,Sodium L-ascorbate;Sodium vitamin C,INS301,23667548,Antioxidant,EFSA/FDA
+ADD053,E302,Calcium ascorbate,Calcium L-ascorbate,INS302,6093522,Antioxidant,EFSA/FDA
+ADD054,E304,Ascorbyl palmitate,6-O-Palmitoyl-L-ascorbic acid;L-Ascorbyl 6-palmitate,INS304,54680660,Antioxidant,EFSA/FDA/PubChem
+ADD055,E306,Tocopherol-rich extract,Mixed tocopherols;Natural vitamin E;Alpha-tocopherol,INS306,14985,Antioxidant,EFSA/FDA/PubChem
+ADD056,E307,Alpha-tocopherol,"Alpha tocopherol;(R,R,R)-alpha-Tocopherol;Vitamin E",INS307,14985,Antioxidant,EFSA/FDA/PubChem
+ADD057,E310,Propyl gallate,"Propyl 3,4,5-trihydroxybenzoate;n-Propyl gallate",INS310,4685,Antioxidant,EFSA/FDA/PubChem
+ADD058,E319,TBHQ,tert-Butylhydroquinone;Tertiary butylhydroquinone,INS319,16043,Antioxidant,EFSA/FDA/PubChem
+ADD059,E320,BHA,Butylated hydroxyanisole;tert-Butyl-4-methoxyphenol,INS320,8456,Antioxidant,EFSA/FDA/PubChem
+ADD060,E321,BHT,"Butylated hydroxytoluene;2,6-Di-tert-butyl-p-cresol;Dibutylhydroxytoluene",INS321,31404,Antioxidant,EFSA/FDA/PubChem
+ADD061,E322,Lecithin,Soy lecithin;Lecithines;Phosphatidylcholine;INS322,INS322,23700553,Emulsifier,EFSA/FDA/PubChem
+ADD062,E331,Sodium citrates,Trisodium citrate;Sodium citrate;Citric acid sodium salt,INS331,6224,Emulsifier,EFSA/FDA/PubChem
+ADD063,E332,Potassium citrates,Tripotassium citrate;Potassium citrate,INS332,13344,Emulsifier,EFSA/FDA
+ADD064,E333,Calcium citrates,Tricalcium citrate;Calcium citrate,INS333,13136,Emulsifier,EFSA/FDA
+ADD065,E334,Tartaric acid,"L-Tartaric acid;2,3-Dihydroxybutanedioic acid;Racemic acid",INS334,875,Emulsifier,EFSA/FDA/PubChem
+ADD066,E336,Potassium tartrates,Potassium bitartrate;Cream of tartar;Monopotassium tartrate,INS336,23663597,Emulsifier,EFSA/FDA
+ADD067,E339,Sodium phosphates,Monosodium phosphate;Disodium phosphate;Trisodium phosphate,INS339,24243,Emulsifier,EFSA/FDA
+ADD068,E340,Potassium phosphates,Monopotassium phosphate;Dipotassium phosphate;Tripotassium phosphate,INS340,516950,Emulsifier,EFSA/FDA
+ADD069,E341,Calcium phosphates,Monocalcium phosphate;Dicalcium phosphate;Tricalcium phosphate,INS341,24456,Emulsifier,EFSA/FDA
+ADD070,E400,Alginic acid,Algin;Alginic acid;Polymannuronic acid,INS400,131704338,Thickener,EFSA/FDA/PubChem
+ADD071,E401,Sodium alginate,Sodium polymannuronate;Algin sodium,INS401,5102882,Thickener,EFSA/FDA
+ADD072,E402,Potassium alginate,Potassium polymannuronate,INS402,6093541,Thickener,EFSA/FDA
+ADD073,E404,Calcium alginate,Calcium polymannuronate,INS404,6093499,Thickener,EFSA/FDA
+ADD074,E406,Agar,Agar-agar;Japanese isinglass;Kanten;Bengal gelatin,INS406,11853980,Thickener,EFSA/FDA/PubChem
+ADD075,E407,Carrageenan,Carrageenin;Irish moss extract;Chondrus extract,INS407,44134537,Thickener,EFSA/FDA/PubChem
+ADD076,E410,Locust bean gum,Carob bean gum;Carobin;St. John's bread gum,INS410,11966527,Thickener,EFSA/FDA/PubChem
+ADD077,E412,Guar gum,Guaran;Cluster bean gum;Cyamopsis gum,INS412,11551498,Thickener,EFSA/FDA/PubChem
+ADD078,E413,Tragacanth,Gum tragacanth;Hog gum;Locoweed gum,INS413,71571511,Thickener,EFSA/FDA
+ADD079,E414,Acacia gum,Gum arabic;Acacia senegal gum;Sudan gum,INS414,131704078,Thickener,EFSA/FDA/PubChem
+ADD080,E415,Xanthan gum,Xanthomonas gum;Corn sugar gum,INS415,13553115,Thickener,EFSA/FDA/PubChem
+ADD081,E416,Karaya gum,Indian gum;Sterculia gum;Kadaya,INS416,11966543,Thickener,EFSA/FDA
+ADD082,E418,Gellan gum,Gellan;Pseudomonas elodea gum,INS418,441478,Thickener,EFSA/FDA/PubChem
+ADD083,E420,Sorbitol,D-Sorbitol;Glucitol;D-Glucitol;Sorbol,INS420,5780,Sweetener/Humectant,EFSA/FDA/PubChem
+ADD084,E421,Mannitol,D-Mannitol;Mannite;Manna sugar,INS421,6251,Sweetener,EFSA/FDA/PubChem
+ADD085,E422,Glycerol,"Glycerin;Glycerine;1,2,3-Propanetriol;Trihydroxypropane",INS422,753,Humectant,EFSA/FDA/PubChem
+ADD086,E440,Pectin,Pectins;Apple pectin;Citrus pectin;Methoxylpectin,INS440,441476,Thickener,EFSA/FDA/PubChem
+ADD087,E442,Ammonium phosphatides,Emulsifier YN;Ammonium salts of phosphatidic acids,INS442,,Emulsifier,EFSA
+ADD088,E450,Diphosphates,Sodium pyrophosphate;Disodium diphosphate;Tetrasodium pyrophosphate,INS450,24403,Emulsifier,EFSA/FDA
+ADD089,E451,Triphosphates,Sodium tripolyphosphate;Pentasodium triphosphate;STPP,INS451,24450,Emulsifier,EFSA/FDA
+ADD090,E452,Polyphosphates,Sodium hexametaphosphate;Graham's salt;Sodium polymetaphosphate,INS452,24928,Emulsifier,EFSA/FDA
+ADD091,E460,Cellulose,Microcrystalline cellulose;MCC;Cellulose gel;Powdered cellulose,INS460,14055602,Bulking agent,EFSA/FDA/PubChem
+ADD092,E461,Methyl cellulose,Methylcellulose;Cellulose methyl ether;Methocel,INS461,13058144,Thickener,EFSA/FDA
+ADD093,E464,Hydroxypropyl methyl cellulose,HPMC;Hypromellose;Cellulose hydroxypropyl methyl ether,INS464,57503849,Thickener,EFSA/FDA/PubChem
+ADD094,E466,Sodium carboxy methyl cellulose,CMC;Carmellose sodium;Cellulose gum;Sodium CMC,INS466,24748853,Thickener,EFSA/FDA/PubChem
+ADD095,E471,Mono- and diglycerides of fatty acids,Monoglycerides;Diglycerides;Glyceryl monostearate;GMS,INS471,23042301,Emulsifier,EFSA/FDA/PubChem
+ADD096,E472e,Mono- and diacetyl tartaric acid esters of mono- and diglycerides,DATEM;Diacetyl tartrate ester of mono/diglycerides,INS472e,,Emulsifier,EFSA/FDA
+ADD097,E473,Sucrose esters of fatty acids,Sucrose fatty acid esters;Sucroesters,INS473,91753524,Emulsifier,EFSA/FDA
+ADD098,E476,Polyglycerol polyricinoleate,PGPR;Polyglycerol esters of polycondensed fatty acids of castor oil,INS476,,Emulsifier,EFSA/FDA
+ADD099,E477,Propylene glycol esters of fatty acids,Propylene glycol mono- and diesters,INS477,,Emulsifier,EFSA/FDA
+ADD100,E481,Sodium stearoyl lactylate,SSL;Sodium stearyl lactylate,INS481,23663969,Emulsifier,EFSA/FDA/PubChem
+ADD101,E420,Sorbitol syrup,Sorbitol solution;D-Sorbitol syrup,INS420,5780,Sweetener,EFSA/FDA
+ADD102,E950,Acesulfame K,"Acesulfame potassium;Ace-K;6-methyl-1,2,3-oxathiazin-4(3H)-one 2,2-dioxide potassium",INS950,16680,Sweetener,EFSA/FDA/PubChem
+ADD103,E951,Aspartame,APM;NutraSweet;Equal;1-Methyl N-L-aspartyl-L-phenylalaninate,INS951,134601,Sweetener,EFSA/FDA/PubChem
+ADD104,E952,Cyclamates,Sodium cyclamate;Cyclamic acid;Calcium cyclamate,INS952,8882,Sweetener,EFSA/FDA/PubChem
+ADD105,E953,Isomalt,Palatinit;Hydrogenated isomaltulose;Isomaltitol,INS953,87961,Sweetener,EFSA/FDA/PubChem
+ADD106,E954,Saccharin,Benzoic sulfimide;Sodium saccharin;Sweet'N Low,INS954,5143,Sweetener,EFSA/FDA/PubChem
+ADD107,E955,Sucralose,Trichlorogalactosucrose;TGS;Splenda,INS955,71485,Sweetener,EFSA/FDA/PubChem
+ADD108,E957,Thaumatin,Talin;Thaumatococcus daniellii extract,INS957,16130398,Sweetener,EFSA/FDA
+ADD109,E959,Neohesperidine DC,NHDC;Neohesperidin dihydrochalcone,INS959,442495,Sweetener,EFSA
+ADD110,E960,Steviol glycosides,Rebaudioside A;Stevia;Rebiana;Stevioside,INS960,442911,Sweetener,EFSA/FDA/PubChem
+ADD111,E961,Neotame,"N-(N-(3,3-Dimethylbutyl)-L-aspartyl)-L-phenylalanine 1-methyl ester",INS961,5284537,Sweetener,EFSA/FDA/PubChem
+ADD112,E962,Aspartame-acesulfame salt,Twinsweet,INS962,,Sweetener,EFSA/FDA
+ADD113,E965,Maltitol,Hydrogenated maltose;Maltisorb,INS965,493591,Sweetener,EFSA/FDA/PubChem
+ADD114,E966,Lactitol,4-beta-D-Galactopyranosyl-D-glucitol,INS966,493591,Sweetener,EFSA/FDA/PubChem
+ADD115,E967,Xylitol,"Xyliton;Xylite;1,2,3,4,5-Pentahydroxypentane",INS967,6912,Sweetener,EFSA/FDA/PubChem
+ADD116,E968,Erythritol,"Erythrite;Phycite;1,2,3,4-Butanetetrol",INS968,222285,Sweetener,EFSA/FDA/PubChem
+ADD117,E330,Citric acid,"2-Hydroxypropane-1,2,3-tricarboxylic acid;Citric acid anhydrous",INS330,311,Acidity regulator,EFSA/FDA/PubChem
+ADD118,E338,Phosphoric acid,Orthophosphoric acid;E338;o-Phosphoric acid,INS338,1004,Acidity regulator,EFSA/FDA/PubChem
+ADD119,E341i,Monocalcium phosphate,Calcium dihydrogen phosphate;Acid calcium phosphate,INS341,6093498,Acidity regulator,EFSA/FDA
+ADD120,E350,Sodium malate,Sodium hydrogen malate;Sodium DL-malate,INS350,5284421,Acidity regulator,EFSA/FDA
+ADD121,E351,Potassium malate,Potassium hydrogen malate,INS351,517148,Acidity regulator,EFSA/FDA
+ADD122,E352,Calcium malate,Calcium DL-malate,INS352,6093497,Acidity regulator,EFSA/FDA
+ADD123,E353,Metatartaric acid,Polytartaric acid,INS353,,Acidity regulator,EFSA
+ADD124,E354,Calcium tartrate,Tartaric acid calcium salt,INS354,61481,Acidity regulator,EFSA/FDA
+ADD125,E355,Adipic acid,"Hexanedioic acid;1,4-Butanedicarboxylic acid",INS355,196,Acidity regulator,EFSA/FDA/PubChem
+ADD126,E363,Succinic acid,Butanedioic acid;Amber acid,INS363,1110,Acidity regulator,EFSA/FDA/PubChem
+ADD127,E380,Triammonium citrate,Ammonium citrate tribasic,INS380,13267,Acidity regulator,EFSA/FDA
+ADD128,E296,Malic acid,DL-Malic acid;Hydroxybutanedioic acid;Apple acid,INS296,525,Acidity regulator,EFSA/FDA/PubChem
+ADD129,E297,Fumaric acid,Trans-butenedioic acid;Allomaleic acid,INS297,444972,Acidity regulator,EFSA/FDA/PubChem
+ADD130,E620,Glutamic acid,L-Glutamic acid;(S)-2-Aminopentanedioic acid,INS620,611,Flavor enhancer,EFSA/FDA/PubChem
+ADD131,E621,Monosodium glutamate,MSG;Sodium glutamate;Vetsin;Ajinomoto,INS621,23672308,Flavor enhancer,EFSA/FDA/PubChem
+ADD132,E622,Monopotassium glutamate,Potassium glutamate;MPG,INS622,22833438,Flavor enhancer,EFSA/FDA
+ADD133,E623,Calcium diglutamate,Calcium glutamate,INS623,,Flavor enhancer,EFSA/FDA
+ADD134,E624,Monoammonium glutamate,Ammonium glutamate;MAG,INS624,,Flavor enhancer,EFSA/FDA
+ADD135,E625,Magnesium diglutamate,Magnesium glutamate,INS625,,Flavor enhancer,EFSA/FDA
+ADD136,E626,Guanylic acid,GMP;5'-Guanylic acid;Guanosine 5'-monophosphate,INS626,6130,Flavor enhancer,EFSA/FDA/PubChem
+ADD137,E627,Disodium guanylate,Sodium GMP;DSG;Disodium 5'-guanylate,INS627,23672344,Flavor enhancer,EFSA/FDA/PubChem
+ADD138,E628,Dipotassium guanylate,Potassium guanylate,INS628,,Flavor enhancer,EFSA/FDA
+ADD139,E630,Inosinic acid,IMP;Inosine 5'-monophosphate;Hypoxanthine ribotide,INS630,8582,Flavor enhancer,EFSA/FDA/PubChem
+ADD140,E631,Disodium inosinate,Sodium IMP;DSI;Disodium 5'-inosinate,INS631,23672346,Flavor enhancer,EFSA/FDA/PubChem
+ADD141,E635,Disodium ribonucleotides,I+G;Disodium 5'-ribonucleotides,INS635,,Flavor enhancer,EFSA/FDA
+ADD142,E640,Glycine,Aminoacetic acid;Glycocoll;2-Aminoacetic acid,INS640,750,Flavor enhancer,EFSA/FDA/PubChem
+ADD143,E920,L-cysteine,L-Cysteine hydrochloride;Cysteine;Half-cystine,INS920,5862,Flour treatment agent,EFSA/FDA/PubChem
+ADD144,E924,Potassium bromate,Bromic acid potassium salt,INS924,24412,Flour treatment agent,EFSA/FDA
+ADD145,E925,Chlorine,Chlorine gas;Cl2,INS925,24526,Flour treatment agent,EFSA/FDA
+ADD146,E926,Chlorine dioxide,ClO2,INS926,24870,Flour treatment agent,EFSA/FDA
+ADD147,E341iii,Tricalcium phosphate,TCP;Calcium orthophosphate;Bone phosphate of lime,INS341,24456,Anti-caking agent,EFSA/FDA
+ADD148,E500,Sodium carbonates,Soda ash;Washing soda;Sodium carbonate anhydrous,INS500,10340,Acidity regulator,EFSA/FDA/PubChem
+ADD149,E501,Potassium carbonates,Potassium carbonate;Pearl ash,INS501,11430,Acidity regulator,EFSA/FDA
+ADD150,E503,Ammonium carbonates,Ammonium carbonate;Baker's ammonia;Hartshorn,INS503,14213,Raising agent,EFSA/FDA
+ADD151,E504,Magnesium carbonates,Magnesium carbonate;Magnesite,INS504,11029,Anti-caking agent,EFSA/FDA
+ADD152,E508,Potassium chloride,KCl;Potassium muriate;Sylvite,INS508,4873,Salt substitute,EFSA/FDA/PubChem
+ADD153,E509,Calcium chloride,CaCl2;Calcium dichloride;Dowflake,INS509,5284359,Firming agent,EFSA/FDA/PubChem
+ADD154,E511,Magnesium chloride,MgCl2;Magnesium dichloride;Nigari,INS511,24584,Firming agent,EFSA/FDA
+ADD155,E514,Sodium sulphate,Glauber's salt;Sodium sulfate;Mirabilite,INS514,24436,Acidity regulator,EFSA/FDA
+ADD156,E516,Calcium sulphate,Gypsum;Calcium sulfate;Plaster of Paris,INS516,24497,Firming agent,EFSA/FDA/PubChem
+ADD157,E551,Silicon dioxide,Silica;Amorphous silicon dioxide;Fumed silica;Aerosil,INS551,24261,Anti-caking agent,EFSA/FDA/PubChem
+ADD158,E552,Calcium silicate,Calcium metasilicate;Wollastonite,INS552,14504,Anti-caking agent,EFSA/FDA
+ADD159,E553b,Talc,Magnesium silicate hydroxide;Talcum,INS553b,26924,Anti-caking agent,EFSA/FDA
+ADD160,E570,Fatty acids,Stearic acid;Palmitic acid;Oleic acid;Calcium stearate,INS570,5281,Anti-caking agent,EFSA/FDA
+ADD161,E1400,Dextrin,White dextrin;British gum;Starch gum,INS1400,56507201,Thickener,EFSA/FDA/PubChem
+ADD162,E1404,Oxidized starch,Oxidised starch,INS1404,,Thickener,EFSA/FDA
+ADD163,E1410,Monostarch phosphate,Starch sodium phosphate,INS1410,,Thickener,EFSA/FDA
+ADD164,E1412,Distarch phosphate,Cross-linked starch;Phosphated distarch phosphate,INS1412,,Thickener,EFSA/FDA
+ADD165,E1420,Acetylated starch,Starch acetate,INS1420,,Thickener,EFSA/FDA
+ADD166,E1422,Acetylated distarch adipate,Adipate acetate starch,INS1422,,Thickener,EFSA/FDA
+ADD167,E1440,Hydroxypropyl starch,Starch hydroxypropyl ether,INS1440,,Thickener,EFSA/FDA
+ADD168,E1442,Hydroxypropyl distarch phosphate,HPDSP,INS1442,,Thickener,EFSA/FDA
+ADD169,E1450,Starch sodium octenyl succinate,OSA starch;Octenyl succinate starch,INS1450,,Emulsifier,EFSA/FDA
+ADD170,E901,Beeswax,White beeswax;Yellow beeswax;Apis mellifera wax,INS901,6432141,Glazing agent,EFSA/FDA/PubChem
+ADD171,E903,Carnauba wax,Brazil wax;Copernicia cerifera wax,INS903,6437090,Glazing agent,EFSA/FDA
+ADD172,E904,Shellac,Lac resin;Bleached shellac;Refined lac,INS904,14452846,Glazing agent,EFSA/FDA
+ADD173,E905,Microcrystalline wax,Petroleum wax;Mineral hydrocarbon wax,INS905,,Glazing agent,EFSA/FDA
+ADD174,E1200,Polydextrose,Poly-D-glucose,INS1200,44134529,Humectant,EFSA/FDA/PubChem
+ADD175,E1201,Polyvinylpyrrolidone,PVP;Povidone;1-Vinyl-2-pyrrolidinone polymer,INS1201,6917,Stabilizer,EFSA/FDA
+ADD176,E1202,Polyvinyl polypyrrolidone,PVPP;Crospovidone;Insoluble PVP,INS1202,,Stabilizer,EFSA/FDA
+ADD177,E170,Calcium carbonate,Chalk;Limestone;Calcite;Aragonite,INS170,10112,Acidity regulator,EFSA/FDA/PubChem
+ADD178,E322i,Lecithin (soy),Soya lecithin;Soybean lecithin;Soy phospholipids,INS322,23700553,Emulsifier,EFSA/FDA
+ADD179,E325,Sodium lactate,Sodium L-lactate;Lactic acid sodium salt,INS325,107743,Humectant,EFSA/FDA/PubChem
+ADD180,E326,Potassium lactate,Potassium L-lactate,INS326,107738,Humectant,EFSA/FDA
+ADD181,E327,Calcium lactate,Calcium L-lactate;Calcium 2-hydroxypropanoate,INS327,16212981,Firming agent,EFSA/FDA
+ADD182,E385,Calcium disodium EDTA,Calcium disodium ethylenediaminetetraacetate;EDTA,INS385,6093430,Preservative,EFSA/FDA/PubChem
+ADD183,E392,Extracts of rosemary,Rosemary extract;Rosmarinus officinalis extract;Carnosic acid,INS392,64982,Antioxidant,EFSA/PubChem
+ADD184,E900,Dimethyl polysiloxane,Dimethicone;PDMS;Polydimethylsiloxane;Antifoaming agent,INS900,6362946,Anti-foaming agent,EFSA/FDA/PubChem
+ADD185,E927b,Carbamide,Urea;Carbonyl diamide,INS927b,1176,Flour treatment agent,EFSA/FDA/PubChem
+ADD186,E938,Argon,Ar,INS938,23968,Propellant,EFSA/FDA
+ADD187,E939,Helium,He,INS939,23987,Propellant,EFSA/FDA
+ADD188,E941,Nitrogen,N2;Liquid nitrogen,INS941,947,Propellant,EFSA/FDA/PubChem
+ADD189,E942,Nitrous oxide,Laughing gas;N2O;Dinitrogen monoxide,INS942,948,Propellant,EFSA/FDA/PubChem
+ADD190,E943a,Butane,n-Butane,INS943a,7843,Propellant,EFSA/FDA
+ADD191,E948,Oxygen,O2,INS948,977,Propellant,EFSA/FDA
+ADD192,E1105,Lysozyme,Muramidase;N-acetylmuramide glycanohydrolase;Egg white lysozyme,INS1105,16129646,Preservative,EFSA/FDA/PubChem
+ADD193,E1518,Glyceryl triacetate,"Triacetin;Glycerol triacetate;1,2,3-Triacetoxypropane",INS1518,5541,Humectant,EFSA/FDA/PubChem
+ADD194,E479b,Thermally oxidized soya bean oil interacted with mono- and diglycerides,TOSOM,INS479b,,Emulsifier,EFSA
+ADD195,E555,Potassium aluminium silicate,Mica;Sericite;Muscovite,INS555,,Anti-caking agent,EFSA/FDA
+ADD196,E559,Aluminium silicate,Kaolin;China clay;Kaolinite,INS559,56841936,Anti-caking agent,EFSA/FDA
+ADD197,E574,Glucono delta-lactone,GDL;Gluconolactone;D-Glucono-delta-lactone,INS574,736186,Acidity regulator,EFSA/FDA/PubChem
+ADD198,E575,Glucono delta-lactone,"GDL;D-Glucono-1,5-lactone;Gluconolactone",INS575,736186,Acidity regulator,EFSA/FDA/PubChem
+ADD199,E585,Ferrous lactate,Iron(II) lactate;Ferrous 2-hydroxypropanoate,INS585,16212985,Color retention,EFSA/FDA
+ADD200,E1103,Invertase,Beta-fructosidase;Saccharase;Sucrase,INS1103,6433192,Enzyme,EFSA/FDA/PubChem

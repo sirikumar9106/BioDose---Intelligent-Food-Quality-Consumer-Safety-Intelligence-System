@@ -1,0 +1,568 @@
+[
+    {
+        "barcode": "3173990026835",
+        "product_name": "Biscuits Cuiller",
+        "brand": "Biscuits Bouvard",
+        "category": "Snacks, Snacks sucrés, Biscuits et gâteaux, Biscuits, Biscuits secs, Boudoirs",
+        "ingredients_text": "Sucre, _œufs_ entiers de plein air 38 %, farine de _blé_, jaune d'_œuf_ de plein air 6 %, stabilisant (glycérol), sirop de sucre inverti, arôme, sel, acidifiant (tartrates de potassium), épaississant (gomme xanthane).",
+        "additives": [
+            "E336",
+            "E415",
+            "E422"
+        ],
+        "additive_count": 3
+    },
+    {
+        "barcode": "5000168198491",
+        "product_name": "Sablés Anglais L'Original",
+        "brand": "McVitie's,United Biscuits",
+        "category": "Snacks,Sweet snacks,Biscuits and cakes,Biscuits and crackers,Biscuits,Shortbread cookies,Plain wheat biscuits",
+        "ingredients_text": "Farine (55%) (farine de blé, calcium, fer, niacine, thiamine), huile de palme, farine de blé complète (16%), sucre, poudres à lever (carbonates de sodium, acide malique, carbonates d'ammonium), sirop de sucre inverti, sel.\r\n\r\nPeut aussi contenir du lait.",
+        "additives": [
+            "E296",
+            "E500",
+            "E503"
+        ],
+        "additive_count": 3
+    },
+    {
+        "barcode": "5410421002326",
+        "product_name": "ABC BISCUITS",
+        "brand": "Unknown",
+        "category": "",
+        "ingredients_text": "",
+        "additives": [],
+        "additive_count": 0
+    },
+    {
+        "barcode": "6194008554789",
+        "product_name": "Major",
+        "brand": "SAÏDA",
+        "category": "Snacks, Snacks sucrés, Biscuits et gâteaux, Biscuits, Biscuits fourrés",
+        "ingredients_text": "Farine de blé, sucre, graisse végétale, amidon de mais, cacao en poudre, lait en poudre, additifs alimentaires autorisés (agents de levée (bicarbonate d'ammonium, bicarbonate de sodium, pyrophosphate acide de sodium, crème de tartre), émulsifiant (lécithine de soja selon BPF), sel, additif alimentaire autorisé (correcteur d'acidité (acide citrique) selon BPF), arôme identique nature (vanille, chocolat, noisétte), additifs alimentaires autorisés (agents de traitement de la farine (E223)). Contient: blé, gluten, lait, soja, sulfites. Peut contenir: fruits arachide (cacahuète).",
+        "additives": [
+            "E223",
+            "E322",
+            "E322I",
+            "E330",
+            "E336",
+            "E450",
+            "E450I",
+            "E500",
+            "E500II",
+            "E503",
+            "E503II"
+        ],
+        "additive_count": 11
+    },
+    {
+        "barcode": "0060410071588",
+        "product_name": "Ketchup Chips",
+        "brand": "Lays Canada",
+        "category": "",
+        "ingredients_text": "",
+        "additives": [],
+        "additive_count": 0
+    },
+    {
+        "barcode": "0627735018942",
+        "product_name": "Ketchup chips",
+        "brand": "Great Value",
+        "category": "Plant-based foods and beverages, Plant-based foods, Snacks, Cereals and potatoes, Salty snacks, Appetizers, Chips and fries, Crisps, Potato crisps, Ketchup chips, Ketchup crisps",
+        "ingredients_text": "Potatoes, Canola and/or corn and/or sunflower oil, Seasoning (sugar, sodium diacetate, tomato powder, salt, malic acid, citric acid, amaranth, garlic powder, monosodium glutamate, onion powder, canola and/or sunflower oil, allura red, natural flavour, silicon dioxide, spice extracts, disodium inosinate, disodium guanylate, indigotine)",
+        "additives": [
+            "E129",
+            "E132",
+            "E262",
+            "E262II",
+            "E296",
+            "E330",
+            "E621",
+            "E627",
+            "E631"
+        ],
+        "additive_count": 9
+    },
+    {
+        "barcode": "3902634650026",
+        "product_name": "Unknown",
+        "brand": "Unknown",
+        "category": "en:Snacks, en:Salty snacks, en:Appetizers",
+        "ingredients_text": "Potato, vegetable oil DK Sugar, monatrium glutamate, salt, tomato, citric acid, silicon dioxide, difatrium guanylate, dinatrium inosinate, Contains no preservatives, and dark place, ( &quot;Чипс од компир со вкус на кечап, Состав: Компир, растите (палмово масло), шеќер ,сол, мононатриумглутаминат, домати, киселина, силициумдиоксид, аспартам, минатриуминосинате, Без конзербанк да се чува на суво и озник за Р, Северна Македонија, А г - ембол доб Улица 16 50 31 GR/BiH Krumpirov čin лад динатриул",
+        "additives": [
+            "E330"
+        ],
+        "additive_count": 1
+    },
+    {
+        "barcode": "0194283101018",
+        "product_name": "Ketchup Potato Chips",
+        "brand": "Circle K",
+        "category": "Plant-based foods and beverages, Plant-based foods, Snacks, Cereals and potatoes, Salty snacks, Appetizers, Chips and fries, Crisps, Potato crisps, Flavoured potato crisps, Ketchup chips, Ketchup crisps",
+        "ingredients_text": "Potatoes, Vegetable oil, Seasoning (sugar, dehydrated vegetables [tomato, onion, garlic], monosodium glutamate, acetic acid, malic acid, sodium acetate, citric acid, spices, artificial flavour, allura red, disodium inosinate and disodium guanylate, amaranthm sunset yellow FCF), Salt",
+        "additives": [
+            "E110",
+            "E129",
+            "E260",
+            "E262",
+            "E262I",
+            "E296",
+            "E330",
+            "E621",
+            "E627",
+            "E631"
+        ],
+        "additive_count": 10
+    },
+    {
+        "barcode": "5449000195906",
+        "product_name": "Coca-Cola Zero Zero",
+        "brand": "Coca Cola",
+        "category": "Bebidas y preparaciones de bebidas, Bebidas, Bebidas carbonatadas, Bebidas endulzadas artificialmente, Sodas, Bebidas light, Bebidas de cola, Sodas light, Bebida de cola light",
+        "ingredients_text": "Wasser, Kohlensäure, Farbstoff E 150d, Süßungsmittel Cyclamat, Acesulfam K und Aspartam, Säuerungsmittel E 338, natürliche Aromen, Säureregulator Natriumcitrat",
+        "additives": [
+            "E150D",
+            "E290",
+            "E338",
+            "E950",
+            "E951",
+            "E952"
+        ],
+        "additive_count": 6
+    },
+    {
+        "barcode": "10001776",
+        "product_name": "Coca-Cola Zero",
+        "brand": "Coca-Cola",
+        "category": "Getränke und Getränkezubereitungen, Getränke, Kohlensäurehaltige Getränke, Getränke mit Süßstoff, Erfrischungsgetränke, Kalorienarme Getränke, Cola, Kalorienarme Erfrischungsgetränke, Kalorienarme Colas",
+        "ingredients_text": "Wasser, Kohlensäure, Farbstoff E 150d, Sauerungsmittel Phosphorsäure, Süßungsmittel (Natriumcyclamat, Acesulfam K, Aspartam), natürliches Aroma, Säureregulator, Natriumcitrate, Aroma Koffein. Enthält eine Phenylalaninquelle.",
+        "additives": [
+            "E150D",
+            "E290",
+            "E331",
+            "E338",
+            "E950",
+            "E951"
+        ],
+        "additive_count": 6
+    },
+    {
+        "barcode": "8901764012914",
+        "product_name": "Coca-Cola",
+        "brand": "The Coca-Cola Company",
+        "category": "Beverages, Carbonated drinks, Sodas, Non-alcoholic beverages, Carbonated soft drinks without fruit juice, Colas, Carbonated soft drinks without fruit juice with sugar, Sweetened beverages",
+        "ingredients_text": "CARBONATED WATER, SUGAR, ACIDITY REGULATOR (338), CAFFEINE (8.7 mg/100 g), COLOUR (150d), FLAVOURS (NATURAL FLAVORING SUBSTANCES).",
+        "additives": [
+            "E100",
+            "E150D",
+            "E338"
+        ],
+        "additive_count": 3
+    },
+    {
+        "barcode": "04904500",
+        "product_name": "Diet Coke",
+        "brand": "Coca-Cola",
+        "category": "Beverages, Carbonated drinks, Artificially sweetened beverages, Sodas, Diet beverages, Colas, Diet sodas, Diet cola soft drink, en:sweetened-beverages",
+        "ingredients_text": "CARBONATED WATER, CARAMEL COLOR, ASPARTAME, PHOSPHORIC ACID, POTASSIUM BENZOATE (TO PROTECT TASTE), NATURAL FLAVORS, CITRIC ACID, CAFFEINE.",
+        "additives": [
+            "E150C",
+            "E212",
+            "E330",
+            "E338",
+            "E951"
+        ],
+        "additive_count": 5
+    },
+    {
+        "barcode": "5449000009067",
+        "product_name": "Coca-Cola",
+        "brand": "Coca-Cola",
+        "category": "Bebidas y preparaciones de bebidas,Bebidas,Bebidas carbonatadas,Sodas,Bebidas de cola,Bebidas azucaradas",
+        "ingredients_text": "Eau gazéifiée, sucre, caramel, acide phosphorique, arôme et caféine.",
+        "additives": [
+            "E338"
+        ],
+        "additive_count": 1
+    },
+    {
+        "barcode": "5449000051981",
+        "product_name": "Original Taste",
+        "brand": "Coca Cola,Coke",
+        "category": "Bebidas,Bebidas carbonatadas,Sodas,Colas,Bebidas adoçadas",
+        "ingredients_text": "water, high fructose syrup, sugar, carbon dioxide (min, 2g/l), colour: e150d, acid: phosphoric acid, natural aromas, including caffeine",
+        "additives": [
+            "E150D",
+            "E290",
+            "E338"
+        ],
+        "additive_count": 3
+    },
+    {
+        "barcode": "04952400",
+        "product_name": "Diet coke",
+        "brand": "Coke",
+        "category": "Beverages, Carbonated drinks, Artificially sweetened beverages, Sodas, Diet beverages, Colas, Diet sodas, Diet cola soft drink",
+        "ingredients_text": "Carbonated water, caramel color, aspartame, phosphoric acid, potassium benzoate (to protect taste), natural flavors, citric acid, caffeine.",
+        "additives": [
+            "E150C",
+            "E212",
+            "E330",
+            "E338",
+            "E951"
+        ],
+        "additive_count": 5
+    },
+    {
+        "barcode": "06746403",
+        "product_name": "Diet Coca-Cola",
+        "brand": "Coca-Cola",
+        "category": "Beverages, Carbonated drinks, Artificially sweetened beverages, Sodas, Diet beverages, Colas, Diet sodas, en:diet-cola-soft-drink",
+        "ingredients_text": "Carbonated water, Caramel colour, Phosphoric and citric acid, Aspartame (phenylalanine), Flavour, Sodium benzoate, Caffeine, Acesulfame-potassium",
+        "additives": [
+            "E150C",
+            "E211",
+            "E330",
+            "E950",
+            "E951"
+        ],
+        "additive_count": 5
+    },
+    {
+        "barcode": "5449000311856",
+        "product_name": "Unknown",
+        "brand": "Coca-Cola, Coca-Cola Company",
+        "category": "ar:HAWAI, en:fruit-sodas",
+        "ingredients_text": "Carbonated Water\n- Sugar\n- Orange Juice Concentrate\n- Acidulants: E331, E330\n- Emulsifiers: E444, E445, E414\n- Sweeteners: E959, E955, E950\n- Preservatives: E202, E211\n- Colorants: E110, E124, E102, E104, E150d",
+        "additives": [
+            "E102",
+            "E104",
+            "E110",
+            "E124",
+            "E150D",
+            "E202",
+            "E211",
+            "E330",
+            "E331",
+            "E414",
+            "E444",
+            "E445",
+            "E950",
+            "E955",
+            "E959"
+        ],
+        "additive_count": 15
+    },
+    {
+        "barcode": "5449000131843",
+        "product_name": "Coca-Cola Zero",
+        "brand": "Coca-Cola",
+        "category": "Beverages and beverages preparations,Beverages,Carbonated drinks,Sodas,Carbonated soft drinks without fruit juice,Carbonated soft drink without fruit juice without sugar and with artificial sweeteners,Bebida-de-cola-light,Bebidas,Bebidas-carbonatadas,Bebidas-carbonatadas-sin-jugo-de-frutas,Bebidas-de-cola,Bebidas-endulzadas-artificialmente,Bebidas-light,Bebidas-no-alcoholicas,Bebidas-y-preparaciones-de-bebidas,Sodas-light,Artificially sweetened beverages,Colas",
+        "ingredients_text": "Wasser, Kohlensäure, Farbstoff E 150d, Süssungsmittel Cyclamat, Acesulfam-K und Aspartam, Säuerungsmittel E 338 und Natriumcitrate, natürliche Aromen inkl. Koffein.",
+        "additives": [
+            "E150D",
+            "E290",
+            "E331",
+            "E338",
+            "E950",
+            "E951",
+            "E952"
+        ],
+        "additive_count": 7
+    },
+    {
+        "barcode": "0841165156870",
+        "product_name": "instant noodles",
+        "brand": "Noodlicious",
+        "category": "Cibi e bevande a base vegetale, Cibi a base vegetale, Prodotti disidratati, Pasta, Prodotti disidratati da reidratare, Noodle, Noodle istantanei",
+        "ingredients_text": "Noodles Instantanei: farina di FRUMENTO, olio di palma, esaltatore di sapidità (E508) sale, stabilizzante (E451), correttori di acidità (E500, E501), addensante (E466), colorante (E101) Polvere di condimento: sale, zucchero, esaltatori di sapidità (E621, E635), polvere di funghi, proteina di SOLA idrolizzata (salsa di SOIA, sale, maltodestrine, amido di mais), salsa di SOIA in polvere (SOIA, sale, zucchero, esaltatori di sapidità (E621, E635)), estratto di lievito, spezie (aglio in polvere, cipolla in polvere, pepe bianco in polvere, cipolla verde, SEDANO in polvere, citronella), amido di mais, aroma di verdure artificiale, colorante (E160c). Può contenere tracce di ARACHIDI e LATTE.",
+        "additives": [
+            "E101",
+            "E160C",
+            "E451",
+            "E466",
+            "E500",
+            "E501",
+            "E508",
+            "E621",
+            "E635"
+        ],
+        "additive_count": 9
+    },
+    {
+        "barcode": "9310645215402",
+        "product_name": "Chicken Flavoured Instant Noodles",
+        "brand": "Coles",
+        "category": "Plant-based foods and beverages, Plant-based foods, Cereals and potatoes, Cereals and their products, Dried products, Pastas, Dried products to be rehydrated, Noodles, Instant noodles",
+        "ingredients_text": "Noodles (93%) [Wheat Flour, Palm Oil**, Tapioca Starch, Salt, Wheat Gluten, Stabiliser (500), Vegetable Gum (412)], Flavour Sachet (7%) [Salt, Sugar, Spices, Hydrolysed Soy Protein (Natural Colour (Caramel I), Flavour Enhancer (635)), Yeast Extract, Natural Chicken Flavour, Flavour Enhancer (635), Anticaking Agent (551), Natural Colour (Turmeric)]",
+        "additives": [
+            "E412",
+            "E500",
+            "E551",
+            "E635"
+        ],
+        "additive_count": 4
+    },
+    {
+        "barcode": "0089686170726",
+        "product_name": "Mi goreng Fried Noodles",
+        "brand": "Indomie",
+        "category": "Makanan dan minuman nabati,Makanan nabati,en:Cereals and their products,en:Dried products,Pasta,en:Dried products to be rehydrated,en:Noodles,en:Instant noodles,en:asian-foods,en:indonesian-foods",
+        "ingredients_text": "NOUILLES {Farine de blé (62%), huile de palme raffinée (contient antioxydant (E 319)), sel, régulateurs d'acidité (E 451, E 501, E 500), épaississant (E 412), colorant (E 101)}.\r\nPOUDRE D'ASSAISONNEMENT {Sel, sucre, exhausteur de goût (E 621, E 631, E 627), ail, saveur de poulet artificiel (soja), oignon, poivre blanc}.\r\nHUILE D'ASSAISONNEMENT {Huile de palme raffinée (contient antioxydant (E 319)), échalote}.\r\nSAUCE DE SOJA DOUCE {Sucre, eau, blé, soja, sel, épices, huile de sésame}.\r\nSAUCE AU CHILI {Chili, eau, sucre, sel, amidon de tapioca, régulateurs d'acidite (E 260, E 330), exhausteur de goût (E 621, E 631, E 627), saveur d'ail, préservatifs (E 211, E 223)}.\r\nÉCHALOTE FRITS {Échalote, huile de palme raffinée}. \r\n\r\nCONTIENT: BLÉ, GLUTEN, SOJA, SESAME",
+        "additives": [
+            "E101",
+            "E211",
+            "E223",
+            "E260",
+            "E319",
+            "E330",
+            "E412",
+            "E451",
+            "E500",
+            "E501",
+            "E621",
+            "E627",
+            "E631"
+        ],
+        "additive_count": 13
+    },
+    {
+        "barcode": "7501008073759",
+        "product_name": "Corn Flakes",
+        "brand": "Kellogg’s",
+        "category": "",
+        "ingredients_text": "",
+        "additives": [],
+        "additive_count": 0
+    },
+    {
+        "barcode": "5059319033501",
+        "product_name": "Cornflakes",
+        "brand": "Kellogg",
+        "category": "Corn flakes",
+        "ingredients_text": "(EN) TOASTED FLAKES OF GOLDEN CORN FORTIFIED WITH VITAMINS AND IRON. INGREDIENTS: Maize, barley malt extract, sugar, salt, niacin, iron, vitamin B6, riboflavin, thiamin, folic acid, vitamin D, vitamin B12. For allergens see ingredients highlighted in bold. May contain gluten from other cereals. Best before: see top.",
+        "additives": [],
+        "additive_count": 0
+    },
+    {
+        "barcode": "8000500310427",
+        "product_name": "Biscuits croquants au coeur onctueux de Nutella®",
+        "brand": "nutella",
+        "category": "Snack,Snack dolci,Biscotti e torte,en:Biscuits and crackers,Biscotti,en:Biscuits/Cookies (Shelf Stable),fr:Biscoitos recheados",
+        "ingredients_text": "Pâte à tartiner aux NOISETTES et au cacao 40% (sucre, huile de palme, NOISETTES 13%**, LAIT écrémé en poudre 8,7%**, cacao maigre 7,4%**, émulsifiants : lécithines [SOJA]; vanilline), farine de FROMENT 32,5%, graisses végétales (palme, palmiste), sucre de canne (contient BLE) 8,5%, LACTOSE, son de BLE, LAIT en poudre, miel, poudres à lever (diphosphate disodique, carbonate acide de sodium, carbonate acide d'ammonium), farine d'ORGE malté, cacao maigre en poudre, sel, extrait en poudre de malt d'ORGE et de maïs, amidon de FROMENT, émulsifiants: lécithines [SOJA]; vanilline.",
+        "additives": [
+            "E322",
+            "E322I",
+            "E450",
+            "E450I",
+            "E500",
+            "E500II",
+            "E503",
+            "E503II"
+        ],
+        "additive_count": 8
+    },
+    {
+        "barcode": "0089686130027",
+        "product_name": "Indomie Instant Noodles Chicken Flavor",
+        "brand": "Indofood",
+        "category": "Plant-based foods and beverages, Plant-based foods, Cereals and potatoes, Cereals and their products, Dried products, Pastas, Dried products to be rehydrated, Noodles, Instant noodles",
+        "ingredients_text": "gredients dodes wheat flour, vegetable oil (palm oil, atains antioxidant e319), iodized salt, humectant a5d acidity regulator (e500, e501), thickener (e412), done 101) seaining powder: iodized salt, flavor enhancer 2627, e631), sugar, yeast extract, soy powder, (gtowder, spices, gari : powder, chicken flavor l/owder neen, see ingr dients in bold inugid by de un km 4 u es limited duea fole a, co",
+        "additives": [
+            "E319",
+            "E412",
+            "E500",
+            "E501",
+            "E631"
+        ],
+        "additive_count": 5
+    },
+    {
+        "barcode": "3017620422003",
+        "product_name": "Nutella",
+        "brand": "Nutella",
+        "category": "Pâtes à tartiner",
+        "ingredients_text": "Sucre, huile de palme, NOISETTES 13%, cacao maigre 7,4%, LAIT écrémé en poudre 6,6%, LACTOSERUM en poudre, émulsifiants: lécithines [SOJA), vanilline. Sans gluten.",
+        "additives": [
+            "E322",
+            "E322I"
+        ],
+        "additive_count": 2
+    },
+    {
+        "barcode": "7622201809188",
+        "product_name": "Choco biscuits",
+        "brand": "Milka",
+        "category": "",
+        "ingredients_text": "",
+        "additives": [],
+        "additive_count": 0
+    },
+    {
+        "barcode": "5206674101004",
+        "product_name": "Instant noodles",
+        "brand": "ORIENTAL EXPRESS",
+        "category": "en:Plant-based foods and beverages, en:Plant-based foods, en:Cereals and potatoes, en:Cereals and their products, en:Dried products, Ζυμαρικό, en:Dried products to be rehydrated, en:Noodles, en:Instant noodles",
+        "ingredients_text": "Αλεύρι σίτου (Κίνα) (74%), φοινικέλαιο (Μαλαισία) αντιοξειδωτικό: βουτυλο-υδροξυτολουόλιο, κιτρικό οξύ), αλάτι, σταθεροποιητές, τριφωσφορικο νατριο, ανθρακικό κάλιο, πυκνωτικό μέσο: κόμμι γκουάρ. Αλάτι, Ε621, Ε627, Ε631, ζάχαρη, εκχύλισμα μαγιάς, αλεύρι σίτου, μπαχαρικά (Κίνα) (2,2%),σκόρδο, χρωστική: εναμμώνιο θειώδες καραμελόχρωμα, τζίντζερ ,μαλτοδεξτρίνη, κρεμμύδι, αντισυσσωματικός παράγοντας: διοξείδιο του πυριτίου,λάχανο (Κίνα) (30%), καρότα,καλαμπόκι (Κίνα) (25%), πράσινο κρεμμυδάκι (Κίνα) (20%). Ενδέχεται να περιέχει ίχνη από σόγια",
+        "additives": [
+            "E410"
+        ],
+        "additive_count": 1
+    },
+    {
+        "barcode": "4056489354918",
+        "product_name": "Noodles instant chicken",
+        "brand": "Lidl",
+        "category": "Plant-based foods and beverages, Plant-based foods, Cereals and potatoes, Cereals and their products, Dried products, Pastas, Dried products to be rehydrated, Noodles, Instant noodles, Instant noodles with chicken flavour",
+        "ingredients_text": "95% Noodles (Wheat Flour, Palm Oil, Iodised Salt [Salt, Potassium Iodate], Sugar, Garlic Powder, Stabiliser: Guar Gum), Seasoning (Maltodextrin, Flavouring, Iodised Salt [Salt, Potassium Iodate], Onion Powder, Sugar, Ground Turmeric, Yeast Extract, Colour: Plain Caramel; Acidity Regulator: Citric Acid; Dried Coriander, Sage Powder, Turmeric Extract). Allergy Advice For allergens, including Cereals containing Gluten, see ingredients in bold. May also contain Soya.",
+        "additives": [
+            "E100",
+            "E150A",
+            "E330",
+            "E412"
+        ],
+        "additive_count": 4
+    },
+    {
+        "barcode": "0034023754541",
+        "product_name": "instant noodles",
+        "brand": "vitasia",
+        "category": "Plant-based foods and beverages, Plant-based foods, Pastas, Noodles, Asian",
+        "ingredients_text": "",
+        "additives": [],
+        "additive_count": 0
+    },
+    {
+        "barcode": "8901499008176",
+        "product_name": "Kelloggs Corn Flakes",
+        "brand": "Kelloggs,Kellogg's",
+        "category": "Plant-based foods and beverages,Plant-based foods,Breakfasts,Cereals and potatoes,Cereals and their products,Breakfast cereals,Flakes,Cereal flakes,Extruded cereals,Extruded flakes,Corn flakes",
+        "ingredients_text": "Corn Grits (87.7%), Sugar, Cereal Extract, lodized Salt, Vitamins, Minerals and Antioxidant (INS 320).",
+        "additives": [
+            "E320"
+        ],
+        "additive_count": 1
+    },
+    {
+        "barcode": "20159917",
+        "product_name": "CORN FLAKES",
+        "brand": "CROWNFIELD",
+        "category": "Aliments et boissons à base de végétaux,Aliments d'origine végétale,Petit-déjeuners,Céréales et pommes de terre,Céréales et dérivés,Céréales pour petit-déjeuner,Flocons,Flocons de céréales,Céréales extrudées,Flocons extrudés,Corn-flakes,Corn flakes natures",
+        "ingredients_text": "maize, sugar, barley malt extract, salt, allergy advice",
+        "additives": [],
+        "additive_count": 0
+    },
+    {
+        "barcode": "3596710348251",
+        "product_name": "Dip'party : saveur salée, saveur bacon, saveur pizza, saveur oignon et sa sauce ketchup",
+        "brand": "Auchan",
+        "category": "en:appetizers, Chips et frites, Chips",
+        "ingredients_text": "Saveur salée : Pomme de terre déshydratée, semoule de maïs, huile de colza, arôme naturel, sel 0,6%, colorant : curcumine. saveur bacon : Pomme de terre déshydratée, semoule de maïs, farine de blé, huile de colza, poudre depetit-lait, sel, farine de riz, arôme naturel, paprika douxfumé en poudre, gomme d'acacia, oignon en poudre, colorant : extrait de paprika,correcteur d'acidité : acide citrique. saveur oignon :Semoule de maïs 64%, huile de colza, farine de blé, poudre d'oignon, son de blé, poudre de laitécrémé, sel, arômes naturels, lactosérumen poudre, persil, fibre de chicorée, colorant : curcumine.saveur pizza : Pomme de terre déshydratée, amidon de pomme de terre, huile de tournesol, sel, poudre de petit-lait, dextrose, sucre, épices, oignon en poudre, arôme naturel, persil, correcteurd'acidité : acide citrique, tomate en poudre. Sauce tomato ketchup : Eau, purée de tomate double concentrée, sucre, vinaigre d'alcool, sel, amidon, poivre, oignon, ail. Pourcentages exprimés sur le total de chaque recette. Traces éventuelles d'arachides, de crustacés et d'autres céréales contenant du gluten.",
+        "additives": [
+            "E100",
+            "E160C",
+            "E330",
+            "E414"
+        ],
+        "additive_count": 4
+    },
+    {
+        "barcode": "0072080400025",
+        "product_name": "Corn Chips",
+        "brand": "Golden Flake Snack Foods  Inc.",
+        "category": "Snacks, Salty snacks, Appetizers, Chips and fries, Crisps, Corn chips",
+        "ingredients_text": "Select corn cooked in one or more of the following pure vegetable oils: corn, cottonseed, canola, palm or soybean, salt. ingredients of seasoning: maltodextrin, salt, chili powder, citric acid, monosodium glutamate, red 40 lake, caramel color, natural flavor, yellow 6 lake, sunflower oil.",
+        "additives": [
+            "E110",
+            "E129",
+            "E150C",
+            "E330",
+            "E621"
+        ],
+        "additive_count": 5
+    },
+    {
+        "barcode": "3017620401473",
+        "product_name": "Pâte à tartiner aux noisettes et au cacao",
+        "brand": "Ferrero, Nutella",
+        "category": "Petit-déjeuners, Produits à tartiner, Produits à tartiner sucrés, Pâtes à tartiner, Pâtes à tartiner aux noisettes, Pâtes à tartiner au chocolat, Pâtes à tartiner aux noisettes et au cacao",
+        "ingredients_text": "Sucre, juile de palme, noisettes 13%, cacao maigre 7,4%, lait écrémé en poudre 6,6%, lactosérum en poudre, émulsifiants : lécithines [soja], vanilline.",
+        "additives": [
+            "E322",
+            "E322I"
+        ],
+        "additive_count": 2
+    },
+    {
+        "barcode": "7622210449283",
+        "product_name": "Prince Goût Chocolat au blé complet",
+        "brand": "Prince",
+        "category": "Snacks,Petit-déjeuners,Snacks sucrés,Biscuits et gâteaux,Biscuits sucrés & biscuits apéritifs,Biscuits,Biscuits fourrés,Biscuits sandwich",
+        "ingredients_text": "Céréale 50 % (Farine de blé 34,8 %, farine de blé complet 15,2 %), sucre, huiles végétales (palme, colza), cacao maigre en poudre 4,5 %, sirop de glucose, amidon de blé, poudres à lever (carbonates d'ammonium, carbonates de sodium), émulsifiant (lécithines de soja), sel, lait écrémé en poudre, perméat de lactosérum (de lait), arômes. Peut contenir œuf.",
+        "additives": [
+            "E322",
+            "E322I",
+            "E500",
+            "E503"
+        ],
+        "additive_count": 4
+    },
+    {
+        "barcode": "5449000008046",
+        "product_name": "Coca-Cola slim 25cl",
+        "brand": "Coca-Cola",
+        "category": "Boissons,Boissons gazeuses,Sodas,Sodas au cola,Boissons avec sucre ajouté",
+        "ingredients_text": "water, sugar, carbon dioxide, color (caramel E150d), phosphoric acid, caffeine, natural flavors",
+        "additives": [
+            "E150D",
+            "E290",
+            "E338"
+        ],
+        "additive_count": 3
+    },
+    {
+        "barcode": "3017620425035",
+        "product_name": "Nutella",
+        "brand": "nutella",
+        "category": "en:petit-dejeuners,en:produits-a-tartiner,en:produits-a-tartiner-sucres,en:pates-a-tartiner-au-chocolat,en:pates-a-tartiner-aux-noisettes,en:pates-a-tartiner-aux-noisettes-et-au-cacao",
+        "ingredients_text": "Sucre, huile de palme, NOISETTES 13%, LAIT écrémé en poudre 8,7%, cacao maigre 7,4%, émulsifiants: lécithines [SOJA]; vanilline. Sans gluten",
+        "additives": [
+            "E322",
+            "E322I"
+        ],
+        "additive_count": 2
+    },
+    {
+        "barcode": "8000500037560",
+        "product_name": "bueno",
+        "brand": "Kinder",
+        "category": "Snacks,Snacks sucrés,Cacao et dérivés,Confiseries,Confiseries chocolatées,Barres,Barres chocolatées,Barres chocolatées biscuitées,Barres chocolatées biscuitées aux noisettes",
+        "ingredients_text": "milk chocolate 31,5 % (sugar, cocoa butter, cocoa mass, skimmed milk powder, concentrated butter, emulsifiers: lecithins [soya], vanillin), sugar, palm oil, wheat flour, ground hazelnuts 10,8%, skimmed milk powder, milk powder, dark chocolate (sugar, cocoa mass, cocoa butter, emulsifiers: lecithins [soya], vanillin), lean cocoa, emulsifiers: lecithins [soya], raising agents (sodium acid carbonate, ammonium acid carbonate), salt, vanillin,",
+        "additives": [
+            "E322",
+            "E500",
+            "E500II",
+            "E502"
+        ],
+        "additive_count": 4
+    },
+    {
+        "barcode": "5000159484695",
+        "product_name": "Twix glacé",
+        "brand": "Twix",
+        "category": "Snacks,Desserts,Snacks sucrés,Surgelés,Desserts glacés,Barres,Glaces et sorbets,Glaces,Barres glacées",
+        "ingredients_text": "Sucre, sirop de glucose, _lait_ écrémé, crème légère (_lait_), eau, beurre de cacao, matière grasse de noix de coco, _lait_ écrémé concentré sucré, pâte de cacao, farine de _blé_, matière grasse de palme, _lait_ écrémé en poudre, _lactose_, matière grasse du _lait_, huile de palmiste, petit-_lait_ en poudre, cacao maigre, beurre (_lait_), émulsifiants (lécithine de _soja_, E471, tristéarate de sorbitane), _lait_ entier en poudre, stabilisants (E407, E410, E412), arômes naturels (_lait_), sel, colorant naturel (caramel ordinaire), cacao en poudre, poudre à lever (E503), extrait naturel de vanille. (Peut contenir: cacahuète, noisette, amande). Produit en France.",
+        "additives": [
+            "E150A",
+            "E322",
+            "E322I",
+            "E407",
+            "E410",
+            "E412",
+            "E471",
+            "E492",
+            "E503"
+        ],
+        "additive_count": 9
+    }
+]

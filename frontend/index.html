@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>BioDose</title>
+
+    <style>
+
+        body {
+            font-family: Arial;
+            background: #0f0f0f;
+            color: white;
+            padding: 40px;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+
+        input {
+            width: 320px;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .conditions {
+            display: grid;
+            grid-template-columns: repeat(2, 220px);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .condition-item {
+            background: #1c1c1c;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            background: #00c853;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        #result {
+            margin-top: 40px;
+        }
+
+        .card {
+            background: #1b1b1b;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .risk {
+            font-size: 32px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .condition-risk {
+            margin-top: 12px;
+            padding: 12px;
+            background: #252525;
+            border-radius: 8px;
+        }
+
+        .additive {
+            margin-top: 10px;
+            padding: 10px;
+            background: #252525;
+            border-radius: 8px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <h1>BioDose</h1>
+
+    <input
+        type="text"
+        id="barcode"
+        placeholder="Enter Barcode"
+    >
+
+    <div class="conditions">
+
+        <label class="condition-item">
+            <input type="checkbox" value="DIABETES TYPE 2">
+            DIABETES TYPE 2
+        </label>
+
+        <label class="condition-item">
+            <input type="checkbox" value="HYPERTENSION">
+            HYPERTENSION
+        </label>
+
+        <label class="condition-item">
+            <input type="checkbox" value="ASTHMA">
+            ASTHMA
+        </label>
+
+        <label class="condition-item">
+            <input type="checkbox" value="IBS">
+            IBS
+        </label>
+
+        <label class="condition-item">
+            <input type="checkbox" value="PREGNANCY">
+            PREGNANCY
+        </label>
+
+        <label class="condition-item">
+            <input type="checkbox" value="HEART DISEASE">
+            HEART DISEASE
+        </label>
+
+        <label class="condition-item">
+            <input type="checkbox" value="AUTOIMMUNE CONDITIONS">
+            AUTOIMMUNE CONDITIONS
+        </label>
+
+        <label class="condition-item">
+            <input type="checkbox" value="GLUTEN SENSITIVITY">
+            GLUTEN SENSITIVITY
+        </label>
+
+    </div>
+
+    <button onclick="analyzeProduct()">
+        Analyze Product
+    </button>
+
+    <div id="result"></div>
+
+    <script>
+
+        async function analyzeProduct() {
+
+            const barcode =
+                document.getElementById(
+                    "barcode"
+                ).value
+
+            const conditions =
+                Array.from(
+                    document.querySelectorAll(
+                        'input[type="checkbox"]:checked'
+                    )
+                ).map(
+                    checkbox => checkbox.value
+                )
+
+            const response = await fetch(
+                "http://127.0.0.1:8000/products/analyze/",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        barcode,
+                        conditions
+                    })
+                }
+            )
+
+            const data =
+                await response.json()
+
+            const product =
+                data.product
+
+            const analysis =
+                data.analysis
+
+            let conditionHTML = ""
+
+            analysis.product_risk_summary
+                .forEach(item => {
+
+                    conditionHTML += `
+                        <div class="condition-risk">
+                            <b>${item.condition}</b>
+                            <br>
+                            Risk Score:
+                            ${item.score}%
+                            <br>
+                            Risk Level:
+                            ${item.risk_label}
+                        </div>
+                    `
+                })
+
+            let additiveHTML = ""
+
+            analysis.additives
+                .forEach(item => {
+
+                    additiveHTML += `
+                        <div class="additive">
+                            <b>${item.name}</b>
+                            (${item.e_number})
+                        </div>
+                    `
+                })
+
+            document.getElementById(
+                "result"
+            ).innerHTML = `
+
+                <div class="card">
+
+                    <h2>
+                        ${product.product_name}
+                    </h2>
+
+                    <p>
+                        Brand:
+                        ${product.brand}
+                    </p>
+
+                    <p>
+                        Additives:
+                        ${product.additives_count}
+                    </p>
+
+                    <div class="risk">
+                        ${analysis.overall_risk_percentage}%
+                    </div>
+
+                    <p>
+                        Overall Risk:
+                        ${analysis.overall_risk}
+                    </p>
+
+                </div>
+
+                <div class="card">
+
+                    <h3>
+                        Condition Based Risk
+                    </h3>
+
+                    ${conditionHTML}
+
+                </div>
+
+                <div class="card">
+
+                    <h3>
+                        Additives Detected
+                    </h3>
+
+                    ${additiveHTML}
+
+                </div>
+            `
+        }
+
+    </script>
+
+</body>
+
+</html>

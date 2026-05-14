@@ -1,0 +1,41 @@
+barcode,product_name,additive_count,hazard_index,interaction_score,combined_score,risk_label
+3173990026835,Biscuits Cuiller,3,0.0,0.0,0.0,LOW
+5000168198491,Sablés Anglais L'Original,3,0.0,0.82,0.25,LOW
+5410421002326,ABC BISCUITS,0,0.0,0.0,0.0,LOW
+6194008554789,Major,11,0.05,1.72,0.55,LOW
+60410071588,Ketchup Chips,0,0.0,0.0,0.0,LOW
+627735018942,Ketchup chips,9,0.06,2.8,0.88,LOW
+3902634650026,Unknown,1,0.0,0.0,0.0,LOW
+194283101018,Ketchup Potato Chips,10,0.09,2.8,0.9,LOW
+5449000195906,Coca-Cola Zero Zero,6,0.23,1.86,0.72,LOW
+10001776,Coca-Cola Zero,6,0.23,0.98,0.45,LOW
+8901764012914,Coca-Cola,3,0.1,0.0,0.07,LOW
+4904500,Diet Coke,5,0.2,0.0,0.14,LOW
+5449000009067,Coca-Cola,1,0.0,0.0,0.0,LOW
+5449000051981,Original Taste,3,0.15,0.0,0.1,LOW
+4952400,Diet coke,5,0.2,0.0,0.14,LOW
+6746403,Diet Coca-Cola,5,0.36,1.8,0.79,LOW
+5449000311856,Unknown,15,0.23,10.68,3.36,MODERATE
+5449000131843,Coca-Cola Zero,7,0.19,1.86,0.69,LOW
+841165156870,instant noodles,9,0.02,0.95,0.3,LOW
+9310645215402,Chicken Flavoured Instant Noodles,4,0.0,0.0,0.0,LOW
+89686170726,Mi goreng Fried Noodles,13,0.12,3.62,1.17,LOW
+7501008073759,Corn Flakes,0,0.0,0.0,0.0,LOW
+5059319033501,Cornflakes,0,0.0,0.0,0.0,LOW
+8000500310427,Biscuits croquants au coeur onctueux de Nutella®,8,0.0,1.72,0.52,LOW
+89686130027,Indomie Instant Noodles Chicken Flavor,5,0.0,0.0,0.0,LOW
+3017620422003,Nutella,2,0.0,0.0,0.0,LOW
+7622201809188,Choco biscuits,0,0.0,0.0,0.0,LOW
+5206674101004,Instant noodles,1,0.0,0.0,0.0,LOW
+4056489354918,Noodles instant chicken,4,0.0,0.0,0.0,LOW
+34023754541,instant noodles,0,0.0,0.0,0.0,LOW
+8901499008176,Kelloggs Corn Flakes,1,0.0,0.0,0.0,LOW
+20159917,CORN FLAKES,0,0.0,0.0,0.0,LOW
+3596710348251,"Dip'party : saveur salée, saveur bacon, saveur pizza, saveur oignon et sa sauce ketchup",4,0.0,0.0,0.0,LOW
+72080400025,Corn Chips,5,0.15,0.0,0.1,LOW
+3017620401473,Pâte à tartiner aux noisettes et au cacao,2,0.0,0.0,0.0,LOW
+7622210449283,Prince Goût Chocolat au blé complet,4,0.0,0.82,0.25,LOW
+5449000008046,Coca-Cola slim 25cl,3,0.15,0.0,0.1,LOW
+3017620425035,Nutella,2,0.0,0.0,0.0,LOW
+8000500037560,bueno,4,0.0,0.0,0.0,LOW
+5000159484695,Twix glacé,9,0.0,1.55,0.46,LOW

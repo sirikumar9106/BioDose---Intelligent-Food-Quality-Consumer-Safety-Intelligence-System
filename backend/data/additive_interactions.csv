@@ -1,0 +1,62 @@
+additive_a,additive_b,co_occurrence_count,interaction_strength,interaction_type,impact_score,evidence_type,confidence_score,source
+E621,E627,850,HIGH,flavor_synergy,0.25,literature,0.95,JECFA / Ribonucleotide Synergy
+E621,E631,780,HIGH,flavor_synergy,0.25,literature,0.95,JECFA / Ribonucleotide Synergy
+E627,E631,620,HIGH,flavor_synergy,0.2,literature,0.9,JECFA / Ribonucleotide Synergy
+E621,E635,220,HIGH,flavor_synergy,0.3,literature,0.95,Ribonucleotide Synergy
+E620,E635,110,HIGH,flavor_synergy,0.28,literature,0.92,Glutamate/Ribonucleotide Synergy
+E950,E951,540,HIGH,sweetener_blend,0.45,literature,0.98,EFSA 2025 / Sweetener Synergy
+E950,E954,310,MODERATE,sweetener_blend,0.4,literature,0.85,Sweetener Handbook
+E950,E955,420,HIGH,sweetener_blend,0.42,literature,0.92,NutriNet-Sante 2025
+E952,E954,280,HIGH,sweetener_blend,0.55,literature,0.9,Historical Sweetener Blends
+E960,E968,130,HIGH,sweetener_blend,0.15,literature,0.88,Stevia/Erythritol Synergy
+E951,E955,180,MODERATE,sweetener_blend,0.48,literature,0.85,Sweetener Synergy Studies
+E950,E961,40,HIGH,sweetener_blend,0.35,literature,0.8,Neotame Synergy
+E202,E211,450,MODERATE,preservative_synergy,0.35,literature,0.88,Preservative Efficacy Studies
+E211,E300,390,HIGH,unknown,0.85,literature,0.95,FDA Benzene Formation Warning
+E211,E330,410,MODERATE,preservative_synergy,0.4,literature,0.82,pH-dependent preservative efficacy
+E202,E330,550,MODERATE,preservative_synergy,0.2,literature,0.88,Organic Acid Synergy
+E200,E210,120,HIGH,preservative_synergy,0.45,literature,0.9,Sorbic/Benzoic Acid Synergy
+E220,E330,280,MODERATE,preservative_synergy,0.55,literature,0.85,Sulphite/Citric Acid interaction
+E102,E110,210,HIGH,colorant_combination,0.65,literature,0.9,Southampton Study (Lau et al. 2006)
+E102,E124,180,HIGH,colorant_combination,0.65,literature,0.9,Southampton Study
+E110,E122,150,HIGH,colorant_combination,0.65,literature,0.9,Southampton Study
+E122,E124,120,HIGH,colorant_combination,0.65,literature,0.9,Southampton Study
+E129,E211,250,HIGH,unknown,0.7,literature,0.85,Southampton Study (Color + Preservative)
+E102,E133,90,MODERATE,colorant_combination,0.45,literature,0.75,Lau et al. 2006 (Neurotoxicity synergy)
+E104,E110,60,HIGH,colorant_combination,0.6,literature,0.88,Southampton Study
+E122,E211,140,HIGH,unknown,0.68,literature,0.85,Southampton Study
+E471,E481,320,MODERATE,unknown,0.5,literature,0.75,Partridge et al. 2019 (Emulsifier mixtures)
+E412,E415,410,HIGH,unknown,0.3,literature,0.85,Xanthan/Guar Synergy (Viscosity/Gut transit)
+E407,E410,190,HIGH,unknown,0.55,literature,0.85,Carrageenan/LBG Synergy (Gut inflammation)
+E433,E466,110,HIGH,unknown,0.75,literature,0.9,Chassaing et al. (Gut microbiota/inflammation)
+E322,E471,480,MODERATE,unknown,0.4,inferred,0.7,Emulsifier cocktail effect
+E410,E415,170,HIGH,unknown,0.25,literature,0.92,Xanthan/LBG Synergy (Gelation)
+E401,E407,80,MODERATE,unknown,0.45,literature,0.8,Alginate/Carrageenan Synergy
+E415,E440,130,MODERATE,unknown,0.35,literature,0.78,Pectin/Xanthan Synergy
+E320,E321,280,HIGH,preservative_synergy,0.5,literature,0.92,Antioxidant Synergy Studies
+E300,E307,110,HIGH,preservative_synergy,0.1,literature,0.85,Antioxidant Regeneration Cycle
+E319,E320,90,HIGH,preservative_synergy,0.55,literature,0.85,Antioxidant Synergy
+E319,E321,80,HIGH,preservative_synergy,0.55,literature,0.85,Antioxidant Synergy
+E304,E306,60,MODERATE,preservative_synergy,0.15,literature,0.8,Ascorbyl Palmitate/Tocopherol Synergy
+E330,E331,520,HIGH,unknown,0.15,literature,0.9,Buffering System Synergy
+E450,E500,310,HIGH,unknown,0.35,literature,0.9,Leavening System Synergy
+E450,E452,140,HIGH,unknown,0.45,literature,0.85,Polyphosphate Synergy (Mineral absorption)
+E338,E339,190,HIGH,unknown,0.5,literature,0.88,Phosphate cumulative burden
+E500,E503,110,MODERATE,unknown,0.3,literature,0.82,Mixed Leavening Agents
+E250,E300,180,HIGH,preservative_synergy,0.2,literature,0.92,Ascorbate inhibits nitrosamine formation
+E250,E251,130,HIGH,preservative_synergy,0.75,literature,0.88,Nitrite/Nitrate cumulative burden
+E621,E951,60,MODERATE,unknown,0.6,literature,0.7,Excitotoxicity synergy (Collison et al.)
+E171,E407,40,MODERATE,unknown,0.65,inferred,0.55,Nanoparticle/Emulsifier gut barrier impact
+E171,E172,30,LOW,colorant_combination,0.58,inferred,0.5,Mixed mineral colorants
+E102,E211,180,HIGH,unknown,0.72,literature,0.9,Southampton Study (Preservative + Color)
+E110,E211,160,HIGH,unknown,0.72,literature,0.9,Southampton Study
+E124,E211,110,HIGH,unknown,0.72,literature,0.9,Southampton Study
+E104,E211,70,HIGH,unknown,0.72,literature,0.9,Southampton Study
+E220,E223,90,HIGH,preservative_synergy,0.65,literature,0.88,Cumulative Sulphite Burden
+E220,E224,80,HIGH,preservative_synergy,0.65,literature,0.88,Cumulative Sulphite Burden
+E450,E451,160,HIGH,unknown,0.48,literature,0.85,Phosphate Synergy
+E451,E452,140,HIGH,unknown,0.48,literature,0.85,Phosphate Synergy
+E951,E952,110,HIGH,sweetener_blend,0.58,literature,0.88,Sweetener Synergy
+E954,E955,90,MODERATE,sweetener_blend,0.45,literature,0.82,Sweetener Synergy
+E322,E433,70,MODERATE,unknown,0.55,inferred,0.65,Emulsifier cocktail effect
+E433,E471,60,MODERATE,unknown,0.6,inferred,0.65,Emulsifier cocktail effect
