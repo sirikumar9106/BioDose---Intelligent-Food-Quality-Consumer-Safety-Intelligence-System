@@ -224,55 +224,61 @@ export default function ScanPage() {
     setLoading(true)
     setError("")
     try {
-      // Compress & resize image to max 1024px to prevent high bandwidth/RAM usage
+      // Compress & resize image to max 1600px to prevent high bandwidth/RAM usage
       const resizedFile = await new Promise<File | Blob>((resolve) => {
-        const reader = new FileReader()
-        reader.onload = (event) => {
-          const img = new Image()
-          img.onload = () => {
-            const canvas = document.createElement("canvas")
-            const MAX_WIDTH = 1024
-            const MAX_HEIGHT = 1024
-            let width = img.width
-            let height = img.height
+        const objectUrl = URL.createObjectURL(file)
+        const img = new Image()
+        img.onload = () => {
+          const canvas = document.createElement("canvas")
+          const MAX_WIDTH = 1600
+          const MAX_HEIGHT = 1600
+          let width = img.width
+          let height = img.height
 
-            if (width > height) {
-              if (width > MAX_WIDTH) {
-                height = Math.round((height * MAX_WIDTH) / width)
-                width = MAX_WIDTH
-              }
-            } else {
-              if (height > MAX_HEIGHT) {
-                width = Math.round((width * MAX_HEIGHT) / height)
-                height = MAX_HEIGHT
-              }
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height = Math.round((height * MAX_WIDTH) / width)
+              width = MAX_WIDTH
             }
-
-            canvas.width = width
-            canvas.height = height
-            const ctx = canvas.getContext("2d")
-            if (!ctx) {
-              resolve(file)
-              return
+          } else {
+            if (height > MAX_HEIGHT) {
+              width = Math.round((width * MAX_HEIGHT) / height)
+              height = MAX_HEIGHT
             }
-            ctx.drawImage(img, 0, 0, width, height)
-            canvas.toBlob(
-              (blob) => {
-                if (blob) {
-                  resolve(blob)
-                } else {
-                  resolve(file)
-                }
-              },
-              "image/jpeg",
-              0.85
-            )
           }
-          img.onerror = () => resolve(file)
-          img.src = event.target?.result as string
+
+          canvas.width = width
+          canvas.height = height
+          const ctx = canvas.getContext("2d")
+          if (!ctx) {
+            URL.revokeObjectURL(objectUrl)
+            resolve(file)
+            return
+          }
+          
+          // Use high quality image smoothing to prevent barcode line blurring
+          ctx.imageSmoothingEnabled = true
+          ctx.imageSmoothingQuality = "high"
+          
+          ctx.drawImage(img, 0, 0, width, height)
+          canvas.toBlob(
+            (blob) => {
+              URL.revokeObjectURL(objectUrl)
+              if (blob) {
+                resolve(blob)
+              } else {
+                resolve(file)
+              }
+            },
+            "image/jpeg",
+            0.95
+          )
         }
-        reader.onerror = () => resolve(file)
-        reader.readAsDataURL(file)
+        img.onerror = () => {
+          URL.revokeObjectURL(objectUrl)
+          resolve(file)
+        }
+        img.src = objectUrl
       })
 
       const formData = new FormData()

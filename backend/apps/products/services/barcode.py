@@ -287,7 +287,7 @@ def _run_cascade_pipeline(image_input) -> dict:
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     
     # ────────────────────────────────────────────────────────────────────────
-    # STAGE 1: Contrast normalisation (CLAHE) + Gaussian Blur
+    # STAGE 1: Contrast normalisation (CLAHE) + Gaussian Blur + Multi-pass decoding
     # ────────────────────────────────────────────────────────────────────────
     clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
     clahe_img = clahe.apply(gray)
@@ -303,11 +303,26 @@ def _run_cascade_pipeline(image_input) -> dict:
         
     if zxing_available:
         try:
+            # 1. Try raw grayscale first (best for high-quality or well-lit images)
+            results = zxingcpp.read_barcodes(gray)
+            if results:
+                valid = [r for r in results if r.valid and r.text]
+                if valid:
+                    return {"success": True, "barcode": valid[0].text, "method": "stage1_raw"}
+                    
+            # 2. Try CLAHE-enhanced image (best for low-light or uneven lighting)
+            results = zxingcpp.read_barcodes(clahe_img)
+            if results:
+                valid = [r for r in results if r.valid and r.text]
+                if valid:
+                    return {"success": True, "barcode": valid[0].text, "method": "stage1_clahe"}
+
+            # 3. Try blurred CLAHE-enhanced image (helps smooth out high-frequency noise)
             results = zxingcpp.read_barcodes(blurred)
             if results:
                 valid = [r for r in results if r.valid and r.text]
                 if valid:
-                    return {"success": True, "barcode": valid[0].text, "method": "stage1"}
+                    return {"success": True, "barcode": valid[0].text, "method": "stage1_blur"}
         except Exception as e:
             app_logger.warning(f"Stage 1 inference failed: {e}")
         
