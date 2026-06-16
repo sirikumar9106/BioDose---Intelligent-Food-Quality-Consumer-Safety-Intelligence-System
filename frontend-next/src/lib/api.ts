@@ -5,4 +5,5 @@
  *   e.g. https://biodose-api.onrender.com
  */
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || 
+  "https://biodose-intelligent-food-quality-consumer-safe-production.up.railway.app";

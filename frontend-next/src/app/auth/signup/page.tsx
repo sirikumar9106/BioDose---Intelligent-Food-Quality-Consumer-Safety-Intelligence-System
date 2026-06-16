@@ -110,16 +110,16 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center text-foreground p-4">
+    <div className="relative min-h-screen flex items-center justify-center text-foreground p-4 py-8 sm:py-12">
       <InteractiveBackground />
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
-        className="w-full max-w-md p-8 rounded-2xl border border-border bg-card shadow-xl glass-panel"
+        className="w-full max-w-md p-6 sm:p-8 rounded-2xl border border-border bg-card shadow-xl glass-panel mx-auto my-auto"
       >
-        <h2 className="text-3xl font-bold font-syne mb-2 text-center text-primary">Create Account</h2>
-        <p className="text-sm text-muted-foreground text-center mb-8 font-inter">
+        <h2 className="text-3xl font-bold font-syne mb-1 text-center text-primary">Create Account</h2>
+        <p className="text-sm text-muted-foreground text-center mb-6 font-inter">
           Join BioDose and take control of your food safety.
         </p>
 
