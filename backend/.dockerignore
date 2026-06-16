@@ -1,0 +1,27 @@
+# Ignore local DB and logs
+db.sqlite3
+*.log
+biodose.log
+
+# Ignore virtual environments
+venv/
+.venv/
+env/
+bioenv/
+
+# Ignore cache directories
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.cache/
+.pytest_cache/
+
+# Ignore large ML weights
+ml/models/
+ml/models/*
+sam2_hiera_small.pt
+
+# Ignore OS files
+.DS_Store
+Thumbs.db

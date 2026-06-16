@@ -102,7 +102,7 @@ safetensors==0.7.0
 SALib==1.5.2
 scikit-learn==1.8.0
 scipy==1.17.1
-sentence-transformers==5.4.1
+# sentence-transformers removed for lean cloud build
 setuptools==81.0.0
 shap==0.51.0
 shellingham==1.5.4
@@ -115,10 +115,10 @@ starlette==1.0.0
 sympy==1.14.0
 threadpoolctl==3.6.0
 tokenizers==0.22.2
-torch==2.11.0
+# torch removed for lean cloud build
 tqdm==4.67.3
 traitlets==5.15.0
-transformers==5.8.0
+# transformers removed for lean cloud build
 typer==0.25.1
 typing-inspection==0.4.2
 typing_extensions==4.15.0
@@ -138,8 +138,8 @@ django-redis==5.4.0
 watchdog==4.0.0
 zxing-cpp==3.0.0
 pyzbar==0.1.9
-sam2
-scikit-image
+# sam2 removed for lean cloud build
+# scikit-image removed for lean cloud build
 opencv-contrib-python
-ultralytics
+# ultralytics removed for lean cloud build
 whitenoise==6.6.0
