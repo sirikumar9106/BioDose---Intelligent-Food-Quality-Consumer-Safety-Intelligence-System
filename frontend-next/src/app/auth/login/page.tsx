@@ -10,6 +10,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense } from "react"
 import { InteractiveBackground } from "@/components/interactive-background"
 import { API_BASE_URL } from "@/lib/api"
+import { Eye, EyeOff } from "lucide-react"
 
 
 function LoginForm() {
@@ -24,6 +25,7 @@ function LoginForm() {
   
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -131,14 +133,23 @@ function LoginForm() {
               <Label htmlFor="password">Password</Label>
               <Link href="#" className="text-xs text-primary hover:underline">Forgot password?</Link>
             </div>
-            <Input 
-              id="password" 
-              type="password" 
-              required
-              value={formData.password}
-              onChange={(e) => setFormData({...formData, password: e.target.value})}
-              className="bg-background"
-            />
+            <div className="relative">
+              <Input 
+                id="password" 
+                type={showPassword ? "text" : "password"} 
+                required
+                value={formData.password}
+                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                className="bg-background pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
           <motion.div whileTap={{ scale: 0.95 }} className="pt-4">

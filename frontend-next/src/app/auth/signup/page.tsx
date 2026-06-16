@@ -10,6 +10,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { InteractiveBackground } from "@/components/interactive-background"
 import { API_BASE_URL } from "@/lib/api"
+import { Eye, EyeOff } from "lucide-react"
 
 
 export default function SignupPage() {
@@ -27,6 +28,8 @@ export default function SignupPage() {
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   // Live Username Check
   useEffect(() => {
@@ -169,14 +172,23 @@ export default function SignupPage() {
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input 
-              id="password" 
-              type="password" 
-              required
-              value={formData.password}
-              onChange={(e) => setFormData({...formData, password: e.target.value})}
-              className="bg-background"
-            />
+            <div className="relative">
+              <Input 
+                id="password" 
+                type={showPassword ? "text" : "password"} 
+                required
+                value={formData.password}
+                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                className="bg-background pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
             <p className="text-xs text-muted-foreground">
               Min 8 chars, 1 number, 1 letter, 1 special (!@#$&*)
             </p>
@@ -184,14 +196,23 @@ export default function SignupPage() {
 
           <div className="space-y-2">
             <Label htmlFor="confirm_password">Confirm Password</Label>
-            <Input 
-              id="confirm_password" 
-              type="password" 
-              required
-              value={formData.confirm_password}
-              onChange={(e) => setFormData({...formData, confirm_password: e.target.value})}
-              className="bg-background"
-            />
+            <div className="relative">
+              <Input 
+                id="confirm_password" 
+                type={showConfirmPassword ? "text" : "password"} 
+                required
+                value={formData.confirm_password}
+                onChange={(e) => setFormData({...formData, confirm_password: e.target.value})}
+                className="bg-background pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
+              >
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center space-x-2 pt-2">
