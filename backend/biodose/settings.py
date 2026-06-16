@@ -10,6 +10,13 @@ _backend_root = str(BASE_DIR)
 if _backend_root not in sys.path:
     sys.path.insert(0, _backend_root)
 
+# Debug printing of env keys to diagnose database connection issue
+import logging
+print("=================== DIAGOSTIC LOGS ===================")
+print("Available ENV keys in container:", sorted(list(os.environ.keys())))
+print("SUPABASE_DB_HOST:", repr(os.environ.get("SUPABASE_DB_HOST")))
+print("======================================================")
+
 load_dotenv(BASE_DIR.parent / ".env")
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "biodose-dev-secret-change-in-production")
