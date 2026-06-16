@@ -28,6 +28,65 @@ def _parse_nutriments(nutriments: dict) -> dict:
     }
 
 
+def _is_empty_product(product_data: dict) -> bool:
+    """Check if the product is essentially empty (except for product_name)."""
+    if not product_data:
+        return True
+    brand_empty = not product_data.get("brand") or product_data.get("brand", "").lower() in ["unknown", ""]
+    additives_empty = not product_data.get("additives_tags") and product_data.get("additives_count", 0) == 0
+    nutrition = product_data.get("nutrition_per_100g", {})
+    nutrition_empty = all(v is None for v in nutrition.values()) if nutrition else True
+    return brand_empty and additives_empty and nutrition_empty
+
+
+def _search_fallback_product(product_name: str) -> dict | None:
+    """Perform a word-based Open Food Facts search to find a matching product with populated data."""
+    if not product_name or product_name.lower() in ["unknown", ""]:
+        return None
+
+    import urllib.parse
+    search_url = f"https://world.openfoodfacts.org/api/v2/search?q={urllib.parse.quote(product_name)}&fields=code,product_name,brands,quantity,serving_size,image_url,categories,nutriscore_grade,nova_group,ecoscore_grade,ingredients_text,additives_tags,additives_n,nutriments"
+
+    try:
+        response = requests.get(search_url, headers=HEADERS, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        products = data.get("products", [])
+
+        for p in products:
+            nutrition = _parse_nutriments(p.get("nutriments", {}))
+            nutrition_empty = all(v is None for v in nutrition.values())
+            brand_val = p.get("brands") or ""
+            brand_empty = not brand_val or brand_val.lower() in ["unknown", ""]
+            additives_empty = not p.get("additives_tags") and p.get("additives_n", 0) == 0
+
+            # If we find a candidate that has actual data populated, return it
+            if not (brand_empty and additives_empty and nutrition_empty):
+                if nutrition.get("sodium_mg") is not None:
+                    nutrition["sodium_mg"] = round(nutrition["sodium_mg"] * 1000, 1)
+
+                return {
+                    "barcode":           p.get("code", ""),
+                    "product_name":      product_name,  # keep original name
+                    "brand":             p.get("brands", "Unknown"),
+                    "quantity":          p.get("quantity", ""),
+                    "serving_size":      p.get("serving_size", ""),
+                    "image_url":         p.get("image_url", ""),
+                    "categories":        p.get("categories", ""),
+                    "nutriscore_grade":  p.get("nutriscore_grade", "").upper() or None,
+                    "nova_group":        p.get("nova_group") or None,
+                    "ecoscore_grade":    p.get("ecoscore_grade", "").upper() or None,
+                    "ingredients_text":  p.get("ingredients_text", ""),
+                    "additives_tags":    p.get("additives_tags", []),
+                    "additives_count":   p.get("additives_n", 0),
+                    "nutrition_per_100g": nutrition,
+                }
+    except Exception as exc:
+        app_logger.error(f"Fallback search failed for product '{product_name}': {exc}")
+
+    return None
+
+
 def fetch_product(barcode: str) -> dict | None:
     """
     Fetches full product data from OpenFoodFacts API v2.
@@ -53,7 +112,7 @@ def fetch_product(barcode: str) -> dict | None:
         if nutrition.get("sodium_mg") is not None:
             nutrition["sodium_mg"] = round(nutrition["sodium_mg"] * 1000, 1)
 
-        return {
+        product_data = {
             # ── Identification ──────────────────────────────────────────
             "barcode":           barcode,
             "product_name":      p.get("product_name") or p.get("product_name_en") or "Unknown",
@@ -76,6 +135,18 @@ def fetch_product(barcode: str) -> dict | None:
             # ── Nutritional breakdown (per 100 g) ───────────────────────
             "nutrition_per_100g": nutrition,
         }
+
+        # If product profile is empty except for the name, try fallback reverse lookup by product name
+        if _is_empty_product(product_data):
+            app_logger.info(f"Scanned product is empty. Performing name-based search fallback for: {product_data['product_name']}")
+            fallback_data = _search_fallback_product(product_data["product_name"])
+            if fallback_data:
+                # Keep the original barcode that was scanned
+                fallback_data["barcode"] = barcode
+                app_logger.info(f"Successfully fell back to details of '{fallback_data['product_name']}' under barcode {fallback_data['barcode']}")
+                return fallback_data
+
+        return product_data
 
     except requests.RequestException as exc:
         app_logger.error(f"OpenFoodFacts request failed for {barcode}: {exc}")
