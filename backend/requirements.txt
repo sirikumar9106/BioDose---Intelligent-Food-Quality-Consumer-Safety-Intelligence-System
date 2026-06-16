@@ -142,3 +142,4 @@ sam2
 scikit-image
 opencv-contrib-python
 ultralytics
+whitenoise==6.6.0
