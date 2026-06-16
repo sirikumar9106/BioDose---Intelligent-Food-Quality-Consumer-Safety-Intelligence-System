@@ -12,11 +12,13 @@ if _backend_root not in sys.path:
 
 load_dotenv(BASE_DIR.parent / ".env")
 
-SECRET_KEY = "biodose-secret-key"
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "biodose-dev-secret-change-in-production")
 
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = ["*"]
+# In production set ALLOWED_HOSTS=your-backend.onrender.com in env vars
+_hosts_env = os.environ.get("ALLOWED_HOSTS", "*")
+ALLOWED_HOSTS = [h.strip() for h in _hosts_env.split(",")]
 
 INSTALLED_APPS = [
     "django.contrib.auth",
@@ -80,10 +82,17 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS — allow all in dev; in production set CORS_ALLOWED_ORIGINS=https://your-app.vercel.app
+_cors_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "")
+if _cors_origins:
+    CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors_origins.split(",")]
+    CORS_ALLOW_ALL_ORIGINS = False
+else:
+    CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
