@@ -23,8 +23,15 @@ def extract_e_numbers(text):
 
 
 def tokenize_ingredients(text):
-    text = normalize_text(text)
-
+    if not text:
+        return []
+    
+    text = html.unescape(str(text))
     tokens = re.split(r",|;", text)
-
-    return [token.strip() for token in tokens if token.strip()]
+    
+    result = []
+    for token in tokens:
+        cleaned = normalize_text(token)
+        if cleaned:
+            result.append(cleaned)
+    return result

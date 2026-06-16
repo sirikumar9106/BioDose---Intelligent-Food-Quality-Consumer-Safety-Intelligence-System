@@ -32,6 +32,7 @@ interface AnalysisResult {
     risk_label: string
     final_scores: Record<string, number>
     additives: Array<{ name: string; e_number: string; tox_penalty: number; match_type: string }>
+    safe_additives?: Array<{ name: string; e_number: string }>
   }
 }
 
@@ -566,7 +567,7 @@ export default function ScanPage() {
               >
                 <span className="font-bold font-syne flex items-center gap-2">
                   <Beaker className="w-5 h-5 text-purple-400" />
-                  Detected Additives ({result.analysis.additives?.length ?? 0})
+                  Additives Analysis ({(result.analysis.additives?.length ?? 0) + (result.analysis.safe_additives?.length ?? 0)})
                 </span>
                 {expandedSection === "additives" ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </button>
@@ -579,6 +580,12 @@ export default function ScanPage() {
                     className="overflow-hidden"
                   >
                     <div className="px-5 pb-5 space-y-2">
+                      {result.analysis.additives?.length > 0 && (
+                        <h4 className="text-xs font-bold text-red-400 uppercase tracking-wider mb-2">
+                          Risk-Flagged Additives ({result.analysis.additives.length})
+                        </h4>
+                      )}
+
                       {result.analysis.additives?.length > 0 ? result.analysis.additives.map(a => (
                         <button
                           key={a.e_number}
@@ -596,6 +603,24 @@ export default function ScanPage() {
                         </button>
                       )) : (
                         <p className="text-sm text-muted-foreground italic">No risky additives detected.</p>
+                      )}
+
+                      {result.analysis.safe_additives && result.analysis.safe_additives.length > 0 && (
+                        <div className="mt-4 pt-4 border-t border-border/60">
+                          <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                            Other Additives (No Risk Flagged)
+                          </h4>
+                          <div className="flex flex-wrap gap-1.5">
+                            {result.analysis.safe_additives.map((sa, idx) => (
+                              <span 
+                                key={idx} 
+                                className="text-xs bg-muted/40 text-muted-foreground px-2.5 py-1 rounded-full border border-border/40 font-medium"
+                              >
+                                {sa.name} {sa.e_number && sa.e_number !== "UNKNOWN" ? `(${sa.e_number})` : ""}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
                       )}
                     </div>
                   </motion.div>

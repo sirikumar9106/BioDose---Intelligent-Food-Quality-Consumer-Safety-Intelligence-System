@@ -155,6 +155,7 @@ def calculate_risk_scores(match_results: dict, user_mdc_ids: list, product: dict
     
     detected_e_numbers = []
     additive_results = []
+    safe_additives = []
     
     # 1. Parse matched additives into dataset_matrix
     for item in match_results["matched"]:
@@ -202,6 +203,11 @@ def calculate_risk_scores(match_results: dict, user_mdc_ids: list, product: dict
                 "carcinogenic_risk": str(row.get("CARCINOGENIC RISK", "")).strip() if pd.notna(row.get("CARCINOGENIC RISK")) else "",
                 "medication_interactions": str(row.get("MEDICATION INTERACTIONS", "")).strip() if pd.notna(row.get("MEDICATION INTERACTIONS")) else "",
                 "adi": str(row.get("ADI MG PER KG BW", "")).strip() if pd.notna(row.get("ADI MG PER KG BW")) else ""
+            })
+        else:
+            safe_additives.append({
+                "name": name,
+                "e_number": raw_e or "UNKNOWN"
             })
 
     # 2. Enrich with nutritional profiling (sugar, salt, sat fat, allergens) as virtual ingredients
@@ -286,6 +292,7 @@ def calculate_risk_scores(match_results: dict, user_mdc_ids: list, product: dict
 
     return {
         "additives":            additive_results,
+        "safe_additives":       safe_additives,
         "final_scores":         final_scores_ui,
         "final_risk_score":     final_risk_score,
         "risk_label":           risk_label,

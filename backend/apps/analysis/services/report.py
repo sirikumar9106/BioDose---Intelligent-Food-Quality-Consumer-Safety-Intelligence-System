@@ -36,6 +36,7 @@ def generate_report(scored_results):
 
     final_scores = scored_results["final_scores"]
     additives = scored_results["additives"]
+    safe_additives = scored_results.get("safe_additives", [])
 
     # Guard: if no conditions were scored, return a minimal safe report
     if not final_scores:
@@ -50,6 +51,7 @@ def generate_report(scored_results):
             "risk_label": scored_results.get("risk_label", "Safe"),
             "product_risk_summary": [],
             "additives": additives,
+            "safe_additives": safe_additives,
             "final_scores": {},
         }
 
@@ -153,5 +155,6 @@ def generate_report(scored_results):
         "risk_label": scored_results.get("risk_label", overall_label),
         "product_risk_summary": final_report,
         "additives": additives,
+        "safe_additives": safe_additives,
         "final_scores": final_scores,
     }
