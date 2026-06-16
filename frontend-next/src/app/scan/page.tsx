@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -121,6 +121,46 @@ export default function ScanPage() {
 
   const getToken = () => localStorage.getItem("access_token") ?? ""
 
+  const fetchWithAuth = useCallback(async (url: string, options: RequestInit = {}): Promise<Response> => {
+    let token = localStorage.getItem("access_token") ?? ""
+    const headers = {
+      ...(options.headers || {}),
+      Authorization: `Bearer ${token}`
+    }
+    let res = await fetch(url, { ...options, headers })
+    if (res.status === 401) {
+      const refresh = localStorage.getItem("refresh_token")
+      if (refresh) {
+        try {
+          const refreshRes = await fetch(`${API_URL}/api/v1/auth/token/refresh/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ refresh })
+          })
+          if (refreshRes.ok) {
+            const data = await refreshRes.json()
+            localStorage.setItem("access_token", data.access)
+            const retryHeaders = {
+              ...(options.headers || {}),
+              Authorization: `Bearer ${data.access}`
+            }
+            res = await fetch(url, { ...options, headers: retryHeaders })
+          } else {
+            localStorage.removeItem("access_token")
+            localStorage.removeItem("refresh_token")
+            router.push("/auth/login")
+          }
+        } catch {
+          router.push("/auth/login")
+        }
+      } else {
+        router.push("/auth/login")
+      }
+    }
+    return res
+  }, [router])
+
+
   useEffect(() => {
     const token = getToken()
     if (!token) { router.push("/auth/login") }
@@ -199,9 +239,9 @@ export default function ScanPage() {
     setError("")
     setMode("menu")
     try {
-      const res = await fetch(`${API_URL}/products/analyze/`, {
+      const res = await fetchWithAuth(`${API_URL}/products/analyze/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ barcode })
       })
       const data = await res.json()
@@ -284,11 +324,8 @@ export default function ScanPage() {
       const formData = new FormData()
       formData.append("image", resizedFile, "barcode.jpg")
 
-      const res = await fetch(`${API_URL}/products/scan-image/`, {
+      const res = await fetchWithAuth(`${API_URL}/products/scan-image/`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${getToken()}`
-        },
         body: formData
       })
       const data = await res.json()
