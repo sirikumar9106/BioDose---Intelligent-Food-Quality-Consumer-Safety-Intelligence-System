@@ -1,286 +1,772 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>BioDose</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioDose - Intelligent Food Safety</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Barcode Scanner -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
 
     <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: rgba(25, 25, 32, 0.6);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --accent-primary: #00d2ff;
+            --accent-secondary: #3a7bd5;
+            --text-main: #ffffff;
+            --text-muted: #a0a0b0;
+            --danger: #ff4757;
+            --warning: #ffa502;
+            --success: #2ed573;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
 
         body {
-            font-family: Arial;
-            background: #0f0f0f;
-            color: white;
-            padding: 40px;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(0, 210, 255, 0.05), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(58, 123, 213, 0.05), transparent 25%);
         }
 
-        h1 {
-            margin-bottom: 30px;
+        /* Glassmorphism Classes */
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        input {
-            width: 320px;
-            padding: 12px;
+        .glass-panel:hover {
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        h1, h2, h3 {
+            font-weight: 600;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Navigation */
+        nav {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        nav h1 {
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        .nav-actions button {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 20px;
+            transition: color 0.2s;
+        }
+        .nav-actions button:hover {
+            color: var(--text-main);
+        }
+
+        /* Container */
+        .container {
+            flex: 1;
+            max-width: 800px;
+            width: 100%;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-glass);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent-primary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             border: none;
             border-radius: 8px;
-            margin-bottom: 20px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s, transform 0.1s;
         }
 
-        .conditions {
-            display: grid;
-            grid-template-columns: repeat(2, 220px);
-            gap: 10px;
-            margin-bottom: 20px;
+        .btn:hover {
+            opacity: 0.9;
         }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        .btn-outline:hover {
+            background: rgba(0, 210, 255, 0.1);
+            opacity: 1;
+        }
+
+        .text-center { text-align: center; }
+        .mt-4 { margin-top: 16px; }
+        .mb-4 { margin-bottom: 16px; }
+        
+        a.link {
+            color: var(--accent-primary);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        a.link:hover { text-decoration: underline; }
+
+        /* Conditions Grid */
+        .conditions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        .conditions-grid::-webkit-scrollbar { width: 6px; }
+        .conditions-grid::-webkit-scrollbar-thumb { background: var(--border-glass); border-radius: 4px; }
 
         .condition-item {
-            background: #1c1c1c;
-            padding: 10px;
-            border-radius: 8px;
-        }
-
-        button {
-            padding: 12px 20px;
-            border: none;
-            background: #00c853;
-            color: white;
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-glass);
+            padding: 12px 16px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 15px;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .condition-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .condition-item input {
+            margin-right: 12px;
+            accent-color: var(--accent-primary);
         }
 
-        #result {
-            margin-top: 40px;
+        /* Views (SPA routing) */
+        .view {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        .view.active {
+            display: block;
         }
 
-        .card {
-            background: #1b1b1b;
-            padding: 25px;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scanner */
+        #reader {
+            width: 100%;
             border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-glass);
+            background: #000;
+        }
+        #reader video {
+            object-fit: cover;
+        }
+        
+        /* Loading Overlay */
+        .loader {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .loader.active { display: flex; }
+        .spinner {
+            width: 50px; height: 50px;
+            border: 4px solid var(--border-glass);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
             margin-bottom: 20px;
         }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        .risk {
-            font-size: 32px;
-            font-weight: bold;
+        /* Results */
+        .result-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .risk-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: 700;
             margin-top: 10px;
         }
+        .bg-danger { background: rgba(255, 71, 87, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+        .bg-warning { background: rgba(255, 165, 2, 0.2); color: var(--warning); border: 1px solid var(--warning); }
+        .bg-success { background: rgba(46, 213, 115, 0.2); color: var(--success); border: 1px solid var(--success); }
 
-        .condition-risk {
-            margin-top: 12px;
-            padding: 12px;
-            background: #252525;
-            border-radius: 8px;
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
         }
+        .nutrient-box {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .nutrient-val { font-size: 20px; font-weight: 700; color: var(--text-main); }
+        .nutrient-lbl { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
 
-        .additive {
+        .error-msg {
+            color: var(--danger);
+            text-align: center;
             margin-top: 10px;
-            padding: 10px;
-            background: #252525;
-            border-radius: 8px;
+            font-size: 14px;
+            display: none;
         }
-
     </style>
-
 </head>
-
 <body>
 
-    <h1>BioDose</h1>
+    <nav>
+        <h1 class="gradient-text">BioDose</h1>
+        <div class="nav-actions" id="navActions" style="display: none;">
+            <button onclick="navigateTo('scanView')">Scan</button>
+            <button onclick="navigateTo('profileSetupView')">Profile</button>
+            <button onclick="logout()">Logout</button>
+        </div>
+    </nav>
 
-    <input
-        type="text"
-        id="barcode"
-        placeholder="Enter Barcode"
-    >
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <h3 id="loaderText">Processing...</h3>
+    </div>
 
-    <div class="conditions">
+    <div class="container">
+        
+        <!-- LOGIN VIEW -->
+        <div id="loginView" class="view active glass-panel">
+            <h2 class="text-center mb-4">Welcome Back</h2>
+            <div id="loginError" class="error-msg"></div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="loginEmail" placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter your password">
+            </div>
+            <button class="btn" onclick="handleLogin()">Sign In</button>
+            <p class="text-center mt-4" style="color: var(--text-muted)">
+                Don't have an account? <a class="link" onclick="navigateTo('registerView')">Sign Up</a>
+            </p>
+        </div>
 
-        <label class="condition-item">
-            <input type="checkbox" value="DIABETES TYPE 2">
-            DIABETES TYPE 2
-        </label>
+        <!-- REGISTER VIEW -->
+        <div id="registerView" class="view glass-panel">
+            <h2 class="text-center mb-4">Create Account</h2>
+            <div id="regError" class="error-msg"></div>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="regName" placeholder="John Doe">
+            </div>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="regUser" placeholder="johndoe123">
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="regEmail" placeholder="john@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="regPass" placeholder="Create a password">
+            </div>
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" id="regPass2" placeholder="Confirm your password">
+            </div>
+            <button class="btn" onclick="handleRegister()">Sign Up</button>
+            <p class="text-center mt-4" style="color: var(--text-muted)">
+                Already have an account? <a class="link" onclick="navigateTo('loginView')">Sign In</a>
+            </p>
+        </div>
 
-        <label class="condition-item">
-            <input type="checkbox" value="HYPERTENSION">
-            HYPERTENSION
-        </label>
+        <!-- PROFILE SETUP VIEW -->
+        <div id="profileSetupView" class="view glass-panel">
+            <h2 class="mb-4">Health Profile Setup</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">
+                Tell us about your health so we can personalize your food safety recommendations.
+            </p>
+            <div id="profileError" class="error-msg mb-4"></div>
+            
+            <div class="form-group">
+                <label>Your Age</label>
+                <input type="number" id="profAge" placeholder="e.g. 28" min="1" max="130">
+            </div>
 
-        <label class="condition-item">
-            <input type="checkbox" value="ASTHMA">
-            ASTHMA
-        </label>
+            <label style="display: block; margin-bottom: 12px; color: var(--text-muted); font-size: 14px;">
+                Select Medical Conditions (if any)
+            </label>
+            <div class="conditions-grid" id="conditionsGrid">
+                <!-- Populated via JS -->
+            </div>
 
-        <label class="condition-item">
-            <input type="checkbox" value="IBS">
-            IBS
-        </label>
+            <button class="btn mt-4" onclick="handleProfileSave()">Save Profile & Continue</button>
+        </div>
 
-        <label class="condition-item">
-            <input type="checkbox" value="PREGNANCY">
-            PREGNANCY
-        </label>
+        <!-- SCAN VIEW -->
+        <div id="scanView" class="view glass-panel">
+            <h2 class="text-center mb-4">Scan Product</h2>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button class="btn" onclick="startCamera()">📷 Camera</button>
+                <button class="btn btn-outline" onclick="document.getElementById('fileUpload').click()">🖼️ Gallery</button>
+                <input type="file" id="fileUpload" accept="image/*" style="display: none" onchange="handleFileUpload(event)">
+            </div>
 
-        <label class="condition-item">
-            <input type="checkbox" value="HEART DISEASE">
-            HEART DISEASE
-        </label>
+            <div id="reader" style="display: none; margin-bottom: 20px;"></div>
+            
+            <div class="text-center mb-4" style="color: var(--text-muted)">OR</div>
+            
+            <div class="form-group">
+                <input type="text" id="manualBarcode" placeholder="Enter Barcode Number Manually">
+            </div>
+            <button class="btn btn-outline" onclick="analyzeManualBarcode()">Analyze Barcode</button>
+        </div>
 
-        <label class="condition-item">
-            <input type="checkbox" value="AUTOIMMUNE CONDITIONS">
-            AUTOIMMUNE CONDITIONS
-        </label>
+        <!-- RESULTS VIEW -->
+        <div id="resultsView" class="view">
+            <div class="glass-panel mb-4">
+                <div class="result-header">
+                    <h2 id="resProductName" class="gradient-text">Product Name</h2>
+                    <p id="resBrand" style="color: var(--text-muted)">Brand</p>
+                    <div id="resRiskBadge" class="risk-badge bg-success">Safe (0.01)</div>
+                </div>
 
-        <label class="condition-item">
-            <input type="checkbox" value="GLUTEN SENSITIVITY">
-            GLUTEN SENSITIVITY
-        </label>
+                <h3>Nutritional Breakdown (per 100g)</h3>
+                <div class="nutrition-grid" id="resNutritionGrid">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+            <div class="glass-panel mb-4">
+                <h3>Condition Specific Risks</h3>
+                <div id="resConditionRisks" style="margin-top: 15px;">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+            <div class="glass-panel">
+                <h3>Detected Additives</h3>
+                <div id="resAdditives" style="margin-top: 15px;">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+            
+            <button class="btn mt-4" onclick="navigateTo('scanView')">Scan Another Product</button>
+        </div>
 
     </div>
 
-    <button onclick="analyzeProduct()">
-        Analyze Product
-    </button>
-
-    <div id="result"></div>
-
     <script>
+        const API_URL = "http://127.0.0.1:8000";
+        let accessToken = localStorage.getItem("bioDoseToken");
+        let html5QrCode = null;
 
-        async function analyzeProduct() {
+        // Initialize App
+        window.onload = () => {
+            if (accessToken) {
+                document.getElementById("navActions").style.display = "block";
+                navigateTo("scanView");
+            } else {
+                navigateTo("loginView");
+            }
+        };
 
-            const barcode =
-                document.getElementById(
-                    "barcode"
-                ).value
+        // UI Helpers
+        function navigateTo(viewId) {
+            document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+            document.getElementById(viewId).classList.add("active");
+            
+            // Stop camera if navigating away
+            if (viewId !== 'scanView' && html5QrCode) {
+                html5QrCode.stop().catch(err => console.log("Stop error", err));
+                document.getElementById("reader").style.display = "none";
+            }
 
-            const conditions =
-                Array.from(
-                    document.querySelectorAll(
-                        'input[type="checkbox"]:checked'
-                    )
-                ).map(
-                    checkbox => checkbox.value
-                )
-
-            const response = await fetch(
-                "http://127.0.0.1:8000/products/analyze/",
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        barcode,
-                        conditions
-                    })
-                }
-            )
-
-            const data =
-                await response.json()
-
-            const product =
-                data.product
-
-            const analysis =
-                data.analysis
-
-            let conditionHTML = ""
-
-            analysis.product_risk_summary
-                .forEach(item => {
-
-                    conditionHTML += `
-                        <div class="condition-risk">
-                            <b>${item.condition}</b>
-                            <br>
-                            Risk Score:
-                            ${item.score}%
-                            <br>
-                            Risk Level:
-                            ${item.risk_label}
-                        </div>
-                    `
-                })
-
-            let additiveHTML = ""
-
-            analysis.additives
-                .forEach(item => {
-
-                    additiveHTML += `
-                        <div class="additive">
-                            <b>${item.name}</b>
-                            (${item.e_number})
-                        </div>
-                    `
-                })
-
-            document.getElementById(
-                "result"
-            ).innerHTML = `
-
-                <div class="card">
-
-                    <h2>
-                        ${product.product_name}
-                    </h2>
-
-                    <p>
-                        Brand:
-                        ${product.brand}
-                    </p>
-
-                    <p>
-                        Additives:
-                        ${product.additives_count}
-                    </p>
-
-                    <div class="risk">
-                        ${analysis.overall_risk_percentage}%
-                    </div>
-
-                    <p>
-                        Overall Risk:
-                        ${analysis.overall_risk}
-                    </p>
-
-                </div>
-
-                <div class="card">
-
-                    <h3>
-                        Condition Based Risk
-                    </h3>
-
-                    ${conditionHTML}
-
-                </div>
-
-                <div class="card">
-
-                    <h3>
-                        Additives Detected
-                    </h3>
-
-                    ${additiveHTML}
-
-                </div>
-            `
+            if (viewId === 'profileSetupView') {
+                loadConditions();
+            }
         }
 
+        function showLoader(text = "Processing...") {
+            document.getElementById("loaderText").innerText = text;
+            document.getElementById("loader").classList.add("active");
+        }
+
+        function hideLoader() {
+            document.getElementById("loader").classList.remove("active");
+        }
+
+        function showError(id, msg) {
+            const el = document.getElementById(id);
+            el.innerText = msg;
+            el.style.display = "block";
+            setTimeout(() => el.style.display = "none", 5000);
+        }
+
+        // Auth Functions
+        async function handleLogin() {
+            const email = document.getElementById("loginEmail").value;
+            const password = document.getElementById("loginPassword").value;
+            
+            if(!email || !password) return showError("loginError", "All fields required.");
+
+            showLoader("Signing In...");
+            try {
+                const res = await fetch(`${API_URL}/api/v1/auth/login/`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await res.json();
+                hideLoader();
+                
+                if (res.ok) {
+                    accessToken = data.access;
+                    localStorage.setItem("bioDoseToken", accessToken);
+                    localStorage.setItem("bioDoseRefresh", data.refresh);
+                    document.getElementById("navActions").style.display = "block";
+                    navigateTo("scanView");
+                } else {
+                    showError("loginError", data.detail || "Invalid credentials.");
+                }
+            } catch (err) {
+                hideLoader();
+                showError("loginError", "Network error.");
+            }
+        }
+
+        async function handleRegister() {
+            const payload = {
+                full_name: document.getElementById("regName").value,
+                username: document.getElementById("regUser").value,
+                email: document.getElementById("regEmail").value,
+                password: document.getElementById("regPass").value,
+                confirm_password: document.getElementById("regPass2").value,
+            };
+
+            showLoader("Creating Account...");
+            try {
+                const res = await fetch(`${API_URL}/api/v1/auth/register/`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await res.json();
+                hideLoader();
+                
+                if (res.ok) {
+                    accessToken = data.access;
+                    localStorage.setItem("bioDoseToken", accessToken);
+                    localStorage.setItem("bioDoseRefresh", data.refresh);
+                    document.getElementById("navActions").style.display = "block";
+                    navigateTo("profileSetupView");
+                } else {
+                    showError("regError", "Registration failed. Check inputs.");
+                }
+            } catch (err) {
+                hideLoader();
+                showError("regError", "Network error.");
+            }
+        }
+
+        async function logout() {
+            localStorage.removeItem("bioDoseToken");
+            localStorage.removeItem("bioDoseRefresh");
+            accessToken = null;
+            document.getElementById("navActions").style.display = "none";
+            navigateTo("loginView");
+        }
+
+        // Profile Functions
+        async function loadConditions() {
+            try {
+                const res = await fetch(`${API_URL}/api/v1/auth/profile/setup/`, {
+                    headers: { "Authorization": `Bearer ${accessToken}` }
+                });
+                const data = await res.json();
+                
+                if (data.conditions) {
+                    const grid = document.getElementById("conditionsGrid");
+                    grid.innerHTML = "";
+                    data.conditions.forEach(c => {
+                        const isChecked = data.current_profile.health_conditions.includes(c.id) ? "checked" : "";
+                        grid.innerHTML += `
+                            <label class="condition-item">
+                                <input type="checkbox" value="${c.id}" ${isChecked}>
+                                ${c.name}
+                            </label>
+                        `;
+                    });
+                    if(data.current_profile.age) {
+                        document.getElementById("profAge").value = data.current_profile.age;
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to load conditions.");
+            }
+        }
+
+        async function handleProfileSave() {
+            const age = document.getElementById("profAge").value;
+            const conditions = Array.from(document.querySelectorAll('#conditionsGrid input:checked')).map(cb => cb.value);
+
+            if (!age) return showError("profileError", "Age is required.");
+
+            showLoader("Saving Profile...");
+            try {
+                const res = await fetch(`${API_URL}/api/v1/auth/profile/setup/`, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${accessToken}`
+                    },
+                    body: JSON.stringify({ age: parseInt(age), health_conditions: conditions })
+                });
+                
+                hideLoader();
+                if (res.ok) {
+                    navigateTo("scanView");
+                } else {
+                    showError("profileError", "Failed to save profile.");
+                }
+            } catch (err) {
+                hideLoader();
+                showError("profileError", "Network error.");
+            }
+        }
+
+        // Scanner Functions
+        function startCamera() {
+            const readerDiv = document.getElementById("reader");
+            readerDiv.style.display = "block";
+            
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("reader");
+            }
+            
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 250, height: 150 } },
+                (decodedText) => {
+                    html5QrCode.stop();
+                    readerDiv.style.display = "none";
+                    analyzeBarcode(decodedText);
+                },
+                (err) => {}
+            ).catch(err => {
+                alert("Camera access denied or unavailable.");
+                readerDiv.style.display = "none";
+            });
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+            
+            showLoader("Scanning Image...");
+            html5QrCode.scanFile(file, true)
+                .then(decodedText => {
+                    hideLoader();
+                    analyzeBarcode(decodedText);
+                })
+                .catch(err => {
+                    hideLoader();
+                    alert("Could not detect barcode in image.");
+                });
+        }
+
+        function analyzeManualBarcode() {
+            const code = document.getElementById("manualBarcode").value.trim();
+            if(code) analyzeBarcode(code);
+        }
+
+        // Analysis API Call
+        async function analyzeBarcode(barcode) {
+            showLoader(`Analyzing ${barcode}...`);
+            try {
+                const res = await fetch(`${API_URL}/products/analyze/`, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${accessToken}` 
+                    },
+                    body: JSON.stringify({ barcode: barcode })
+                });
+
+                const data = await res.json();
+                hideLoader();
+
+                if (res.ok) {
+                    renderResults(data);
+                    navigateTo("resultsView");
+                } else {
+                    alert(data.error || "Analysis failed.");
+                }
+            } catch (err) {
+                hideLoader();
+                alert("Network error during analysis.");
+            }
+        }
+
+        // Render Results
+        function renderResults(data) {
+            const prod = data.product;
+            const analysis = data.analysis;
+
+            // Header
+            document.getElementById("resProductName").innerText = prod.product_name;
+            document.getElementById("resBrand").innerText = `Brand: ${prod.brand}`;
+            
+            const badge = document.getElementById("resRiskBadge");
+            badge.innerText = `${analysis.risk_label} (Score: ${analysis.final_risk_score})`;
+            badge.className = "risk-badge";
+            if(analysis.final_risk_score >= 0.5) badge.classList.add("bg-danger");
+            else if(analysis.final_risk_score >= 0.25) badge.classList.add("bg-warning");
+            else badge.classList.add("bg-success");
+
+            // Nutrition
+            const nGrid = document.getElementById("resNutritionGrid");
+            nGrid.innerHTML = "";
+            const nut = prod.nutrition_per_100g || {};
+            const macros = [
+                {lbl: "Energy", val: nut.energy_kcal ? nut.energy_kcal + " kcal" : "N/A"},
+                {lbl: "Carbs", val: nut.carbohydrates_g ? nut.carbohydrates_g + " g" : "N/A"},
+                {lbl: "Sugars", val: nut.sugars_g ? nut.sugars_g + " g" : "N/A"},
+                {lbl: "Fat", val: nut.fat_g ? nut.fat_g + " g" : "N/A"},
+                {lbl: "Proteins", val: nut.proteins_g ? nut.proteins_g + " g" : "N/A"},
+                {lbl: "Salt", val: nut.salt_g ? nut.salt_g + " g" : "N/A"}
+            ];
+            macros.forEach(m => {
+                nGrid.innerHTML += `
+                    <div class="nutrient-box">
+                        <div class="nutrient-val">${m.val}</div>
+                        <div class="nutrient-lbl">${m.lbl}</div>
+                    </div>
+                `;
+            });
+
+            // Conditions
+            const cDiv = document.getElementById("resConditionRisks");
+            cDiv.innerHTML = "";
+            if (Object.keys(analysis.final_scores || {}).length === 0) {
+                cDiv.innerHTML = "<p style='color:var(--text-muted)'>No specific condition risks detected.</p>";
+            } else {
+                for(const [cond, score] of Object.entries(analysis.final_scores)) {
+                    cDiv.innerHTML += `
+                        <div class="condition-item" style="margin-bottom: 10px; cursor: default;">
+                            <div style="flex: 1">
+                                <div style="font-weight: 600">${cond.replace(" (SCORE)", "")}</div>
+                                <div style="color: var(--text-muted); font-size: 14px;">Risk Multiplier: ${score}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            // Additives
+            const aDiv = document.getElementById("resAdditives");
+            aDiv.innerHTML = "";
+            if (analysis.additives && analysis.additives.length > 0) {
+                analysis.additives.forEach(a => {
+                    aDiv.innerHTML += `
+                        <div class="condition-item" style="margin-bottom: 10px; cursor: default;">
+                            <div style="flex: 1">
+                                <div style="font-weight: 600">${a.name} (${a.e_number})</div>
+                                <div style="color: var(--text-muted); font-size: 14px;">
+                                    Tox Penalty: +${a.tox_penalty} | Match: ${a.match_type}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                aDiv.innerHTML = "<p style='color:var(--text-muted)'>No known risky additives detected.</p>";
+            }
+        }
     </script>
-
 </body>
-
 </html>

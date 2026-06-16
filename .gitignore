@@ -63,3 +63,17 @@ staticfiles/
 
 # IDE
 .idea/
+
+# PyTorch Model Weights (large binary files — downloaded at runtime)
+*.pt
+*.pth
+*.onnx
+ml/models/
+backend/ml/models/
+
+# Next.js
+frontend-next/.next/
+frontend-next/.env.local
+
+# Antigravity/IDE scratch
+scratch/

@@ -6,4 +6,4 @@ logger.add(
     level="INFO",
 )
 
-app_logger = logger
+app_logger = logger 

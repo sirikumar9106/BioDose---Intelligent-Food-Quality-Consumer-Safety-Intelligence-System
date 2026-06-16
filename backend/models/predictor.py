@@ -1,11 +1,11 @@
+import os
 import joblib
 import pandas as pd
 
+# Resolve path relative to this file so it works regardless of CWD
+_MODEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ebm_model.pkl")
 
-MODEL_PATH = "models/ebm_model.pkl"
-
-
-model = joblib.load(MODEL_PATH)
+model = joblib.load(_MODEL_PATH)
 
 
 def predict_risk(
@@ -14,46 +14,24 @@ def predict_risk(
     interaction_score,
     combined_score,
 ):
-
     input_df = pd.DataFrame(
         [
             {
-                "additive_count":
-                    additive_count,
-
-                "hazard_index":
-                    hazard_index,
-
-                "interaction_score":
-                    interaction_score,
-
-                "combined_score":
-                    combined_score,
+                "additive_count": additive_count,
+                "hazard_index": hazard_index,
+                "interaction_score": interaction_score,
+                "combined_score": combined_score,
             }
         ]
     )
 
-    prediction = model.predict(
-        input_df
-    )[0]
+    prediction = model.predict(input_df)[0]
 
-    probabilities = (
-        model.predict_proba(
-            input_df
-        )[0]
-    )
+    probabilities = model.predict_proba(input_df)[0]
 
-    probability_map = dict(
-        zip(
-            model.classes_,
-            probabilities,
-        )
-    )
+    probability_map = dict(zip(model.classes_, probabilities))
 
     return {
-        "prediction":
-            prediction,
-
-        "confidence":
-            probability_map,
+        "prediction": prediction,
+        "confidence": probability_map,
     }

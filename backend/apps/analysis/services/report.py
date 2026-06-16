@@ -34,18 +34,26 @@ def generate_report(scored_results):
 
     final_report = []
 
-    final_scores = scored_results[
-        "final_scores"
-    ]
+    final_scores = scored_results["final_scores"]
+    additives = scored_results["additives"]
 
-    additives = scored_results[
-        "additives"
-    ]
+    # Guard: if no conditions were scored, return a minimal safe report
+    if not final_scores:
+        return {
+            "overall_risk": "SAFE",
+            "overall_risk_percentage": 0.0,
+            "hazard_index": 0.0,
+            "interaction_score": 0.0,
+            "ebm_amplification": 0.0,
+            "final_system_score": 0.0,
+            "final_risk_score": scored_results.get("final_risk_score", 0.1),
+            "risk_label": scored_results.get("risk_label", "Safe"),
+            "product_risk_summary": [],
+            "additives": additives,
+            "final_scores": {},
+        }
 
-    average_score = (
-        sum(final_scores.values())
-        / len(final_scores)
-    )
+    average_score = sum(final_scores.values()) / len(final_scores)
 
     additive_count = len(additives)
 
@@ -135,28 +143,15 @@ def generate_report(scored_results):
         )
 
     return {
-
-        "overall_risk":
-            overall_label,
-
-        "overall_risk_percentage":
-            overall_risk_percentage,
-
-        "hazard_index":
-            hazard_index,
-
-        "interaction_score":
-            interaction_score,
-
-        "ebm_amplification":
-            ebm_amplification,
-
-        "final_system_score":
-            final_system_score,
-
-        "product_risk_summary":
-            final_report,
-
-        "additives":
-            additives,
+        "overall_risk": overall_label,
+        "overall_risk_percentage": overall_risk_percentage,
+        "hazard_index": hazard_index,
+        "interaction_score": interaction_score,
+        "ebm_amplification": ebm_amplification,
+        "final_system_score": final_system_score,
+        "final_risk_score": scored_results.get("final_risk_score", round(combined_score / 10, 2)),
+        "risk_label": scored_results.get("risk_label", overall_label),
+        "product_risk_summary": final_report,
+        "additives": additives,
+        "final_scores": final_scores,
     }

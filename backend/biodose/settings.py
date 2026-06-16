@@ -1,6 +1,16 @@
 from pathlib import Path
+import os
+import sys
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Make the backend root importable so packages like models/, utils/ work
+_backend_root = str(BASE_DIR)
+if _backend_root not in sys.path:
+    sys.path.insert(0, _backend_root)
+
+load_dotenv(BASE_DIR.parent / ".env")
 
 SECRET_KEY = "biodose-secret-key"
 
@@ -14,13 +24,16 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.postgres",
 
     "rest_framework",
     "corsheaders",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
 
-    "apps.products",
-    "apps.analysis",
-    "apps.users",
+    "apps.products.apps.ProductsConfig",
+    "apps.analysis.apps.AnalysisConfig",
+    "apps.users.apps.UsersConfig",
 ]
 
 MIDDLEWARE = [
@@ -36,10 +49,27 @@ WSGI_APPLICATION = "biodose.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("SUPABASE_DB_NAME"),
+        "USER": os.environ.get("SUPABASE_DB_USER"),
+        "PASSWORD": os.environ.get("SUPABASE_DB_PASSWORD"),
+        "HOST": os.environ.get("SUPABASE_DB_HOST"),
+        "PORT": os.environ.get("SUPABASE_DB_PORT", "5432"),
     }
 }
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.environ.get("REDIS_URL", "redis://redis:6379/1"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+AUTH_USER_MODEL = "users.UserProfile"
+
 
 LANGUAGE_CODE = "en-us"
 
@@ -56,7 +86,20 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
 }
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}

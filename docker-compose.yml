@@ -1,4 +1,10 @@
 services:
+  redis:
+    image: redis:alpine
+    container_name: biodose_redis
+    ports:
+      - "6379:6379"
+
   backend:
     build: ./backend
     container_name: biodose_backend
@@ -8,3 +14,14 @@ services:
       - ./backend:/app
     env_file:
       - .env
+    depends_on:
+      - redis
+
+  ml_trainer:
+    build: ./ml
+    container_name: biodose_ml_trainer
+    volumes:
+      - ./ml/models:/ml/models
+    env_file:
+      - .env
+    restart: always
