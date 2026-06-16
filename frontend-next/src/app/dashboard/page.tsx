@@ -132,22 +132,57 @@ export default function DashboardPage() {
       if (!queryName || queryName.toUpperCase() === "UNKNOWN") {
         queryName = additive.e_number
       }
-      const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(queryName)}`)
+
+      // Step 1: Use Wikipedia search API to resolve the exact page title
+      const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(queryName)}&format=json&origin=*`
+      const searchRes = await fetch(searchUrl)
+      let resolvedTitle = queryName
+
+      if (searchRes.ok) {
+        const searchData = await searchRes.json()
+        const results = searchData?.query?.search
+        if (results && results.length > 0) {
+          resolvedTitle = results[0].title
+        }
+      }
+
+      // Step 2: Query summary for resolved title
+      const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(resolvedTitle)}`)
       if (res.ok) {
         const data = await res.json()
-        setWikiExtract(data.extract || "No direct Wikipedia overview found for this substance.")
-      } else {
-        if (additive.e_number && additive.e_number !== "UNKNOWN" && queryName !== additive.e_number) {
-          const fallbackRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(additive.e_number)}`)
-          if (fallbackRes.ok) {
-            const fallbackData = await fallbackRes.json()
-            setWikiExtract(fallbackData.extract || "No direct Wikipedia overview found for this substance.")
+        if (data.extract) {
+          setWikiExtract(data.extract)
+          setWikiLoading(false)
+          return
+        }
+      }
+
+      // Step 3: Fallback to E-number search
+      if (additive.e_number && additive.e_number !== "UNKNOWN") {
+        const eSearchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(additive.e_number)}&format=json&origin=*`
+        const eSearchRes = await fetch(eSearchUrl)
+        let resolvedETitle = additive.e_number
+
+        if (eSearchRes.ok) {
+          const eSearchData = await eSearchRes.json()
+          const eResults = eSearchData?.query?.search
+          if (eResults && eResults.length > 0) {
+            resolvedETitle = eResults[0].title
+          }
+        }
+
+        const fallbackRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(resolvedETitle)}`)
+        if (fallbackRes.ok) {
+          const fallbackData = await fallbackRes.json()
+          if (fallbackData.extract) {
+            setWikiExtract(fallbackData.extract)
             setWikiLoading(false)
             return
           }
         }
-        setWikiExtract("Could not fetch information from Wikipedia. Showing local toxicological profile.")
       }
+
+      setWikiExtract("No direct Wikipedia overview found for this substance.")
     } catch {
       setWikiExtract("Could not fetch information from Wikipedia. Showing local toxicological profile.")
     } finally {

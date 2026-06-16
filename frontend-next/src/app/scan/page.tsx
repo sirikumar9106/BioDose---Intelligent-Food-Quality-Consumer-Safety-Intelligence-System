@@ -61,22 +61,57 @@ export default function ScanPage() {
       if (!queryName || queryName.toUpperCase() === "UNKNOWN") {
         queryName = additive.e_number
       }
-      const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(queryName)}`)
+
+      // Step 1: Use Wikipedia search API to resolve the exact page title
+      const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(queryName)}&format=json&origin=*`
+      const searchRes = await fetch(searchUrl)
+      let resolvedTitle = queryName
+
+      if (searchRes.ok) {
+        const searchData = await searchRes.json()
+        const results = searchData?.query?.search
+        if (results && results.length > 0) {
+          resolvedTitle = results[0].title
+        }
+      }
+
+      // Step 2: Query summary for resolved title
+      const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(resolvedTitle)}`)
       if (res.ok) {
         const data = await res.json()
-        setWikiExtract(data.extract || "No direct Wikipedia overview found for this substance.")
-      } else {
-        if (additive.e_number && additive.e_number !== "UNKNOWN" && queryName !== additive.e_number) {
-          const fallbackRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(additive.e_number)}`)
-          if (fallbackRes.ok) {
-            const fallbackData = await fallbackRes.json()
-            setWikiExtract(fallbackData.extract || "No direct Wikipedia overview found for this substance.")
+        if (data.extract) {
+          setWikiExtract(data.extract)
+          setWikiLoading(false)
+          return
+        }
+      }
+
+      // Step 3: Fallback to E-number search
+      if (additive.e_number && additive.e_number !== "UNKNOWN") {
+        const eSearchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(additive.e_number)}&format=json&origin=*`
+        const eSearchRes = await fetch(eSearchUrl)
+        let resolvedETitle = additive.e_number
+
+        if (eSearchRes.ok) {
+          const eSearchData = await eSearchRes.json()
+          const eResults = eSearchData?.query?.search
+          if (eResults && eResults.length > 0) {
+            resolvedETitle = eResults[0].title
+          }
+        }
+
+        const fallbackRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(resolvedETitle)}`)
+        if (fallbackRes.ok) {
+          const fallbackData = await fallbackRes.json()
+          if (fallbackData.extract) {
+            setWikiExtract(fallbackData.extract)
             setWikiLoading(false)
             return
           }
         }
-        setWikiExtract("Could not fetch information from Wikipedia. Showing local toxicological profile.")
       }
+
+      setWikiExtract("No direct Wikipedia overview found for this substance.")
     } catch {
       setWikiExtract("Could not fetch information from Wikipedia. Showing local toxicological profile.")
     } finally {
@@ -95,32 +130,67 @@ export default function ScanPage() {
   useEffect(() => {
     if (mode !== "camera") return
     let mounted = true
+    let qrScanner: any = null
 
     const startCamera = async () => {
-      const { Html5Qrcode } = await import("html5-qrcode")
-      const qr = new Html5Qrcode("qr-reader")
-      html5QrCodeRef.current = qr
       try {
-        await qr.start(
+        const { Html5Qrcode } = await import("html5-qrcode")
+        
+        // Wait up to 2 seconds (polling every 100ms) for the qr-reader element to be mounted in DOM
+        let attempts = 0
+        while (mounted && !document.getElementById("qr-reader") && attempts < 20) {
+          await new Promise((resolve) => setTimeout(resolve, 100))
+          attempts++
+        }
+
+        if (!mounted) return
+        if (!document.getElementById("qr-reader")) {
+          setError("Camera scanner element could not be found.")
+          return
+        }
+
+        qrScanner = new Html5Qrcode("qr-reader")
+        html5QrCodeRef.current = qrScanner
+
+        await qrScanner.start(
           { facingMode: "environment" },
           { fps: 10, qrbox: { width: 250, height: 150 } },
-          (decoded) => {
+          (decoded: string) => {
             if (mounted) {
-              qr.stop().catch(() => {})
-              analyzeBarcode(decoded)
+              if (qrScanner && qrScanner.isScanning) {
+                qrScanner.stop()
+                  .then(() => {
+                    analyzeBarcode(decoded)
+                  })
+                  .catch((err: any) => {
+                    console.error("Failed to stop scanner on decode:", err)
+                    analyzeBarcode(decoded)
+                  })
+              } else {
+                analyzeBarcode(decoded)
+              }
             }
           },
-          () => {}
+          () => {} // silent scan fail callback
         )
-      } catch {
-        if (mounted) setError("Camera access denied or unavailable.")
+      } catch (err) {
+        console.error("Camera start failed:", err)
+        if (mounted) {
+          setError("Camera access denied or device has no camera available.")
+          setMode("menu")
+        }
       }
     }
 
     startCamera()
     return () => {
       mounted = false
-      html5QrCodeRef.current?.stop().catch(() => {})
+      if (qrScanner) {
+        if (qrScanner.isScanning) {
+          qrScanner.stop().catch((err: any) => console.warn("Error stopping scanner on unmount:", err))
+        }
+      }
+      html5QrCodeRef.current = null
     }
   }, [mode])
 
@@ -154,8 +224,59 @@ export default function ScanPage() {
     setLoading(true)
     setError("")
     try {
+      // Compress & resize image to max 1024px to prevent high bandwidth/RAM usage
+      const resizedFile = await new Promise<File | Blob>((resolve) => {
+        const reader = new FileReader()
+        reader.onload = (event) => {
+          const img = new Image()
+          img.onload = () => {
+            const canvas = document.createElement("canvas")
+            const MAX_WIDTH = 1024
+            const MAX_HEIGHT = 1024
+            let width = img.width
+            let height = img.height
+
+            if (width > height) {
+              if (width > MAX_WIDTH) {
+                height = Math.round((height * MAX_WIDTH) / width)
+                width = MAX_WIDTH
+              }
+            } else {
+              if (height > MAX_HEIGHT) {
+                width = Math.round((width * MAX_HEIGHT) / height)
+                height = MAX_HEIGHT
+              }
+            }
+
+            canvas.width = width
+            canvas.height = height
+            const ctx = canvas.getContext("2d")
+            if (!ctx) {
+              resolve(file)
+              return
+            }
+            ctx.drawImage(img, 0, 0, width, height)
+            canvas.toBlob(
+              (blob) => {
+                if (blob) {
+                  resolve(blob)
+                } else {
+                  resolve(file)
+                }
+              },
+              "image/jpeg",
+              0.85
+            )
+          }
+          img.onerror = () => resolve(file)
+          img.src = event.target?.result as string
+        }
+        reader.onerror = () => resolve(file)
+        reader.readAsDataURL(file)
+      })
+
       const formData = new FormData()
-      formData.append("image", file)
+      formData.append("image", resizedFile, "barcode.jpg")
 
       const res = await fetch(`${API_URL}/products/scan-image/`, {
         method: "POST",
