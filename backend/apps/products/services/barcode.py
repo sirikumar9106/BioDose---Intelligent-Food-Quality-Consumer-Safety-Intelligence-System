@@ -42,11 +42,10 @@ def _is_empty_product(product_data: dict) -> bool:
     """Check if the product is essentially empty (except for product_name)."""
     if not product_data:
         return True
-    brand_empty = not product_data.get("brand") or product_data.get("brand", "").lower() in ["unknown", ""]
     additives_empty = not product_data.get("additives_tags") and product_data.get("additives_count", 0) == 0
     nutrition = product_data.get("nutrition_per_100g", {})
     nutrition_empty = all(v is None for v in nutrition.values()) if nutrition else True
-    return brand_empty and additives_empty and nutrition_empty
+    return additives_empty and nutrition_empty
 
 
 def _search_fallback_product(product_name: str) -> dict | None:
@@ -66,12 +65,10 @@ def _search_fallback_product(product_name: str) -> dict | None:
         for p in products:
             nutrition = _parse_nutriments(p.get("nutriments", {}))
             nutrition_empty = all(v is None for v in nutrition.values())
-            brand_val = p.get("brands") or ""
-            brand_empty = not brand_val or brand_val.lower() in ["unknown", ""]
             additives_empty = not p.get("additives_tags") and p.get("additives_n", 0) == 0
 
             # If we find a candidate that has actual data populated, return it
-            if not (brand_empty and additives_empty and nutrition_empty):
+            if not (additives_empty and nutrition_empty):
                 if nutrition.get("sodium_mg") is not None:
                     nutrition["sodium_mg"] = round(nutrition["sodium_mg"] * 1000, 1)
 
