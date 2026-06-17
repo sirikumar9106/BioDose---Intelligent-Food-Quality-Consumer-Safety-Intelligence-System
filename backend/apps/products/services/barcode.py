@@ -8,23 +8,33 @@ HEADERS = {"User-Agent": "BioDose/1.0 (food safety app)"}
 
 def _parse_nutriments(nutriments: dict) -> dict:
     """Extract standardised per-100g nutritional values from OpenFoodFacts nutriments dict."""
-    def safe(key, alt_key=None):
-        val = nutriments.get(key) or (nutriments.get(alt_key) if alt_key else None)
-        try:
-            return round(float(val), 2) if val is not None else None
-        except (ValueError, TypeError):
-            return None
+    def safe(*keys):
+        for key in keys:
+            val = nutriments.get(key)
+            if val is not None:
+                try:
+                    return round(float(val), 2)
+                except (ValueError, TypeError):
+                    continue
+        return None
+
+    # Calculate energy in kcal, converting from kJ if kcal is not present
+    energy_kcal = safe("energy-kcal_100g", "energy-kcal_prepared_100g")
+    if energy_kcal is None:
+        energy_kj = safe("energy_100g", "energy_prepared_100g")
+        if energy_kj is not None:
+            energy_kcal = round(energy_kj / 4.184, 2)
 
     return {
-        "energy_kcal":       safe("energy-kcal_100g", "energy_100g"),
-        "fat_g":             safe("fat_100g"),
-        "saturated_fat_g":   safe("saturated-fat_100g"),
-        "carbohydrates_g":   safe("carbohydrates_100g"),
-        "sugars_g":          safe("sugars_100g"),
-        "fiber_g":           safe("fiber_100g"),
-        "proteins_g":        safe("proteins_100g"),
-        "salt_g":            safe("salt_100g"),
-        "sodium_mg":         safe("sodium_100g"),   # OpenFoodFacts returns in g, multiply ×1000
+        "energy_kcal":       energy_kcal,
+        "fat_g":             safe("fat_100g", "fat_prepared_100g"),
+        "saturated_fat_g":   safe("saturated-fat_100g", "saturated-fat_prepared_100g"),
+        "carbohydrates_g":   safe("carbohydrates_100g", "carbohydrates_prepared_100g"),
+        "sugars_g":          safe("sugars_100g", "sugars_prepared_100g"),
+        "fiber_g":           safe("fiber_100g", "fiber_prepared_100g"),
+        "proteins_g":        safe("proteins_100g", "proteins_prepared_100g"),
+        "salt_g":            safe("salt_100g", "salt_prepared_100g"),
+        "sodium_mg":         safe("sodium_100g", "sodium_prepared_100g"),   # OpenFoodFacts returns in g, multiply ×1000
     }
 
 
