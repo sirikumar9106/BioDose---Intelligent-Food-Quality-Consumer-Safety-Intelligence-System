@@ -10,7 +10,7 @@ import {
   ChevronRight, X, Edit, LogOut,
   ShieldCheck, ScanLine, Activity, Lock, Check,
   AlertTriangle, AlertCircle, CheckCircle, Clock,
-  ChevronUp, ChevronDown, Search,
+  ChevronUp, ChevronDown, Search, ArrowLeft, ArrowUpLeft
 
 } from "lucide-react"
 import { InteractiveBackground } from "@/components/interactive-background"
@@ -116,11 +116,29 @@ export default function DashboardPage() {
   const [panelOpen, setPanelOpen] = useState(false)
   const [editMode, setEditMode] = useState<EditMode>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  const [isSearchFocused, setIsSearchFocused] = useState(false)
+  const [recentSearches, setRecentSearches] = useState<string[]>([])
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      router.push(`/dashboard/search?q=${encodeURIComponent(searchQuery.trim())}`)
+  useEffect(() => {
+    const saved = localStorage.getItem("biodose_recent_searches")
+    if (saved) {
+      try {
+        setRecentSearches(JSON.parse(saved))
+      } catch {
+        // ignore
+      }
+    }
+  }, [])
+
+  const handleSearchSubmit = (e: React.FormEvent, customQuery?: string) => {
+    if (e) e.preventDefault()
+    const finalQuery = (customQuery || searchQuery).trim()
+    if (finalQuery) {
+      const updated = [finalQuery, ...recentSearches.filter(q => q !== finalQuery)].slice(0, 5)
+      setRecentSearches(updated)
+      localStorage.setItem("biodose_recent_searches", JSON.stringify(updated))
+      setIsSearchFocused(false)
+      router.push(`/dashboard/search?q=${encodeURIComponent(finalQuery)}`)
     }
   }
 
@@ -544,32 +562,29 @@ export default function DashboardPage() {
           </p>
         </motion.div>
 
-        {/* Google-like Search Bar */}
-        <motion.form 
-          onSubmit={handleSearchSubmit} 
+        {/* Google-like Search Bar trigger */}
+        <motion.div 
           initial={{ opacity: 0, y: 15 }} 
           animate={{ opacity: 1, y: 0 }} 
           transition={{ delay: 0.15 }}
           className="mb-12 max-w-2xl"
         >
-          <div className="relative group">
+          <div className="relative group cursor-pointer" onClick={() => setIsSearchFocused(true)}>
             <input
               type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              readOnly
               placeholder="Search for product using name or barcode"
-              className="w-full h-14 pl-12 pr-28 rounded-full border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-md transition-all duration-300 btn-3d"
+              className="w-full h-14 pl-12 pr-28 rounded-full border border-border bg-card text-foreground cursor-pointer focus:outline-none shadow-md transition-all duration-300 btn-3d"
             />
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5 group-focus-within:text-primary transition-colors" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5 group-hover:text-primary transition-colors" />
             <button
-              type="submit"
-              disabled={!searchQuery.trim()}
-              className="absolute right-2 top-1/2 -translate-y-1/2 h-10 px-5 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm disabled:opacity-50 disabled:pointer-events-none"
+              type="button"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-10 px-5 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-sm"
             >
               Search
             </button>
           </div>
-        </motion.form>
+        </motion.div>
 
         {/* Action Cards — Floating with pop hover */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
@@ -632,6 +647,89 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Full-screen Search Overlay (Google-like feel) */}
+      <AnimatePresence>
+        {isSearchFocused && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsSearchFocused(false)}
+              className="fixed inset-0 z-40 bg-background/95 backdrop-blur-md"
+            />
+
+            {/* Content Container */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="fixed inset-x-0 top-0 z-50 p-4 md:p-10 max-w-2xl mx-auto flex flex-col gap-4"
+            >
+              <form onSubmit={(e) => handleSearchSubmit(e)} className="w-full">
+                <div className="relative flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => setIsSearchFocused(false)}
+                    className="absolute left-3 p-1 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                  </button>
+                  <input
+                    type="text"
+                    autoFocus
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search for product using name or barcode"
+                    className="w-full h-14 pl-12 pr-28 rounded-full border border-primary/50 bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary shadow-lg transition-all duration-300"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!searchQuery.trim()}
+                    className="absolute right-2 h-10 px-5 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm disabled:opacity-50 disabled:pointer-events-none"
+                  >
+                    Search
+                  </button>
+                </div>
+              </form>
+
+              {/* Recent Searches Panel */}
+              <div className="bg-card border border-border rounded-2xl p-5 shadow-xl">
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                  Recent searches
+                </h3>
+
+                {recentSearches.length === 0 ? (
+                  <p className="text-sm text-muted-foreground italic py-2">
+                    No recent searches. Type to search products!
+                  </p>
+                ) : (
+                  <div className="divide-y divide-border/60">
+                    {recentSearches.map((term, index) => (
+                      <div
+                        key={index}
+                        onClick={() => {
+                          setSearchQuery(term)
+                          handleSearchSubmit(null as any, term)
+                        }}
+                        className="py-3 flex items-center justify-between cursor-pointer hover:text-primary group transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Clock className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                          <span className="text-sm font-medium">{term}</span>
+                        </div>
+                        <ArrowUpLeft className="w-4 h-4 text-muted-foreground group-hover:text-primary transform rotate-45 transition-all" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
