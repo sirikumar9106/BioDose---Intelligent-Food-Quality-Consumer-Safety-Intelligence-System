@@ -155,7 +155,7 @@ class BarcodeScanView(APIView):
 class ProductSearchView(APIView):
     """
     GET /products/search/?q=...
-    Searches for products by barcode or name on OpenFoodFacts.
+    Searches for products by barcode or name on OpenFoodFacts using robust NLP typo tolerance.
     """
     permission_classes = [AllowAny]
 
@@ -164,6 +164,15 @@ class ProductSearchView(APIView):
         import requests
         from apps.products.services.barcode import HEADERS, _parse_nutriments, fetch_product
         from utils.logger import app_logger
+
+        try:
+            from rapidfuzz import fuzz
+            def similarity(s1, s2):
+                return fuzz.WRatio(s1, s2)
+        except ImportError:
+            import difflib
+            def similarity(s1, s2):
+                return difflib.SequenceMatcher(None, s1.lower(), s2.lower()).ratio() * 100
 
         query = request.query_params.get("q", "").strip()
         if not query:
@@ -190,23 +199,56 @@ class ProductSearchView(APIView):
             else:
                 return Response({"products": []})
 
-        # Otherwise search by name
-        search_url = f"https://world.openfoodfacts.org/api/v2/search?q={urllib.parse.quote(query)}&fields=code,product_name,brands,quantity,serving_size,image_url,categories,nutriscore_grade,nova_group,ecoscore_grade,ingredients_text,additives_tags,additives_n,nutriments&page_size=20"
-        try:
-            response = requests.get(search_url, headers=HEADERS, timeout=10)
-            response.raise_for_status()
-            data = response.json()
-            raw_products = data.get("products", [])
-            products = []
-            for p in raw_products:
-                nutrition = _parse_nutriments(p.get("nutriments", {}))
-                if nutrition.get("sodium_mg") is not None:
-                    nutrition["sodium_mg"] = round(nutrition["sodium_mg"] * 1000, 1)
+        # NLP Typo-Tolerant Search
+        # 1. Search full query via cgi/search.pl
+        urls_to_fetch = [
+            f"https://world.openfoodfacts.org/cgi/search.pl?search_terms={urllib.parse.quote(query)}&search_simple=1&action=process&json=1&page_size=50"
+        ]
+        
+        # 2. Extract words and fetch them individually as well
+        words = [w for w in query.split() if len(w) >= 3]
+        for w in words[:2]:
+            urls_to_fetch.append(
+                f"https://world.openfoodfacts.org/cgi/search.pl?search_terms={urllib.parse.quote(w)}&search_simple=1&action=process&json=1&page_size=50"
+            )
 
-                products.append({
+        candidates = {}
+        for url in urls_to_fetch:
+            try:
+                response = requests.get(url, headers=HEADERS, timeout=10)
+                if response.ok:
+                    data = response.json()
+                    raw_products = data.get("products", [])
+                    for p in raw_products:
+                        code = p.get("code")
+                        if code and code not in candidates:
+                            candidates[code] = p
+            except Exception as exc:
+                app_logger.warning(f"Failed to fetch candidates from {url}: {exc}")
+
+        # Rank candidates by similarity
+        ranked_products = []
+        for p in candidates.values():
+            name = p.get("product_name") or p.get("product_name_en") or "Unknown Product"
+            brand = p.get("brands") or "Unknown"
+            fullName = f"{name} {brand}".strip()
+            
+            score = similarity(query, fullName)
+            
+            # Map standard structure
+            nutriments_raw = p.get("nutriments")
+            if nutriments_raw is None:
+                nutriments_raw = {}
+            nutrition = _parse_nutriments(nutriments_raw)
+            if nutrition.get("sodium_mg") is not None:
+                nutrition["sodium_mg"] = round(nutrition["sodium_mg"] * 1000, 1)
+
+            ranked_products.append((
+                score,
+                {
                     "barcode": p.get("code", ""),
-                    "product_name": p.get("product_name") or p.get("product_name_en") or "Unknown Product",
-                    "brand": p.get("brands", "Unknown"),
+                    "product_name": name,
+                    "brand": brand,
                     "quantity": p.get("quantity", ""),
                     "serving_size": p.get("serving_size", ""),
                     "image_url": p.get("image_url", ""),
@@ -218,8 +260,13 @@ class ProductSearchView(APIView):
                     "additives_tags": p.get("additives_tags", []),
                     "additives_count": p.get("additives_n", 0),
                     "nutrition_per_100g": nutrition,
-                })
-            return Response({"products": products})
-        except Exception as exc:
-            app_logger.error(f"Search API failed for query '{query}': {exc}")
-            return Response({"error": "Failed to search products."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                }
+            ))
+
+        # Sort by similarity score descending
+        ranked_products.sort(key=lambda x: x[0], reverse=True)
+        
+        # Take the top 20
+        final_products = [item[1] for item in ranked_products[:20]]
+        
+        return Response({"products": final_products})
