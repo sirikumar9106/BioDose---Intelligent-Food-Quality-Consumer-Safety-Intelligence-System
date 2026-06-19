@@ -222,9 +222,9 @@ function SearchContent() {
 
       const data = await res.json()
 
-      // Enforce minimum 3-second delay for backend calculations feeling
+      const randomDelay = Math.floor(Math.random() * (8000 - 4000 + 1)) + 4000;
       const elapsedTime = Date.now() - startTime
-      const remainingTime = Math.max(0, 3000 - elapsedTime)
+      const remainingTime = Math.max(0, randomDelay - elapsedTime)
       await new Promise((resolve) => setTimeout(resolve, remainingTime))
 
       if (!res.ok) {
@@ -380,9 +380,9 @@ function SearchContent() {
                           {isAnalyzing && (
                             <button
                               disabled
-                              className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-teal-500 animate-fluid-flow text-white font-bold text-sm glow-effect shadow-md flex items-center justify-center gap-2"
+                              className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-gradient-to-r from-emerald-500 via-teal-400 to-green-500 dark:from-emerald-700 dark:via-teal-600 dark:to-green-600 animate-fluid-flow text-white font-bold text-sm glow-effect shadow-md flex items-center justify-center gap-2"
                             >
-                              <RefreshCw className="w-4 h-4 animate-spin" /> Rigorous Backend Calculations...
+                              <RefreshCw className="w-4 h-4 animate-spin" /> Analyzing...
                             </button>
                           )}
                         </div>
