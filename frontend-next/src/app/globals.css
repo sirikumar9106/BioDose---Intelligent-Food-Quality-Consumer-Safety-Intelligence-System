@@ -130,3 +130,36 @@
     cursor: none !important;
   }
 }
+
+/* 3D Button Effects */
+.btn-3d {
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+}
+.btn-3d:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3), 
+              0 0 15px rgba(20, 184, 166, 0.4);
+}
+.btn-3d:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Fluid Wave/Gradient Flow Animation */
+@keyframes fluid-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-fluid-flow {
+  background-size: 200% 200%;
+  animation: fluid-flow 3s ease infinite;
+}
+
+/* Glow Effect */
+.glow-effect {
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.6), 0 0 40px rgba(236, 72, 153, 0.4);
+}

@@ -4,15 +4,13 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
-  Camera, ImageIcon, Hash, ArrowLeft, RefreshCw,
+  Camera, ImageIcon, ArrowLeft, RefreshCw,
   AlertTriangle, CheckCircle, AlertCircle,
-  Beaker, Zap, Droplets, Flame, ChevronDown, ChevronUp, X
+  Beaker, Zap, Flame, ChevronDown, ChevronUp, X, Sparkles
 } from "lucide-react"
 
 import { API_BASE_URL as API_URL } from "@/lib/api"
-
 
 interface AnalysisResult {
   product: {
@@ -36,12 +34,26 @@ interface AnalysisResult {
   }
 }
 
-type ScanMode = "menu" | "camera" | "manual" | "results"
+interface BasicProductInfo {
+  barcode: string
+  product_name: string
+  brand: string
+  quantity: string
+  nutrition_per_100g?: {
+    energy_kcal?: number
+    carbohydrates_g?: number
+    sugars_g?: number
+    fat_g?: number
+    proteins_g?: number
+    salt_g?: number
+  }
+}
+
+type ScanMode = "menu" | "camera" | "results"
 
 export default function ScanPage() {
   const router = useRouter()
   const [mode, setMode] = useState<ScanMode>("menu")
-  const [manualCode, setManualCode] = useState("")
   const [result, setResult] = useState<AnalysisResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -49,6 +61,12 @@ export default function ScanPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const html5QrCodeRef = useRef<InstanceType<typeof import("html5-qrcode").Html5Qrcode> | null>(null)
 
+  // Intermediate Product Found Modal
+  const [foundProduct, setFoundProduct] = useState<BasicProductInfo | null>(null)
+  const [showFoundModal, setShowFoundModal] = useState(false)
+  const [analyzingBarcode, setAnalyzingBarcode] = useState<string | null>(null)
+
+  // Additive Details Modal
   const [selectedAdditive, setSelectedAdditive] = useState<any | null>(null)
   const [wikiExtract, setWikiExtract] = useState<string | null>(null)
   const [wikiLoading, setWikiLoading] = useState(false)
@@ -63,7 +81,6 @@ export default function ScanPage() {
         queryName = additive.e_number
       }
 
-      // Step 1: Use Wikipedia search API to resolve the exact page title
       const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(queryName)}&format=json&origin=*`
       const searchRes = await fetch(searchUrl)
       let resolvedTitle = queryName
@@ -76,7 +93,6 @@ export default function ScanPage() {
         }
       }
 
-      // Step 2: Query summary for resolved title
       const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(resolvedTitle)}`)
       if (res.ok) {
         const data = await res.json()
@@ -87,7 +103,6 @@ export default function ScanPage() {
         }
       }
 
-      // Step 3: Fallback to E-number search
       if (additive.e_number && additive.e_number !== "UNKNOWN") {
         const eSearchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(additive.e_number)}&format=json&origin=*`
         const eSearchRes = await fetch(eSearchUrl)
@@ -161,7 +176,6 @@ export default function ScanPage() {
     return res
   }, [router])
 
-
   useEffect(() => {
     const token = getToken()
     if (!token) { router.push("/auth/login") }
@@ -177,7 +191,6 @@ export default function ScanPage() {
       try {
         const { Html5Qrcode } = await import("html5-qrcode")
         
-        // Wait up to 2 seconds (polling every 100ms) for the qr-reader element to be mounted in DOM
         let attempts = 0
         while (mounted && !document.getElementById("qr-reader") && attempts < 20) {
           await new Promise((resolve) => setTimeout(resolve, 100))
@@ -201,18 +214,18 @@ export default function ScanPage() {
               if (qrScanner && qrScanner.isScanning) {
                 qrScanner.stop()
                   .then(() => {
-                    analyzeBarcode(decoded)
+                    handleBarcodeDecoded(decoded)
                   })
                   .catch((err: any) => {
                     console.error("Failed to stop scanner on decode:", err)
-                    analyzeBarcode(decoded)
+                    handleBarcodeDecoded(decoded)
                   })
               } else {
-                analyzeBarcode(decoded)
+                handleBarcodeDecoded(decoded)
               }
             }
           },
-          () => {} // silent scan fail callback
+          () => {}
         )
       } catch (err) {
         console.error("Camera start failed:", err)
@@ -235,10 +248,32 @@ export default function ScanPage() {
     }
   }, [mode])
 
-  const analyzeBarcode = async (barcode: string) => {
+  // Decode barcode, find the product, display found modal
+  const handleBarcodeDecoded = async (barcode: string) => {
     setLoading(true)
     setError("")
     setMode("menu")
+    try {
+      const res = await fetchWithAuth(`${API_URL}/products/search/?q=${encodeURIComponent(barcode)}`)
+      const data = await res.json()
+      if (!res.ok || !data.products || data.products.length === 0) {
+        setError("Product not found. Scanning may have read a wrong barcode, or product is not in database.")
+      } else {
+        setFoundProduct(data.products[0])
+        setShowFoundModal(true)
+      }
+    } catch {
+      setError("Network error during product lookup.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Trigger actual analysis with 3s delay & fluid animation
+  const triggerAnalysis = async (barcode: string) => {
+    setAnalyzingBarcode(barcode)
+    setError("")
+    const startTime = Date.now()
     try {
       const res = await fetchWithAuth(`${API_URL}/products/analyze/`, {
         method: "POST",
@@ -246,16 +281,22 @@ export default function ScanPage() {
         body: JSON.stringify({ barcode })
       })
       const data = await res.json()
+
+      const elapsedTime = Date.now() - startTime
+      const remainingTime = Math.max(0, 3000 - elapsedTime)
+      await new Promise((resolve) => setTimeout(resolve, remainingTime))
+
       if (!res.ok) {
         setError(data.error || "Analysis failed. Product may not be in our database.")
       } else {
         setResult(data)
         setMode("results")
+        setShowFoundModal(false)
       }
     } catch {
       setError("Network error during analysis.")
     } finally {
-      setLoading(false)
+      setAnalyzingBarcode(null)
     }
   }
 
@@ -265,7 +306,6 @@ export default function ScanPage() {
     setLoading(true)
     setError("")
     try {
-      // Compress & resize image to max 1600px to prevent high bandwidth/RAM usage
       const resizedFile = await new Promise<File | Blob>((resolve) => {
         const objectUrl = URL.createObjectURL(file)
         const img = new Image()
@@ -297,7 +337,6 @@ export default function ScanPage() {
             return
           }
           
-          // Use high quality image smoothing to prevent barcode line blurring
           ctx.imageSmoothingEnabled = true
           ctx.imageSmoothingQuality = "high"
           
@@ -334,17 +373,16 @@ export default function ScanPage() {
         throw new Error(data.error || "Could not detect barcode in this image.")
       }
       if (data.barcode) {
-        analyzeBarcode(data.barcode)
+        handleBarcodeDecoded(data.barcode)
       } else {
         throw new Error("Could not decode barcode in this image.")
       }
     } catch (err: any) {
       setLoading(false)
-      setError(err.message || "Could not detect barcode in this image. Try another image or use manual entry.")
+      setError(err.message || "Could not detect barcode in this image. Try another image.")
     }
     if (e.target) e.target.value = ""
   }
-
 
   const getRiskConfig = (score: number) => {
     if (score >= 0.5) return { label: "High Risk", color: "text-red-500", bg: "bg-red-500/10 border-red-500/30", icon: <AlertTriangle className="w-6 h-6" />, ring: "ring-red-500/20" }
@@ -352,13 +390,17 @@ export default function ScanPage() {
     return { label: "Low Risk", color: "text-green-500", bg: "bg-green-500/10 border-green-500/30", icon: <CheckCircle className="w-6 h-6" />, ring: "ring-green-500/20" }
   }
 
+  const checkNutritionAvailable = (nutr?: BasicProductInfo["nutrition_per_100g"]) => {
+    if (!nutr) return false
+    return Object.values(nutr).some(v => v !== null && v !== undefined)
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Hidden div for file scan */}
       <div id="file-reader-dummy" style={{ display: "none" }} />
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
 
-      {/* Loading overlay */}
+      {/* Loading overlay for image uploading or camera resolution */}
       <AnimatePresence>
         {loading && (
           <motion.div
@@ -368,7 +410,7 @@ export default function ScanPage() {
             className="fixed inset-0 z-50 bg-background/80 backdrop-blur-md flex flex-col items-center justify-center gap-4"
           >
             <div className="w-12 h-12 rounded-full border-4 border-border border-t-primary animate-spin" />
-            <p className="text-muted-foreground font-medium">Analysing product...</p>
+            <p className="text-muted-foreground font-medium">Resolving product details...</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -376,7 +418,7 @@ export default function ScanPage() {
       <div className="max-w-2xl mx-auto p-4 md:p-8">
         {/* Top bar */}
         <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="icon" onClick={() => router.push("/dashboard")} className="rounded-full">
+          <Button variant="ghost" size="icon" onClick={() => router.push("/dashboard")} className="rounded-full btn-3d bg-card border">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <h1 className="text-2xl font-bold font-syne">Scan Product</h1>
@@ -404,7 +446,7 @@ export default function ScanPage() {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setMode("camera")}
-                className="p-8 rounded-2xl border border-teal-500/20 bg-gradient-to-br from-teal-500/10 to-transparent hover:from-teal-500/20 transition-all text-left group"
+                className="p-8 rounded-2xl border border-teal-500/20 bg-gradient-to-br from-teal-500/10 to-transparent hover:from-teal-500/20 transition-all text-left group btn-3d cursor-pointer"
               >
                 <Camera className="w-10 h-10 text-teal-400 mb-4 group-hover:scale-110 transition-transform" />
                 <h3 className="font-bold font-syne text-lg">Camera</h3>
@@ -414,38 +456,12 @@ export default function ScanPage() {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => fileInputRef.current?.click()}
-                className="p-8 rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-transparent hover:from-blue-500/20 transition-all text-left group"
+                className="p-8 rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-transparent hover:from-blue-500/20 transition-all text-left group btn-3d cursor-pointer"
               >
                 <ImageIcon className="w-10 h-10 text-blue-400 mb-4 group-hover:scale-110 transition-transform" />
                 <h3 className="font-bold font-syne text-lg">From Gallery</h3>
                 <p className="text-sm text-muted-foreground mt-1">Upload a photo of a product barcode from your device.</p>
               </motion.button>
-            </div>
-
-            {/* Manual Barcode Entry */}
-            <div className="p-6 rounded-2xl border border-border bg-card">
-              <div className="flex items-center gap-2 mb-4">
-                <Hash className="w-5 h-5 text-muted-foreground" />
-                <h3 className="font-semibold">Enter Barcode Manually</h3>
-              </div>
-              <div className="flex gap-3">
-                <Input
-                  value={manualCode}
-                  onChange={e => setManualCode(e.target.value)}
-                  placeholder="e.g. 8901030838616"
-                  className="bg-background flex-1"
-                  onKeyDown={e => e.key === "Enter" && manualCode && analyzeBarcode(manualCode)}
-                />
-                <motion.div whileTap={{ scale: 0.95 }}>
-                  <Button
-                    onClick={() => manualCode && analyzeBarcode(manualCode)}
-                    disabled={!manualCode}
-                    className="rounded-full px-6"
-                  >
-                    Analyse
-                  </Button>
-                </motion.div>
-              </div>
             </div>
           </motion.div>
         )}
@@ -462,7 +478,7 @@ export default function ScanPage() {
             <Button
               variant="outline"
               onClick={() => { html5QrCodeRef.current?.stop().catch(() => {}); setMode("menu") }}
-              className="w-full rounded-full"
+              className="w-full rounded-full btn-3d"
             >
               Cancel
             </Button>
@@ -607,7 +623,7 @@ export default function ScanPage() {
 
                       {result.analysis.safe_additives && result.analysis.safe_additives.length > 0 && (
                         <div className="mt-4 pt-4 border-t border-border/60">
-                          <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                           <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
                             Other Additives (No Risk Flagged)
                           </h4>
                           <div className="flex flex-wrap gap-1.5">
@@ -631,9 +647,9 @@ export default function ScanPage() {
             {/* Scan Another */}
             <motion.div whileTap={{ scale: 0.95 }}>
               <Button
-                onClick={() => { setResult(null); setMode("menu"); setManualCode(""); setError("") }}
+                onClick={() => { setResult(null); setMode("menu"); setError("") }}
                 variant="outline"
-                className="w-full rounded-full"
+                className="w-full rounded-full btn-3d"
                 size="lg"
               >
                 <RefreshCw className="w-4 h-4 mr-2" /> Scan Another Product
@@ -643,11 +659,106 @@ export default function ScanPage() {
         )}
       </div>
 
-      {/* Additive Details Glassmorphic Popup Modal */}
+      {/* Product Found Intermediate Pop-up Modal */}
+      <AnimatePresence>
+        {showFoundModal && foundProduct && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowFoundModal(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl overflow-hidden text-foreground flex flex-col gap-4 max-h-[85vh] z-10"
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setShowFoundModal(false)}
+                className="absolute top-4 right-4 p-2 rounded-full hover:bg-muted transition-colors z-10"
+              >
+                <X className="w-5 h-5 text-muted-foreground hover:text-foreground" />
+              </button>
+
+              {/* Header */}
+              <div className="space-y-1 pr-8">
+                <span className="text-[10px] font-bold tracking-wider text-teal-400 bg-teal-500/10 border border-teal-500/20 px-2.5 py-0.5 rounded-full uppercase">
+                  Product Found
+                </span>
+                <h3 className="text-xl font-bold font-syne mt-2 leading-tight">
+                  {foundProduct.product_name}
+                </h3>
+                <p className="text-xs text-muted-foreground font-mono">
+                  {foundProduct.brand} {foundProduct.quantity ? `· ${foundProduct.quantity}` : ""}
+                </p>
+              </div>
+
+              {/* Nutrition Split */}
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                  <Flame className="w-4 h-4 text-orange-400" /> Nutrition Split (per 100g)
+                </h4>
+                
+                {checkNutritionAvailable(foundProduct.nutrition_per_100g) && foundProduct.nutrition_per_100g ? (
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { label: "Energy", value: foundProduct.nutrition_per_100g.energy_kcal, unit: "kcal" },
+                      { label: "Carbs", value: foundProduct.nutrition_per_100g.carbohydrates_g, unit: "g" },
+                      { label: "Sugars", value: foundProduct.nutrition_per_100g.sugars_g, unit: "g" },
+                      { label: "Fat", value: foundProduct.nutrition_per_100g.fat_g, unit: "g" },
+                      { label: "Protein", value: foundProduct.nutrition_per_100g.proteins_g, unit: "g" },
+                      { label: "Salt", value: foundProduct.nutrition_per_100g.salt_g, unit: "g" },
+                    ].map((n) => (
+                      <div key={n.label} className="bg-muted/30 rounded-xl p-2.5 text-center border border-border/40">
+                        <div className="text-sm font-bold">{n.value != null ? `${n.value}${n.unit}` : "N/A"}</div>
+                        <div className="text-[9px] text-muted-foreground uppercase tracking-wider mt-0.5">{n.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground italic bg-muted/20 p-4 rounded-xl border text-center">
+                    Nutrition Split: Not Available
+                  </p>
+                )}
+              </div>
+
+              {/* Start Analysis Button */}
+              <div className="flex flex-col gap-2 pt-4 border-t border-border">
+                <p className="text-xs text-muted-foreground">
+                  Confirm to run the risk analysis for this product against your registered health conditions.
+                </p>
+
+                {analyzingBarcode !== foundProduct.barcode ? (
+                  <button
+                    onClick={() => triggerAnalysis(foundProduct.barcode)}
+                    className="btn-3d w-full py-3 rounded-full bg-primary text-primary-foreground font-bold text-sm shadow-md flex items-center justify-center gap-2"
+                  >
+                    <Sparkles className="w-4 h-4" /> Start Analysis
+                  </button>
+                ) : (
+                  <button
+                    disabled
+                    className="w-full py-3 rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-teal-500 animate-fluid-flow text-white font-bold text-sm glow-effect shadow-md flex items-center justify-center gap-2"
+                  >
+                    <RefreshCw className="w-4 h-4 animate-spin" /> Rigorous Backend Calculations...
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Additive Details Modal */}
       <AnimatePresence>
         {selectedAdditive && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -656,7 +767,6 @@ export default function ScanPage() {
               className="absolute inset-0 bg-black/70 backdrop-blur-md"
             />
 
-            {/* Modal Body */}
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -664,11 +774,9 @@ export default function ScanPage() {
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               className="relative w-full max-w-lg rounded-3xl border border-white/10 bg-black/60 backdrop-blur-xl p-6 shadow-2xl overflow-hidden text-foreground flex flex-col gap-4 max-h-[85vh] z-10"
             >
-              {/* Background gradient glow */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
               <div className="absolute bottom-0 left-0 w-32 h-32 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
 
-              {/* Close Button */}
               <button
                 onClick={() => setSelectedAdditive(null)}
                 className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-colors z-10"
@@ -676,7 +784,6 @@ export default function ScanPage() {
                 <X className="w-5 h-5 text-muted-foreground hover:text-white" />
               </button>
 
-              {/* Header */}
               <div className="space-y-1 pr-8">
                 <span className="text-[10px] font-bold tracking-wider text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2.5 py-0.5 rounded-full uppercase">
                   Additive Profile
@@ -689,9 +796,7 @@ export default function ScanPage() {
                 </p>
               </div>
 
-              {/* Scrollable Content */}
               <div className="flex-1 overflow-y-auto space-y-4 pr-1">
-                {/* Wikipedia Overview */}
                 <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
                   <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                     Wikipedia Overview
@@ -709,7 +814,6 @@ export default function ScanPage() {
                   )}
                 </div>
 
-                {/* Local Toxicological & Risk Details */}
                 <div className="space-y-3">
                   <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">
                     Toxicological Database Findings
@@ -742,7 +846,6 @@ export default function ScanPage() {
                     </div>
                   )}
 
-                  {/* Allergic Reactions */}
                   {selectedAdditive.allergic_reactions && selectedAdditive.allergic_reactions !== "NONE" && selectedAdditive.allergic_reactions !== "" && (
                     <div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/10 space-y-1">
                       <p className="text-[10px] text-amber-400 font-bold uppercase tracking-wide">Allergic Reactions</p>
@@ -752,7 +855,6 @@ export default function ScanPage() {
                     </div>
                   )}
 
-                  {/* Carcinogenic Risk */}
                   {selectedAdditive.carcinogenic_risk && selectedAdditive.carcinogenic_risk !== "NONE" && selectedAdditive.carcinogenic_risk !== "" && (
                     <div className="p-3 rounded-xl bg-rose-500/5 border border-rose-500/10 space-y-1">
                       <p className="text-[10px] text-rose-400 font-bold uppercase tracking-wide">Carcinogenic Risk Profile</p>
@@ -762,7 +864,6 @@ export default function ScanPage() {
                     </div>
                   )}
 
-                  {/* Medication Interactions */}
                   {selectedAdditive.medication_interactions && selectedAdditive.medication_interactions !== "NO" && selectedAdditive.medication_interactions !== "" && (
                     <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/10 space-y-1">
                       <p className="text-[10px] text-blue-400 font-bold uppercase tracking-wide">Medication Interactions</p>

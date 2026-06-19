@@ -150,3 +150,76 @@ class BarcodeScanView(APIView):
                 {"error": f"Failed to process image: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+class ProductSearchView(APIView):
+    """
+    GET /products/search/?q=...
+    Searches for products by barcode or name on OpenFoodFacts.
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        import urllib.parse
+        import requests
+        from apps.products.services.barcode import HEADERS, _parse_nutriments, fetch_product
+        from utils.logger import app_logger
+
+        query = request.query_params.get("q", "").strip()
+        if not query:
+            return Response({"products": []})
+
+        # Check if query is a barcode
+        if query.isdigit() and len(query) >= 8:
+            product = fetch_product(query)
+            if product:
+                return Response({
+                    "products": [{
+                        "barcode": product.get("barcode"),
+                        "product_name": product.get("product_name"),
+                        "brand": product.get("brand"),
+                        "quantity": product.get("quantity"),
+                        "serving_size": product.get("serving_size"),
+                        "image_url": product.get("image_url"),
+                        "nutrition_per_100g": product.get("nutrition_per_100g"),
+                        "ingredients_text": product.get("ingredients_text"),
+                        "additives_tags": product.get("additives_tags"),
+                        "additives_count": product.get("additives_count"),
+                    }]
+                })
+            else:
+                return Response({"products": []})
+
+        # Otherwise search by name
+        search_url = f"https://world.openfoodfacts.org/api/v2/search?q={urllib.parse.quote(query)}&fields=code,product_name,brands,quantity,serving_size,image_url,categories,nutriscore_grade,nova_group,ecoscore_grade,ingredients_text,additives_tags,additives_n,nutriments&page_size=20"
+        try:
+            response = requests.get(search_url, headers=HEADERS, timeout=10)
+            response.raise_for_status()
+            data = response.json()
+            raw_products = data.get("products", [])
+            products = []
+            for p in raw_products:
+                nutrition = _parse_nutriments(p.get("nutriments", {}))
+                if nutrition.get("sodium_mg") is not None:
+                    nutrition["sodium_mg"] = round(nutrition["sodium_mg"] * 1000, 1)
+
+                products.append({
+                    "barcode": p.get("code", ""),
+                    "product_name": p.get("product_name") or p.get("product_name_en") or "Unknown Product",
+                    "brand": p.get("brands", "Unknown"),
+                    "quantity": p.get("quantity", ""),
+                    "serving_size": p.get("serving_size", ""),
+                    "image_url": p.get("image_url", ""),
+                    "categories": p.get("categories", ""),
+                    "nutriscore_grade": p.get("nutriscore_grade", "").upper() or None,
+                    "nova_group": p.get("nova_group") or None,
+                    "ecoscore_grade": p.get("ecoscore_grade", "").upper() or None,
+                    "ingredients_text": p.get("ingredients_text", ""),
+                    "additives_tags": p.get("additives_tags", []),
+                    "additives_count": p.get("additives_n", 0),
+                    "nutrition_per_100g": nutrition,
+                })
+            return Response({"products": products})
+        except Exception as exc:
+            app_logger.error(f"Search API failed for query '{query}': {exc}")
+            return Response({"error": "Failed to search products."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

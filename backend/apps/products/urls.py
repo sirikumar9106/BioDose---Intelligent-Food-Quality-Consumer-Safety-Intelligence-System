@@ -3,6 +3,7 @@ from django.urls import path
 from apps.products.views import (
     BarcodeAnalysisView,
     BarcodeScanView,
+    ProductSearchView,
 )
 
 
@@ -15,5 +16,10 @@ urlpatterns = [
         "scan-image/",
         BarcodeScanView.as_view(),
         name="scan_image",
+    ),
+    path(
+        "search/",
+        ProductSearchView.as_view(),
+        name="product_search",
     ),
 ]

@@ -10,7 +10,7 @@ import {
   ChevronRight, X, Edit, LogOut,
   ShieldCheck, ScanLine, Activity, Lock, Check,
   AlertTriangle, AlertCircle, CheckCircle, Clock,
-  ChevronUp, ChevronDown,
+  ChevronUp, ChevronDown, Search,
 
 } from "lucide-react"
 import { InteractiveBackground } from "@/components/interactive-background"
@@ -115,6 +115,14 @@ export default function DashboardPage() {
   const [historyLoading, setHistoryLoading] = useState(false)
   const [panelOpen, setPanelOpen] = useState(false)
   const [editMode, setEditMode] = useState<EditMode>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/dashboard/search?q=${encodeURIComponent(searchQuery.trim())}`)
+    }
+  }
 
   const [selectedAdditive, setSelectedAdditive] = useState<any | null>(null)
   const [wikiExtract, setWikiExtract] = useState<string | null>(null)
@@ -527,7 +535,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Greeting */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-10">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-8">
           <h1 className="text-4xl md:text-5xl font-bold font-syne mb-2">
             Hello, <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-emerald-500">{profile.full_name.split(" ")[0]}</span> 👋
           </h1>
@@ -535,6 +543,33 @@ export default function DashboardPage() {
             Your health profile is active with {profile.health_conditions.length} condition{profile.health_conditions.length !== 1 ? "s" : ""}. Ready to scan?
           </p>
         </motion.div>
+
+        {/* Google-like Search Bar */}
+        <motion.form 
+          onSubmit={handleSearchSubmit} 
+          initial={{ opacity: 0, y: 15 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ delay: 0.15 }}
+          className="mb-12 max-w-2xl"
+        >
+          <div className="relative group">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search for product using name or barcode"
+              className="w-full h-14 pl-12 pr-28 rounded-full border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-md transition-all duration-300 btn-3d"
+            />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5 group-focus-within:text-primary transition-colors" />
+            <button
+              type="submit"
+              disabled={!searchQuery.trim()}
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-10 px-5 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm disabled:opacity-50 disabled:pointer-events-none"
+            >
+              Search
+            </button>
+          </div>
+        </motion.form>
 
         {/* Action Cards — Floating with pop hover */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
