@@ -15,11 +15,11 @@ This diagram represents the boundary of the BioDose system and shows all externa
 
 ```mermaid
 graph TD
-    User([👤 Consumer / User]) -->|1. Scan Barcode / Input Query| BioDose[📱 BioDose Application]
-    BioDose -->|2. Get Personalized Safety Feedback| User
+    User([👤 Consumer / User]) --->|  1. Scan Barcode / Input Query  | BioDose[📱 BioDose Application]
+    BioDose ---->|  2. Get Personalized Safety Feedback  | User
     
-    BioDose ---->|3. Query Barcode| OFF[🌐 OpenFoodFacts API]
-    OFF ---->|4. Return Ingredient & Nutrition Data| BioDose
+    BioDose ---->|  3. Query Barcode  | OFF[🌐 OpenFoodFacts API]
+    OFF ---->|  4. Return Ingredient & Nutrition Data  | BioDose
     
     BioDose ---->|5. Send Context & User Query| Groq[🧠 Groq Llama-3.1 Cloud API]
     Groq ---->|6. Return Safety Advice| BioDose
