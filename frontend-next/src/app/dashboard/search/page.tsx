@@ -72,6 +72,8 @@ function SearchContent() {
   const [analysisError, setAnalysisError] = useState("")
   const [expandedSection, setExpandedSection] = useState<string | null>("conditions")
 
+
+
   // Additive Details Modal
   const [selectedAdditive, setSelectedAdditive] = useState<any | null>(null)
   const [wikiExtract, setWikiExtract] = useState<string | null>(null)
@@ -463,9 +465,24 @@ function SearchContent() {
               </AnimatePresence>
             </div>
 
-            <Button onClick={() => router.push("/dashboard")} className="w-full rounded-full btn-3d py-6 font-bold text-base" size="lg">
-              Close & Go to Dashboard
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
+              <Button
+                onClick={() => {
+                  if (activeAnalysisProduct) {
+                    router.push(`/dashboard/chat?barcode=${activeAnalysisProduct.barcode}`)
+                  }
+                }}
+                className="flex-1 rounded-full bg-emerald-500 hover:bg-emerald-600 text-neutral-950 font-bold py-6 text-base flex items-center justify-center gap-2 border border-emerald-400/35"
+                size="lg"
+              >
+                <Sparkles className="w-5 h-5 text-neutral-950" />
+                Know more with MedSensei
+              </Button>
+              
+              <Button onClick={() => router.push("/dashboard")} className="flex-1 rounded-full btn-3d py-6 font-bold text-base" size="lg">
+                Close & Go to Dashboard
+              </Button>
+            </div>
           </motion.div>
         )}
 

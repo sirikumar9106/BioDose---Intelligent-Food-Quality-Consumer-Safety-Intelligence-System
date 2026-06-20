@@ -72,3 +72,25 @@ class ModelRegistry(models.Model):
     class Meta:
         app_label = "analysis"
         db_table = "analysis_modelregistry"
+
+
+class UserChatContext(models.Model):
+    """
+    Stores permanent personalized context and chat history for MedSensei.
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="chat_contexts"
+    )
+    situation = models.TextField(blank=True, default="")
+    chat_history = models.JSONField(default=list, blank=True)
+    temp_barcode = models.CharField(max_length=100, blank=True, default="")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        app_label = "analysis"
+        db_table = "analysis_userchatcontext"
+
+    def __str__(self):
+        return f"ChatContext({self.user.username})"

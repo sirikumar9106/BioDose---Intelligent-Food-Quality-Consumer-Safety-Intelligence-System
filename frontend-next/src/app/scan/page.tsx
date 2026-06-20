@@ -71,6 +71,8 @@ export default function ScanPage() {
   const [wikiExtract, setWikiExtract] = useState<string | null>(null)
   const [wikiLoading, setWikiLoading] = useState(false)
 
+
+
   const handleAdditiveClick = async (additive: any) => {
     setSelectedAdditive(additive)
     setWikiExtract(null)
@@ -645,17 +647,28 @@ export default function ScanPage() {
               </AnimatePresence>
             </div>
 
-            {/* Scan Another */}
-            <motion.div whileTap={{ scale: 0.95 }}>
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
+              <Button
+                onClick={() => {
+                  const bc = foundProduct?.barcode || analyzingBarcode || ""
+                  router.push(`/dashboard/chat?barcode=${bc}`)
+                }}
+                className="flex-1 rounded-full bg-emerald-500 hover:bg-emerald-600 text-neutral-950 font-bold py-6 text-base flex items-center justify-center gap-2 border border-emerald-400/35"
+                size="lg"
+              >
+                <Sparkles className="w-5 h-5 text-neutral-950" />
+                Know more with MedSensei
+              </Button>
+
               <Button
                 onClick={() => { setResult(null); setMode("menu"); setError("") }}
                 variant="outline"
-                className="w-full rounded-full btn-3d"
+                className="flex-1 rounded-full btn-3d py-6 font-bold text-base"
                 size="lg"
               >
                 <RefreshCw className="w-4 h-4 mr-2" /> Scan Another Product
               </Button>
-            </motion.div>
+            </div>
           </motion.div>
         )}
       </div>

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import {
   ChevronRight, X, ArrowLeft, Clock, ScanLine, AlertTriangle,
   AlertCircle, CheckCircle, ChevronUp, ChevronDown, Flame, Beaker,
-  Lock
+  Lock, Sparkles
 } from "lucide-react"
 import { InteractiveBackground } from "@/components/interactive-background"
 import { API_BASE_URL as API_URL } from "@/lib/api"
@@ -551,6 +551,21 @@ export default function HistoryPage() {
                             </motion.div>
                           )}
                         </AnimatePresence>
+                      </div>
+
+                      {/* MedSensei AI Integration */}
+                      <div className="pt-4 border-t border-border flex flex-col gap-2">
+                        <Button
+                          onClick={() => {
+                            if (activeHistoryDetail) {
+                              router.push(`/dashboard/chat?barcode=${activeHistoryDetail.barcode}`)
+                            }
+                          }}
+                          className="w-full rounded-full bg-emerald-500 hover:bg-emerald-600 text-neutral-950 font-bold py-4 text-sm flex items-center justify-center gap-2 border border-emerald-400/35"
+                        >
+                          <Sparkles className="w-4 h-4 text-neutral-950" />
+                          Know more with MedSensei
+                        </Button>
                       </div>
                     </>
                   )

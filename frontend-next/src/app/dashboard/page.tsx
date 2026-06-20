@@ -10,12 +10,9 @@ import {
   ChevronRight, X, Edit, LogOut,
   ShieldCheck, ScanLine, Activity, Lock, Check,
   AlertTriangle, AlertCircle, CheckCircle, Clock,
-  ChevronUp, ChevronDown, Search, ArrowLeft, ArrowUpLeft
-
+  ChevronUp, ChevronDown, Search, ArrowLeft, ArrowUpLeft, Sparkles
 } from "lucide-react"
 import { InteractiveBackground } from "@/components/interactive-background"
-
-
 import { API_BASE_URL as API_URL } from "@/lib/api"
 
 
@@ -587,9 +584,9 @@ export default function DashboardPage() {
         </motion.div>
 
         {/* Action Cards — Floating with pop hover */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {/* Scan card */}
-          <motion.div className="h-full" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <motion.div className="h-full" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
             <FloatingCard
               className="p-5 bg-gradient-to-br from-teal-500/10 to-emerald-500/10 border-teal-500/20 text-left group flex flex-col justify-between h-full"
               onClick={() => router.push("/scan")}
@@ -601,6 +598,23 @@ export default function DashboardPage() {
               </div>
               <div className="mt-4 flex items-center gap-1 text-teal-400 text-xs font-medium">
                 Start scanning <ChevronRight className="w-3.5 h-3.5" />
+              </div>
+            </FloatingCard>
+          </motion.div>
+
+          {/* MedSensei AI card */}
+          <motion.div className="h-full" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <FloatingCard
+              className="p-5 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/20 text-left group flex flex-col justify-between h-full"
+              onClick={() => router.push("/dashboard/chat")}
+            >
+              <div>
+                <Sparkles className="w-8 h-8 text-emerald-400 mb-3 group-hover:animate-pulse" />
+                <h3 className="font-bold text-lg font-syne mb-1 text-emerald-400">MedSensei AI</h3>
+                <p className="text-xs text-muted-foreground">Your Specialized Medical & Food Safety Guardian™</p>
+              </div>
+              <div className="mt-4 flex items-center gap-1 text-emerald-400 text-xs font-medium">
+                Consult AI <ChevronRight className="w-3.5 h-3.5" />
               </div>
             </FloatingCard>
           </motion.div>
