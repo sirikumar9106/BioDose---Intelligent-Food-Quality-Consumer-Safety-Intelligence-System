@@ -31,7 +31,7 @@ graph TD
 This level decomposes the system into its primary subsystems: Barcode Processing, Scorer Engine, Profile Management, and the MedSensei Chatbot.
 
 ```mermaid
-%%{init: {'flowchart': {'nodeSpacing': 50, 'rankSpacing': 70}}}%%
+%%{init: {'flowchart': {'nodeSpacing': 60, 'rankSpacing': 100}}}%%
 graph TD
     subgraph Frontend ["Frontend (Next.js / Vercel)"]
         UI["UI Views:<br/>Scan / Search / Dashboard / Chat"]
@@ -51,23 +51,23 @@ graph TD
         Groq["Groq API"]
     end
 
-    UI --->|"1. Send Barcode / Query"| Scorer
-    UI --->|"2. Chat Messages"| Chat
-    UI --->|"3. Password & Profile Updates"| Auth
+    UI -->|"1. Send Barcode/Query"| Scorer
+    UI -->|"2. Chat Messages"| Chat
+    UI -->|"3. Profile Updates"| Auth
 
-    Auth -->|"Verify Password &<br/>Update Conditions"| DB
+    Auth -->|"Verify &<br/>Update"| DB
 
-    Scorer ---->|"Lookup Barcode Data"| OFF
-    OFF ---->|"Return Product Info"| Scorer
-    Scorer ---->|"Fetch Local<br/>Additive Matrix"| DB
-    Scorer --->|"Run Matcher &<br/>Compute Risk"| Matcher
-    Matcher ----->|"Compute Synergistic<br/>Risk Score"| Scorer
-    Scorer --->|"Log Scan<br/>Anonymously"| DB
+    Scorer -->|"Fetch Additive<br/>Matrix"| DB
+    Scorer -->|"Log Scan"| DB
+    Scorer -->|"Run Matcher"| Matcher
+    Matcher -->|"Risk Score"| Scorer
+    Scorer -->|"Lookup Barcode"| OFF
+    OFF -->|"Product Info"| Scorer
 
-    Chat --->|"Retrieve<br/>Profile Locks"| DB
-    Chat --->|"Send Personalized<br/>Prompt"| Groq
-    Groq ---->|"Return AI Response"| Chat
-    Chat -->|"Display Response"| UI
+    Chat -->|"Profile Locks"| DB
+    Chat -->|"AI Prompt"| Groq
+    Groq -->|"AI Response"| Chat
+    Chat -->|"Response"| UI
 
     Matcher ~~~ External
 
