@@ -164,6 +164,22 @@ function ChatContent() {
   const [confirmError, setConfirmError] = useState<string | null>(null)
   const [confirmSuccess, setConfirmSuccess] = useState<string | null>(null)
 
+  const [placeholder, setPlaceholder] = useState("Ask MedSensei...")
+  useEffect(() => {
+    const updatePlaceholder = () => {
+      if (typeof window !== "undefined") {
+        if (window.innerWidth < 640) {
+          setPlaceholder("Ask MedSensei...")
+        } else {
+          setPlaceholder("Ask about medical safety, warnings, ingredients...")
+        }
+      }
+    }
+    updatePlaceholder()
+    window.addEventListener("resize", updatePlaceholder)
+    return () => window.removeEventListener("resize", updatePlaceholder)
+  }, [])
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Auto-scroll to bottom
@@ -392,7 +408,7 @@ function ChatContent() {
   }
 
   return (
-    <div className="relative min-h-screen text-foreground overflow-hidden flex flex-col font-sans">
+    <div className="relative h-[100dvh] text-foreground overflow-hidden flex flex-col font-sans">
       
       {/* Background Matrix/Glowing Grid Animation */}
       <div className="absolute inset-0 bg-background transition-colors duration-300 -z-20" />
@@ -403,8 +419,8 @@ function ChatContent() {
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-[120px] -z-10 animate-[pulse_6s_infinite_ease-in-out]" />
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-[120px] -z-10 animate-[pulse_9s_infinite_ease-in-out]" />
 
-      <div className={`max-w-4xl mx-auto w-full flex-1 flex flex-col p-4 md:p-8 z-10 transition-all duration-1000 ease-in-out ${
-        stage === "intro" ? "justify-center" : "justify-start"
+      <div className={`max-w-4xl mx-auto w-full flex-1 flex flex-col p-3 sm:p-4 md:p-8 z-10 min-h-0 transition-all duration-1000 ease-in-out ${
+        stage === "intro" ? "justify-center" : "justify-start h-0"
       }`}>
         
         {/* Navigation Bar - invisible during intro */}
@@ -414,13 +430,13 @@ function ChatContent() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
-              className="flex items-center justify-between mb-6"
+              className="flex items-center justify-between mb-4 sm:mb-6"
             >
               <button
                 onClick={() => router.push("/dashboard")}
-                className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-card/90 text-sm font-semibold hover:bg-accent text-foreground transition-colors shadow-lg cursor-pointer"
+                className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-border bg-card/90 text-xs sm:text-sm font-semibold hover:bg-accent text-foreground transition-colors shadow-lg cursor-pointer"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 Back to Dashboard
               </button>
             </motion.div>
@@ -434,8 +450,8 @@ function ChatContent() {
           initial="hidden"
           animate="visible"
           transition={{ type: "spring", stiffness: 40, damping: 15 }}
-          className={`text-center space-y-2 flex flex-col items-center justify-center ${
-            stage === "intro" ? "py-24" : "mb-6"
+          className={`text-center space-y-1 sm:space-y-2 flex flex-col items-center justify-center ${
+            stage === "intro" ? "py-24" : "mb-3 sm:mb-6"
           }`}
         >
           <motion.div 
@@ -443,10 +459,10 @@ function ChatContent() {
             variants={headerItemVariants}
             transition={{ type: "spring", stiffness: 40, damping: 15 }}
             className={`inline-flex items-center justify-center rounded-3xl bg-emerald-500/10 border border-emerald-500/20 shadow-inner animate-[pulse_4s_infinite] ${
-              stage === "intro" ? "w-24 h-24 mb-6" : "w-16 h-16 mb-2"
+              stage === "intro" ? "w-20 h-20 sm:w-24 h-24 mb-4 sm:mb-6" : "w-10 h-10 sm:w-16 h-16 mb-1 sm:mb-2"
             }`}
           >
-            <Sparkles className={`text-emerald-500 transition-all duration-700 ${stage === "intro" ? "w-12 h-12" : "w-8 h-8"}`} />
+            <Sparkles className={`text-emerald-500 transition-all duration-700 ${stage === "intro" ? "w-10 h-10 sm:w-12 h-12" : "w-5 h-5 sm:w-8 h-8"}`} />
           </motion.div>
           
           <motion.h1 
@@ -454,7 +470,7 @@ function ChatContent() {
             variants={headerItemVariants}
             transition={{ type: "spring", stiffness: 40, damping: 15 }}
             className={`font-extrabold tracking-tight font-syne text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 dark:from-emerald-400 dark:via-teal-300 dark:to-emerald-500 transition-all duration-700 ${
-              stage === "intro" ? "text-5xl md:text-7xl" : "text-4xl"
+              stage === "intro" ? "text-3xl sm:text-5xl md:text-7xl" : "text-xl sm:text-3xl md:text-4xl"
             }`}
           >
             MedSensei AI
@@ -465,7 +481,7 @@ function ChatContent() {
             variants={taglineVariants}
             transition={{ type: "spring", stiffness: 40, damping: 15 }}
             className={`text-emerald-600 dark:text-emerald-500/70 uppercase tracking-widest font-mono font-bold transition-all duration-700 ${
-              stage === "intro" ? "text-xs md:text-sm mt-3" : "text-xs"
+              stage === "intro" ? "text-[10px] sm:text-xs md:text-sm mt-2 sm:mt-3 px-4" : "text-[9px] sm:text-xs px-2"
             }`}
           >
             Your Specialized Medical & Food Safety Guardian™
@@ -479,11 +495,11 @@ function ChatContent() {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: "easeOut", delay: 0.4 }}
-              className="flex-1 flex flex-col rounded-3xl border border-border bg-card/90 backdrop-blur-md shadow-2xl overflow-hidden min-h-[400px]"
+              className="flex-1 flex flex-col rounded-3xl border border-border bg-card/90 backdrop-blur-md shadow-2xl overflow-hidden min-h-0"
             >
               {/* Active Product Bar if barcode exists */}
               {barcode && (
-                <div className="px-6 py-3 border-b border-border bg-emerald-500/5 flex items-center justify-between">
+                <div className="px-4 py-2 sm:px-6 sm:py-3 border-b border-border bg-emerald-500/5 flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">
                     Context Product: <strong className="text-emerald-600 dark:text-emerald-400 font-syne">{productLoading ? "Loading..." : (productName || barcode)}</strong>
                   </span>
@@ -494,7 +510,7 @@ function ChatContent() {
               )}
 
               {/* Messages Log */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
                 {messages.map((msg, idx) => {
                   const isAssistant = msg.role === "assistant"
                   const cleanedText = cleanSuggestTag(msg.content)
@@ -502,10 +518,10 @@ function ChatContent() {
 
                   return (
                     <div key={idx} className={`flex ${isAssistant ? "justify-start" : "justify-end"}`}>
-                      <div className="max-w-[80%] space-y-2">
+                      <div className="max-w-[85%] sm:max-w-[80%] space-y-2">
                         {/* Chat bubbles with 10% transparency (90% opaque) */}
                         <div
-                          className={`p-4 rounded-3xl text-sm leading-relaxed border shadow-sm font-sans ${
+                          className={`p-3.5 sm:p-4 rounded-3xl text-xs sm:text-sm leading-relaxed border shadow-sm font-sans ${
                             isAssistant
                               ? "bg-muted/90 border-border text-foreground rounded-tl-sm"
                               : "bg-emerald-500/90 dark:bg-emerald-500/90 border-emerald-400 text-neutral-950 font-bold rounded-tr-sm"
@@ -519,12 +535,12 @@ function ChatContent() {
 
                         {/* Quick Reply Options */}
                         {isAssistant && options.length > 0 && (
-                          <div className="flex flex-wrap gap-2 pt-2">
+                          <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-1 sm:pt-2">
                             {options.map((opt, oIdx) => (
                               <button
                                 key={oIdx}
                                 onClick={() => handleSendMessage(opt)}
-                                className="text-xs px-4 py-2 rounded-full border border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500 hover:text-black font-semibold text-emerald-600 dark:text-emerald-400 transition-all cursor-pointer shadow-md"
+                                className="text-[10px] sm:text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500 hover:text-black font-semibold text-emerald-600 dark:text-emerald-400 transition-all cursor-pointer shadow-md"
                               >
                                 {opt}
                               </button>
@@ -553,7 +569,7 @@ function ChatContent() {
                 {/* Waiting for response (general queries) */}
                 {isLoading && (
                   <div className="flex justify-start">
-                    <div className="bg-muted/90 border border-border text-muted-foreground p-4 rounded-3xl rounded-tl-sm text-sm flex items-center gap-2.5">
+                    <div className="bg-muted/90 border border-border text-muted-foreground p-3.5 sm:p-4 rounded-3xl rounded-tl-sm text-xs sm:text-sm flex items-center gap-2.5">
                       <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
                       MedSensei AI is analyzing...
                     </div>
@@ -641,22 +657,22 @@ function ChatContent() {
               </AnimatePresence>
 
               {/* Typing Bar */}
-              <div className="p-4 border-t border-border bg-card/90 flex gap-3">
+              <div className="p-3 sm:p-4 border-t border-border bg-card/90 flex gap-2 sm:gap-3">
                 <input
                   type="text"
-                  placeholder="Ask about medical safety, warnings, ingredients..."
+                  placeholder={placeholder}
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
                   disabled={isLoading}
-                  className="flex-1 bg-muted border border-border rounded-2xl px-4 py-3.5 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-emerald-500 transition-colors shadow-inner"
+                  className="flex-1 bg-muted border border-border rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3.5 text-xs sm:text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-emerald-500 transition-colors shadow-inner"
                 />
                 <button
                   onClick={() => handleSendMessage()}
                   disabled={isLoading || !inputValue.trim()}
-                  className="p-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 disabled:bg-muted text-black disabled:text-muted-foreground transition-all cursor-pointer flex items-center justify-center"
+                  className="p-2.5 sm:p-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 disabled:bg-muted text-black disabled:text-muted-foreground transition-all cursor-pointer flex items-center justify-center"
                 >
-                  <Send className="w-5 h-5" />
+                  <Send className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                 </button>
               </div>
 
