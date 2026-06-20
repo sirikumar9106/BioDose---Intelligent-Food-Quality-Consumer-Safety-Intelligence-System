@@ -31,36 +31,50 @@ graph TD
 This level decomposes the system into its primary subsystems: Barcode Processing, Scorer Engine, Profile Management, and the MedSensei Chatbot.
 
 ```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 50, 'rankSpacing': 70}}}%%
 graph TD
     subgraph Frontend ["Frontend (Next.js / Vercel)"]
-        UI[UI Views: Scan/Search/Dashboard/Chat]
+        UI["UI Views:<br/>Scan / Search / Dashboard / Chat"]
     end
 
     subgraph Backend ["Backend (Django / Railway)"]
-        Auth[🔑 Authentication Service]
-        Scorer[🧮 Synergistic Scorer Engine]
-        Chat[💬 MedSensei AI Chatbot]
-        DB[(🗄️ PostgreSQL Database)]
-        Matcher[🔍 RapidFuzz Matcher]
+        Auth["🔑 Authentication<br/>Service"]
+        Scorer["🧮 Synergistic<br/>Scorer Engine"]
+        Matcher["🔍 RapidFuzz<br/>Matcher"]
+        Chat["💬 MedSensei<br/>AI Chatbot"]
+        DB[("🗄️ PostgreSQL<br/>Database")]
     end
 
-    UI --> |1. Send Barcode / Query| Scorer
-    UI --> |2. Chat Messages| Chat
-    UI --> |3. Password & Profile Updates| Auth
-    
-    Auth --> |Verify Password & Update Conditions| DB
-    Scorer --> |Fetch Local Additive Matrix| DB
-    Scorer --> |Lookup Barcode Data| OFF[OpenFoodFacts]
-    OFF --> Scorer
-    
-    Scorer --> |Run Matcher & Compute Risk| Matcher
-    Matcher --> |Compute Synergistic Risk Score| Scorer
-    Scorer --> |Log Scan Anonymously| DB
-    
-    Chat --> |Retrieve Profile Locks| DB
-    Chat --> |Send Personalized Prompt| Groq[Groq API]
-    Groq --> Chat
-    Chat --> UI
+    subgraph External ["External Services"]
+        OFF["OpenFoodFacts"]
+        Groq["Groq API"]
+    end
+
+    UI -->|"1. Send Barcode / Query"| Scorer
+    UI -->|"2. Chat Messages"| Chat
+    UI -->|"3. Password & Profile Updates"| Auth
+
+    Auth -->|"Verify Password &<br/>Update Conditions"| DB
+
+    Scorer -->|"Lookup Barcode Data"| OFF
+    OFF -->|"Return Product Info"| Scorer
+    Scorer -->|"Fetch Local<br/>Additive Matrix"| DB
+    Scorer -->|"Run Matcher &<br/>Compute Risk"| Matcher
+    Matcher -->|"Compute Synergistic<br/>Risk Score"| Scorer
+    Scorer -->|"Log Scan<br/>Anonymously"| DB
+
+    Chat -->|"Retrieve<br/>Profile Locks"| DB
+    Chat -->|"Send Personalized<br/>Prompt"| Groq
+    Groq -->|"Return AI Response"| Chat
+    Chat -->|"Display Response"| UI
+
+    classDef frontendStyle fill:#1f2937,stroke:#60a5fa,stroke-width:1px,color:#fff
+    classDef backendStyle fill:#1f2937,stroke:#34d399,stroke-width:1px,color:#fff
+    classDef externalStyle fill:#1f2937,stroke:#fbbf24,stroke-width:1px,color:#fff
+
+    class UI frontendStyle
+    class Auth,Scorer,Matcher,Chat,DB backendStyle
+    class OFF,Groq externalStyle
 ```
 
 ---
