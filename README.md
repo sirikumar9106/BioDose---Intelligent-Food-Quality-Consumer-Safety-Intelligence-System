@@ -15,11 +15,14 @@ This diagram represents the boundary of the BioDose system and shows all externa
 
 ```mermaid
 graph TD
-    User([👤 Consumer / User]) <--> |Scans Barcode / Inputs Queries| BioDose[📱 BioDose Application]
-    BioDose <--> |Fetch Product Details| OFF[🌐 OpenFoodFacts API]
-    OFF <--> |Ingredients & Nutrition Data| BioDose
-    BioDose <--> |Context-Aware Prompts / Queries| Groq[🧠 Groq Llama-3.1 Cloud API]
-    Groq --> |Conversational Safety Responses| BioDose
+    User([👤 Consumer / User]) -->|1. Scan Barcode / Input Query| BioDose[📱 BioDose Application]
+    BioDose -->|2. Get Personalized Safety Feedback| User
+    
+    BioDose -->|3. Query Barcode| OFF[🌐 OpenFoodFacts API]
+    OFF -->|4. Return Ingredient & Nutrition Data| BioDose
+    
+    BioDose -->|5. Send Context & User Query| Groq[🧠 Groq Llama-3.1 Cloud API]
+    Groq -->|6. Return Safety Advice| BioDose
 ```
 
 ---
@@ -29,11 +32,11 @@ This level decomposes the system into its primary subsystems: Barcode Processing
 
 ```mermaid
 graph TD
-    subgraph Frontend (Next.js / Vercel)
+    subgraph Frontend ["Frontend (Next.js / Vercel)"]
         UI[UI Views: Scan/Search/Dashboard/Chat]
     end
 
-    subgraph Backend (Django / Railway)
+    subgraph Backend ["Backend (Django / Railway)"]
         Auth[🔑 Authentication Service]
         Scorer[🧮 Synergistic Scorer Engine]
         Chat[💬 MedSensei AI Chatbot]
@@ -62,8 +65,8 @@ graph TD
 
 ---
 
-### 🔹 Level 2: Detailed Scorer & Matcher Pipeline
-This level zooms in on the scoring mechanism, showing exactly how raw ingredient lists are parsed, mapped to database tables, and evaluated through our toxicological scoring rules.
+### 🔹 Level 2: Detailed Scorer, Matcher & Shadow Pipeline
+This level zooms in on the scoring and shadow classification processes, detailing how ingredients are matched against local IDP dataset, logged to Supabase, and evaluated by the background shadow prediction service.
 
 ```mermaid
 graph TD
@@ -71,7 +74,7 @@ graph TD
     Extractor --> |Identifies E-Numbers & Ingredient Names| ExtractedData{Extracted Additives}
     
     ExtractedData --> |Fuzzy Match names & exact E-Number lookup| RapidFuzz[🔍 RapidFuzz Matcher]
-    RapidFuzz <--> |Query Toxicological Profiles| IDP_DB[(🗄️ IDP Database)]
+    RapidFuzz <--> |1. Query Toxicological Profiles| IDP_DB[(🗄️ Local IDP Registry DB)]
     
     RapidFuzz --> |Collate Matched Rows| MathScorer[🧮 Synergistic Toxicity Math Scorer]
     
@@ -84,6 +87,18 @@ graph TD
     
     IntraRisk & WeightedRisk & InterPenalties --> FinalRisk[⚖️ Final Risk Classifier]
     FinalRisk --> |Score 0.0-1.0 & Label: Safe/Caution/Avoid/Strictly Avoid| Report[📋 Generated Safety Report]
+    
+    %% Database and Log Stream
+    Report --> |Log Anonymized Transaction| SupabaseDB[(🗄️ Supabase Postgres Core DB)]
+    UserProfile --> |Save Locked Conditions| SupabaseDB
+    
+    %% Shadow Model Integration
+    SupabaseDB --> |Feed Transaction Logs| LogStream{Transaction Stream}
+    LogStream --> |Batch Load every 1000 Logs| Trainer[⚙️ Background Shadow Trainer]
+    Trainer --> |Retrain Model| ShadowModel[🧠 Shadow Prediction Model]
+    ShadowModel <--> |Query Past Inputs & Performance Metrics| ShadowDB[(🗄️ Supabase Shadow Database)]
+    
+    FinalRisk --> |Compare and Validate Score| ShadowModel
 ```
 
 ---
@@ -177,10 +192,13 @@ To guarantee patient data privacy and prevent unauthorized modifications to crit
 ## ⚙️ Technologies & Deployment
 
 The BioDose system is designed for modular, cloud-agnostic deployment:
-*   **Frontend**: Built with **Next.js (App Router)** and styled with **Vanilla CSS & Tailwind** for fluid, responsive layouts. Deployed on **Vercel**.
-*   **Backend**: Built with **Django REST Framework (DRF)**. Deployed on **Railway** container service.
-*   **Database**: **PostgreSQL** hosted on **Supabase** for robust transaction logging.
-*   **Caching**: **Redis** for OpenFoodFacts API response caching.
+*   **Frontend**: Built with **Next.js (App Router)** and Deployed on **Vercel**.
+*   **Backend**: Built with **Django REST Framework (DRF)** and Deployed on **Railway** container service.
+*   **Database Services**: 
+    *   **PostgreSQL (Supabase)**: Serves as the primary core database hosting user accounts, medical profiles, and transaction logs.
+    *   **Supabase Shadow Database**: Dedicated PostgreSQL instance isolating shadow model logging, performance metrics, and training batches.
+    *   **Local SQLite Registry**: Serves as a fast, offline toxicological reference registry for matching additives.
+*   **Caching**: **Redis** for API response cache.
 
 ---
 
@@ -196,6 +214,3 @@ The BioDose system is designed for modular, cloud-agnostic deployment:
 ## 💝 A Note of Thanks
 
 Thank you for taking the time to read through the architecture and mathematics behind **BioDose**. This project was born out of a desire to look beyond the calorie count and protect consumer health from the unseen additives and chemicals in processed foods. We appreciate your interest in our safety system!
-
----
-*Developed by Google DeepMind Advanced Agentic Coding team as Antigravity.*
