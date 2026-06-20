@@ -163,6 +163,42 @@ To keep the application robust, fast, and secure, the tools and dependencies are
 
 ---
 
+## 🏥 Selectable Medical Conditions & Obfuscated MDC Codes
+
+To provide a fully tailored safety report, BioDose maps toxicological profiles to **21 distinct health conditions**. Rather than referencing these conditions by their raw text strings in the database, API payloads, or scoring algorithms, they are standardized using **obfuscated MDC codes** (`MDC01` to `MDC21`):
+
+| Code | Medical Condition | Registry Column Mapping (IDP Database) | Severity Tier |
+|---|---|---|---|
+| **MDC01** | Diabetes Type 2 | `DIABETES TYPE 2 (SCORE)` | Tier 2 (Chronic) |
+| **MDC02** | Hypertension | `HYPERTENSION (SCORE)` | Tier 2 (Chronic) |
+| **MDC03** | Asthma | `ASTHMA (SCORE)` | Tier 3 (Mild) |
+| **MDC04** | Celiac Disease | `CELIAC DISEASE (SCORE)` | Tier 1 (Severe) |
+| **MDC05** | IBS | `IBS (SCORE)` | Tier 3 (Mild) |
+| **MDC06** | Chronic Kidney Disease | `CHRONIC KIDNEY DISEASE (SCORE)` | Tier 2 (Chronic) |
+| **MDC07** | Liver Disease | `LIVER DISEASE (SCORE)` | Tier 2 (Chronic) |
+| **MDC08** | Thyroid Disorders | `THYROID DISORDERS (SCORE)` | Tier 2 (Chronic) |
+| **MDC09** | Autoimmune Conditions | `AUTOIMMUNE CONDITIONS (SCORE)` | Tier 2 (Chronic) |
+| **MDC10** | ADHD | `ADHD (SCORE)` | Tier 3 (Mild) |
+| **MDC11** | Heart Disease | `HEART DISEASE (SCORE)` | Tier 2 (Chronic) |
+| **MDC12** | Pregnancy | `PREGNANCY (SCORE)` | Tier 3 (Mild) |
+| **MDC13** | Lactation | `LACTATION (SCORE)` | Tier 3 (Mild) |
+| **MDC14** | Infants (0–2 yrs) | `INFANTS O TO 2 YRS (SCORE)` | Tier 3 (Mild) |
+| **MDC15** | Children (3–12 yrs) | `CHILDREN 3 TO 12 YRS (SCORE)` | Tier 3 (Mild) |
+| **MDC16** | Elderly (60+) | `ELDERLY 60+ (SCORE)` | Tier 3 (Mild) |
+| **MDC17** | Peanut Allergy | `PEANUT ALLERGY (SCORE)` | Tier 1 (Severe) |
+| **MDC18** | Shellfish Allergy | `SHELFISH ALLERGY (SCORE)` | Tier 1 (Severe) |
+| **MDC19** | Dairy Allergy | `DAIRY ALLERGY (SCORE)` | Tier 1 (Severe) |
+| **MDC20** | Gluten Sensitivity | `GLUTEN SENSITIVITY (SCORE)` | Tier 3 (Mild) |
+| **MDC21** | Soy Allergy | `SOY ALLERGY (SCORE)` | Tier 1 (Severe) |
+
+### Why We Use Standardized MDC Codes (Instead of Raw Text Strings):
+1. **Decoupling Representation from Logic**: Human-readable condition names can change, have typographical variations, or vary based on language translations (e.g., *"Diabetes Type 2"* vs. *"Type 2 Diabetes"* or localized language versions). Using immutable codes like `MDC01` decouples database records and risk calculations from changes in the user interface.
+2. **Security & Privacy (Anonymization in Transit)**: Storing and transmitting codes like `MDC11` instead of descriptive text like *"Heart Disease"* provides an extra layer of privacy and data obfuscation. Even if transaction logs are audited, the data remains pseudonymized.
+3. **Database Performance & Storage Optimization**: Fixed-length alphanumeric identifiers (like `MDC01` to `MDC21`) are highly indexed, taking up minimal database storage space compared to variable-length text strings. This optimizes lookup speeds for complex queries.
+4. **Scorer Registry Column Binding**: The engine dynamically maps active profile IDs directly to dataset columns in the toxicological matrix. By having a strict code-to-column registry (e.g., `MDC02` resolves to `HYPERTENSION (SCORE)`), we avoid reflection issues and maintain compile-time type safety.
+
+---
+
 ## 🧮 The Mathematics of Personalized Risk Scoring
 
 The core of BioDose is its **Synergistic Risk Scoring Algorithm**, a multi-tiered mathematical model implemented in [scorer.py](file:///c:/Users/sirik/Desktop/BioDose/backend/apps/analysis/services/scorer.py). Unlike simple static lookup models, our scoring engine evaluates how multiple food additives interact with one another and with the user's specific health profile.
