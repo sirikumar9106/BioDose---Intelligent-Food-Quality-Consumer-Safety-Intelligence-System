@@ -120,6 +120,49 @@ graph TD
 
 ---
 
+## 🛠️ Project Core Files & Architecture
+
+The key processing paths and features of BioDose are implemented across the following core files:
+
+*   📂 **[scorer.py](file:///c:/Users/sirik/Desktop/BioDose/backend/apps/analysis/services/scorer.py)**: Implements the Synergistic Toxicity math algorithms, intra-condition scaling, tiered weight application, and interaction penalties.
+*   📂 **[matcher.py](file:///c:/Users/sirik/Desktop/BioDose/backend/apps/analysis/services/matcher.py)**: Performs fast database exact and fuzzy string lookups using specialized C-optimized NLP metrics.
+*   📂 **[extractor.py](file:///c:/Users/sirik/Desktop/BioDose/backend/apps/products/services/extractor.py)**: Standardizes ingredients text, extracts E-numbers, and structures additive candidates.
+*   📂 **[barcode.py](file:///c:/Users/sirik/Desktop/BioDose/backend/apps/products/services/barcode.py)**: Houses the computer vision cascade (YOLOv8 + SAM2) that crops, segments, and processes barcode boundaries.
+*   📂 **[views.py](file:///c:/Users/sirik/Desktop/BioDose/backend/apps/analysis/views.py)**: Controls the chatbot endpoints, context injection routines, and handles local offline parsing fallbacks.
+*   📂 **[page.tsx](file:///c:/Users/sirik/Desktop/BioDose/frontend-next/src/app/dashboard/chat/page.tsx)**: The custom frontend chatbot component utilizing dynamic viewport heights and responsive layouts.
+
+---
+
+## 🏗️ Technology Stack & Library Dependencies
+
+To keep the application robust, fast, and secure, the tools and dependencies are structured into two distinct tiers:
+
+### 🔹 Tier 1: Core Technologies
+*   **Backend Framework**: Django & Django REST Framework (DRF) for structured RESTful API services.
+*   **Frontend Interface**: Next.js (App Router) & React running Tailwind CSS for dynamically scaling component layouts.
+*   **Database Services**: 
+    *   **PostgreSQL (Supabase)**: Holds user account registers, medical profiles, and transaction logs.
+    *   **Supabase Shadow Database**: Separate PostgreSQL instance dedicated to storing training logs and performance metrics for the shadow model.
+    *   **Local SQLite Registry**: Serves as a fast, offline toxicological reference registry for matching additives.
+*   **State Cache**: Redis for API response caching.
+
+### 🔹 Tier 2: Specialized Libraries & Core Dependencies
+*   **Computer Vision & Barcode Scanning**: 
+    *   `opencv-contrib-python` / `opencv-python-headless`: For frame-by-frame real-time image decoding.
+    *   `pyzbar` & `zxing-cpp`: For industrial-grade edge detection and decoding of degraded 1D barcodes.
+    *   `ultralytics`: YOLOv8 object detection model combined with Segment Anything (SAM2) hierarchy weights for automated visual cropping of barcode target boxes.
+*   **Typo Tolerance & NLP Matching**:
+    *   `rapidfuzz`: C++ optimized string matching library using Levenshtein distance metrics for tolerance against typos in scanned product ingredient listings.
+*   **Secure Authentication**:
+    *   `djangorestframework-simplejwt`: Enforces secure token-based user profile session authentication and refresh token rotation mechanics.
+*   **Concurrent Routing & Assets Serving**:
+    *   `gunicorn` (with `gevent` workers): For high-concurrency asynchronous runtime hosting on Railway.
+    *   `whitenoise`: Configured to serve compressed and cached static staticfiles directly from Django.
+*   **Environment Binding**:
+    *   `python-dotenv`: Integrates runtime configurations and locks system environment bounds.
+
+---
+
 ## 🧮 The Mathematics of Personalized Risk Scoring
 
 The core of BioDose is its **Synergistic Risk Scoring Algorithm**, a multi-tiered mathematical model implemented in [scorer.py](file:///c:/Users/sirik/Desktop/BioDose/backend/apps/analysis/services/scorer.py). Unlike simple static lookup models, our scoring engine evaluates how multiple food additives interact with one another and with the user's specific health profile.
@@ -131,7 +174,7 @@ For each active condition $j$ registered in the user's profile:
     $$R_j = \min\left(1.0, \bar{S}_j \cdot \left(1 + \alpha \cdot (n_j - 1)\right)\right)$$
     *   $\bar{S}_j$: The average toxicological score of all detected ingredients flagging condition $j$ in the product.
     *   $n_j$: The total number of flagging ingredients detected.
-    *   $\alpha$: The non-linear multi-hit synergy factor (set to `0.25`). This represents the compounding effect when multiple chemicals stress the same biological pathway simultaneously.
+    *   $\alpha$: The non-linear multi-hit synergy factor (set to `0.25`).
 
 *   **Weighted User-Specific Condition Risk ($CR_j$)**:
     $$CR_j = R_j \cdot W_j \cdot P_j$$
@@ -142,15 +185,16 @@ For each active condition $j$ registered in the user's profile:
     $$Final\_Score = \min\left(1.0, CR_{max} + \beta \cdot \sum_{k \neq max} CR_k\right)$$
     *   $CR_{max}$: The maximum risk score calculated among all active conditions.
     *   $\sum_{k \neq max} CR_k$: The sum of risk scores for all other active conditions.
-    *   $\beta$: Cross-talk scaling coefficient (set to `0.15`) that factors in secondary triggers without causing excessive linear saturation.
+    *   $\beta$: Cross-talk scaling coefficient (set to `0.15`).
 
 ---
 
 ### 2. Clinical and Mathematical Proofs of Legitimacy
 Our mathematical approach is designed to model established toxicological and biological behaviors:
 
-*   **Dose-Response Multi-Hit Hypothesis**: In clinical toxicology, the *Multi-Hit Hypothesis* states that chronic diseases are rarely triggered by a single chemical stressor in isolation; rather, they arise from multiple sub-threshold insults to the same system. The term $(1 + \alpha \cdot (n_j - 1))$ mathematically scales the risk to reflect this non-linear pathway stress.
-*   **Cumulative Risk Assessment (CRA) Frameworks**: Guided by EPA and WHO standards, our final score formula uses the **Index Chemical / Relative Potency Factor (RPF)** technique combined with a cross-stressor interaction multiplier ($\beta$). This ensures that while the most severe threat ($CR_{max}$) dominates the evaluation, secondary active conditions still contribute proportionally to the risk.
+*   **Pharmacological Drug Synergism & Loewe Additivity**: The calculation of $R_j$ is modeled after **Loewe Additivity** and the **Fractional Inhibitory Concentration (FIC) index** used in pharmacology to analyze combined chemical synergy. By incorporating the factor $\left(1 + \alpha \cdot (n_j - 1)\right)$, we prevent underestimating cumulative toxicity from co-exposure.
+*   **Armitage-Doll Multi-Stage Clonal Transition Model**: In oncology and chronic pathology modeling, the *Armitage-Doll Model* shows that disease risk increases non-linearly with the number of consecutive environmental "hits" on a biological system. Our intra-condition formula uses this multi-hit modeling to accurately scale risk when multiple additives stress the same condition pathway.
+*   **Minkowski Distance Metric ($L_p$ Norm) & GBDT Leakage**: The final aggregation formula $CR_{max} + \beta \cdot \sum_{k \neq max} CR_k$ acts as a bounded Minkowski distance function ($L_p$ norm where $p \to \infty$) with a leakage parameter ($\beta$). This mirrors the independent action aggregation models in environmental toxicology and mimics the shrinkage/leakage mechanisms in **Gradient Boosted Decision Trees (GBDTs)** like XGBoost. This mathematical constraint ensures that secondary conditions add a fractional penalty, but the dominant health hazard ($CR_{max}$) always dictates the primary classification.
 *   **Tiered Clinical Severity Weighting**: Conditions are split into clinical severity tiers:
     *   **Tier 1 ($W = 1.0$)**: Instant/Severe reactions (e.g., Celiac Disease, Peanut Allergy, Shellfish Allergy, Dairy Allergy, Soy Allergy).
     *   **Tier 2 ($W = 0.6$)**: Chronic/Organ-damaging conditions (e.g., Diabetes Type 2, Hypertension, Kidney Disease, Liver Disease, Thyroid Disorders, Heart Disease, Autoimmune Conditions).
@@ -203,19 +247,6 @@ To guarantee patient data privacy and prevent unauthorized modifications to crit
 
 *   When the chatbot suggests adding a new condition (e.g., `[SUGGEST_CONDITION: MDC19]`), or when changes are saved in the profile settings, the frontend renders a password-locked confirmation overlay.
 *   The backend's `ChatbotConfirmConditionView` ([views.py](file:///c:/Users/sirik/Desktop/BioDose/backend/apps/analysis/views.py)) will only commit the changes to the PostgreSQL database if the user re-authenticates with their account password using `check_password`.
-
----
-
-## ⚙️ Technologies & Deployment
-
-The BioDose system is designed for modular, cloud-agnostic deployment:
-*   **Frontend**: Built with **Next.js (App Router)** and Deployed on **Vercel**.
-*   **Backend**: Built with **Django REST Framework (DRF)** and Deployed on **Railway** container service.
-*   **Database Services**: 
-    *   **PostgreSQL (Supabase)**: Serves as the primary core database hosting user accounts, medical profiles, and transaction logs.
-    *   **Supabase Shadow Database**: Dedicated PostgreSQL instance isolating shadow model logging, performance metrics, and training batches.
-    *   **Local SQLite Registry**: Serves as a fast, offline toxicological reference registry for matching additives.
-*   **Caching**: **Redis** for API response cache.
 
 ---
 
