@@ -200,6 +200,9 @@ Your strict rules:
             groq_api_key = os.environ.get("GROQ_API_KEY")
             if groq_api_key:
                 try:
+                    # Print diagnostics (safe first 6 chars of key)
+                    print(f"[Chatbot] GROQ_API_KEY found. Length: {len(groq_api_key)}, starts with: {groq_api_key[:6]}...")
+                    
                     groq_messages = [{"role": "system", "content": system_prompt}]
                     for msg in trimmed_history:
                         groq_messages.append({
@@ -228,6 +231,7 @@ Your strict rules:
                     if response.ok:
                         res_data = response.json()
                         bot_reply = res_data["choices"][0]["message"]["content"].strip()
+                        print("[Chatbot] Groq request succeeded.")
                     else:
                         groq_failed = True
                         print(f"[Chatbot] Groq API returned HTTP {response.status_code}: {response.text}")
@@ -236,6 +240,7 @@ Your strict rules:
                     print(f"[Chatbot] Groq connection failure: {e}")
             else:
                 groq_failed = True
+                print("[Chatbot] GROQ_API_KEY is not set or empty in environment!")
 
             # 2. Attempt Hugging Face (Secondary backup choice)
             if groq_failed and not bot_reply:
