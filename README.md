@@ -51,22 +51,22 @@ graph TD
         Groq["Groq API"]
     end
 
-    UI -->|"1. Send Barcode / Query"| Scorer
-    UI -->|"2. Chat Messages"| Chat
-    UI -->|"3. Password & Profile Updates"| Auth
+    UI --->|"1. Send Barcode / Query"| Scorer
+    UI --->|"2. Chat Messages"| Chat
+    UI --->|"3. Password & Profile Updates"| Auth
 
     Auth -->|"Verify Password &<br/>Update Conditions"| DB
 
-    Scorer -->|"Lookup Barcode Data"| OFF
-    OFF -->|"Return Product Info"| Scorer
-    Scorer -->|"Fetch Local<br/>Additive Matrix"| DB
-    Scorer -->|"Run Matcher &<br/>Compute Risk"| Matcher
-    Matcher -->|"Compute Synergistic<br/>Risk Score"| Scorer
-    Scorer -->|"Log Scan<br/>Anonymously"| DB
+    Scorer ---->|"Lookup Barcode Data"| OFF
+    OFF ---->|"Return Product Info"| Scorer
+    Scorer ---->|"Fetch Local<br/>Additive Matrix"| DB
+    Scorer --->|"Run Matcher &<br/>Compute Risk"| Matcher
+    Matcher ----->|"Compute Synergistic<br/>Risk Score"| Scorer
+    Scorer --->|"Log Scan<br/>Anonymously"| DB
 
-    Chat -->|"Retrieve<br/>Profile Locks"| DB
-    Chat -->|"Send Personalized<br/>Prompt"| Groq
-    Groq -->|"Return AI Response"| Chat
+    Chat --->|"Retrieve<br/>Profile Locks"| DB
+    Chat --->|"Send Personalized<br/>Prompt"| Groq
+    Groq ---->|"Return AI Response"| Chat
     Chat -->|"Display Response"| UI
 
     Matcher ~~~ External
