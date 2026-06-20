@@ -46,6 +46,7 @@ graph TD
     end
 
     subgraph External ["External Services"]
+        direction LR
         OFF["OpenFoodFacts"]
         Groq["Groq API"]
     end
@@ -67,6 +68,8 @@ graph TD
     Chat -->|"Send Personalized<br/>Prompt"| Groq
     Groq -->|"Return AI Response"| Chat
     Chat -->|"Display Response"| UI
+
+    Matcher ~~~ External
 
     classDef frontendStyle fill:#1f2937,stroke:#60a5fa,stroke-width:1px,color:#fff
     classDef backendStyle fill:#1f2937,stroke:#34d399,stroke-width:1px,color:#fff
