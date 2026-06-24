@@ -71,6 +71,7 @@ class ChatbotView(APIView):
 
     def post(self, request):
         import os
+        import re
         import requests
         from models.analysis_models import UserChatContext
         from apps.products.services.barcode import fetch_product
@@ -79,6 +80,17 @@ class ChatbotView(APIView):
 
         user_message = request.data.get("message", "").strip()
         barcode = request.data.get("barcode", "").strip()
+        clear_history = request.data.get("clear_history", False)
+
+        # ── Scan-history context isolation (called from history page) ────────────
+        # Frontend sends clear_history=True when navigating from scan history to
+        # a fresh chat about a different product. Wipe the stored session and return.
+        if clear_history:
+            chat_context, _ = UserChatContext.objects.get_or_create(user=request.user)
+            chat_context.chat_history = []
+            chat_context.temp_barcode = barcode
+            chat_context.save()
+            return Response({"status": "cleared", "message": "Chat history cleared."})
 
         if not user_message:
             return Response({"error": "Message is required."}, status=status.HTTP_400_BAD_REQUEST)
@@ -301,10 +313,42 @@ Never give one-size-fits-all advice when profile data is available.
 Never sound robotic or copy-pasted.
 5. QUICK REPLY OPTIONS — When clarification helps, offer 2–4 specific options: \
 [OPTIONS: Choice1, Choice2]. Use real context words.
-6. CONDITION SUGGESTIONS — If the user mentions a NEW condition not yet in their profile, \
-suggest adding it: [SUGGEST_CONDITION: MDC_ID]. \
-NEVER suggest conditions already registered ({user_conditions_str}). \
-Codes: {condition_code_ref}
+6. CONDITION SUGGESTIONS — This is the most sensitive feature of your system. Follow every
+   sub-rule below with zero exceptions:
+
+   a) NEVER SUGGEST based on minor or transient symptoms that anyone might experience
+      occasionally: fever, cold, flu, cough, runny nose, body ache, headache, fatigue,
+      tiredness, dizziness, stress, insomnia, mild nausea. These symptoms only inform
+      dietary advice — they must NEVER lead to a [SUGGEST_CONDITION: ...] tag.
+      If you see only these symptoms, give food-safety advice and move on.
+
+   b) ONLY BEGIN diagnostic questioning after a PATTERN has built up over at least 4
+      distinct user messages that collectively point to a specific, non-transient condition.
+      A single message — no matter how alarming-sounding — is NEVER enough.
+      Examples of patterns worth investigating: recurring allergic reactions tied to
+      specific food groups across multiple messages, persistent digestive distress linked
+      to particular ingredients over several turns, or the user explicitly stating they
+      suspect they have a condition.
+
+   c) DIAGNOSTIC QUESTIONING MODE — When a pattern qualifies under rule (b), do NOT
+      immediately suggest. Instead, enter a step-by-step elimination questionnaire:
+      - Ask ONE focused isolation question per reply using [OPTIONS: Yes, Mildly, No]
+      - Design each question to eliminate one possible condition at a time
+      - For allergy cases, isolate each allergen with a pure-form test question
+        e.g. "Have you ever had a reaction after eating plain paneer with no other
+        ingredients — no soy, no wheat, just fresh paneer?" [OPTIONS: Yes, Mildly, No]
+      - Wait for the user's answer before asking the NEXT isolation question
+      - After 2-3 confirmatory answers all pointing to the SAME condition, only THEN
+        frame your suggestion warmly: e.g. "Based on what you've shared, it sounds
+        like you may have a Dairy Allergy. I recommend adding this to your profile
+        so you get accurate risk warnings." and include [SUGGEST_CONDITION: MDC_ID]
+
+   d) NEVER suggest a condition already registered in the user's profile: ({user_conditions_str}).
+      NEVER suggest more than one condition in a single reply.
+      If multiple conditions are still possible after questioning, ask ONE more question
+      to narrow it down further before suggesting.
+
+   e) Condition codes for reference: {condition_code_ref}
 7. USE ALL CONTEXT — The sections below are your primary source materials. \
 Use them to give specific, evidence-backed answers. Do not fabricate or generalise \
 when real data is available.{profile_context_block}{product_context_block}
@@ -396,6 +440,64 @@ when real data is available.{profile_context_block}{product_context_block}
                         hf_failed = True
                 except Exception:
                     hf_failed = True
+
+        # ── Post-processing guard: strip premature condition suggestions ──────────
+        # Transient / generic symptoms that must NEVER alone trigger a suggestion
+        TRANSIENT_SYMPTOMS = {
+            "fever", "cold", "flu", "cough", "runny nose", "body ache", "headache",
+            "fatigue", "tired", "tiredness", "dizziness", "dizzy", "stress",
+            "stressed", "insomnia", "mild nausea", "nausea", "chills", "shiver",
+            "shivering", "temperature", "sore throat", "weakness", "sneezing",
+            "sneeze", "lethargy", "lethargic",
+        }
+        # Serious/persistent signals that DO justify entering diagnostic questioning
+        SERIOUS_SIGNALS = {
+            "rash", "hives", "swelling", "anaphyl", "bleed", "chronic",
+            "persistent", "recurring", "always", "every time", "whenever i eat",
+            "severe", "extreme", "allergic reaction", "vomit", "breathe",
+            "chest pain", "palpitation", "unable to", "itching badly",
+            "itchy", "burning sensation", "stomach cramp", "diarrhea",
+            "bloating", "can't eat", "cannot eat", "intolerance",
+        }
+
+        if bot_reply and "[SUGGEST_CONDITION:" in bot_reply:
+            # Count how many user turns existed BEFORE the current message
+            prior_user_turns = sum(
+                1 for m in trimmed_history if m.get("role") == "user"
+            )
+            # Check whether the AI has been asking diagnostic questions recently
+            recent_assistant_msgs = [
+                m.get("content", "").lower()
+                for m in trimmed_history[-8:]
+                if m.get("role") == "assistant"
+            ]
+            ai_asked_diagnostic_questions = sum(
+                1 for r in recent_assistant_msgs
+                if "?" in r and any(
+                    kw in r for kw in [
+                        "ever had", "do you", "have you", "did you", "when you eat",
+                        "after eating", "after consuming", "reaction", "options:",
+                    ]
+                )
+            )
+            # Determine if current message + history contain ONLY transient terms
+            all_user_text = msg_lower + " " + " ".join(
+                m.get("content", "").lower()
+                for m in trimmed_history
+                if m.get("role") == "user"
+            )
+            only_transient = (
+                any(t in all_user_text for t in TRANSIENT_SYMPTOMS)
+                and not any(s in all_user_text for s in SERIOUS_SIGNALS)
+            )
+            # Strip the suggestion if any guard fails:
+            #   • Fewer than 3 prior user turns (conversation too young)
+            #   • AI has not asked at least 1 diagnostic question yet
+            #   • All signals in the conversation are transient/minor only
+            if prior_user_turns < 3 or ai_asked_diagnostic_questions < 1 or only_transient:
+                bot_reply = re.sub(
+                    r"\[SUGGEST_CONDITION:\s*MDC\d+\]", "", bot_reply
+                ).strip()
 
         # ── Last-resort fallbacks (both APIs failed) ─────────────────────────────
         if not bot_reply:

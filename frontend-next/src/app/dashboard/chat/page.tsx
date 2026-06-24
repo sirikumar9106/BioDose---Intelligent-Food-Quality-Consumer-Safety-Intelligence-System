@@ -226,6 +226,21 @@ function ChatContent() {
     return res
   }
 
+  // Clear backend chat history whenever a barcode context is loaded.
+  // This prevents stale history from a previously viewed product (e.g. from Scan History)
+  // leaking into a fresh chat session about a completely different product.
+  useEffect(() => {
+    fetchWithAuth(`${API_URL}/api/v1/analysis/chatbot/chat/`, {
+      method: "POST",
+      body: JSON.stringify({
+        clear_history: true,
+        barcode: barcode || "",
+        message: "" // not used when clear_history is true
+      })
+    }).catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [barcode])
+
   // Fetch product name if barcode is active
   useEffect(() => {
     if (barcode) {
