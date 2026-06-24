@@ -151,7 +151,7 @@ class ChatbotView(APIView):
 
         # ── Load chat history early (needed for streak detection) ───────────────
         history = chat_context.chat_history or []
-        trimmed_history = history[-10:]
+        trimmed_history = history[-30:]
 
         # ── Health-anchor vocabulary ─────────────────────────────────────────────
         # Any message containing even ONE of these words is treated as health-related
@@ -332,8 +332,10 @@ Never sound robotic or copy-pasted.
 
    c) DIAGNOSTIC QUESTIONING MODE — When a pattern qualifies under rule (b), do NOT
       immediately suggest. Instead, enter a step-by-step elimination questionnaire:
-      - Ask ONE focused isolation question per reply using [OPTIONS: Yes, Mildly, No]
-      - Design each question to eliminate one possible condition at a time
+      - You MUST ask EXACTLY ONE focused isolation question per reply using [OPTIONS: Yes, Mildly, No].
+      - NEVER ask multiple questions, do NOT list multiple numbered questions, and do NOT ask follow-up or clarifying sub-questions in the same message.
+      - You must end your message immediately after presenting the single question and its [OPTIONS: ...] tag.
+      - Design each question to eliminate one possible condition at a time.
       - For allergy cases, isolate each allergen with a pure-form test question
         e.g. "Have you ever had a reaction after eating plain paneer with no other
         ingredients — no soy, no wheat, just fresh paneer?" [OPTIONS: Yes, Mildly, No]
