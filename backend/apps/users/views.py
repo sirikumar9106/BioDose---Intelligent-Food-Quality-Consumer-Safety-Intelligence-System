@@ -254,10 +254,14 @@ class SendOTPView(APIView):
         <body>
             <div class="container">
                 <div class="logo-container">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                        <path d="M12 8v8"/>
-                        <path d="M8 12h8"/>
+                    <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Medical Cross outline -->
+                        <path d="M38 20h24v18h18v24H62v18H38V62H20V38h18V20z" stroke="#00d2ff" stroke-width="5" stroke-linejoin="round" />
+                        <!-- Leaf outline -->
+                        <path d="M50 70c0 0 14-14 14-26s-8-18-14-18-14 6-14 18 14 26 14 26z" stroke="#10b981" stroke-width="4.5" stroke-linejoin="round" />
+                        <!-- Leaf stem & veins -->
+                        <path d="M50 26v44" stroke="#10b981" stroke-width="3" stroke-linecap="round" />
+                        <path d="M50 38c3 2 6 0 6 0M50 46c-3 2-6 0-6 0M50 54c3 2 6 0 6 0" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" />
                     </svg>
                 </div>
                 <div class="title">{subject}</div>
