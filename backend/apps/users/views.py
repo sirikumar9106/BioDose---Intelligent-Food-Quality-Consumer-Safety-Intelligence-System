@@ -174,13 +174,104 @@ class SendOTPView(APIView):
             defaults={"otp": otp, "is_used": False, "created_at": timezone.now() if 'timezone' in globals() else timezone.now()}
         )
 
+        subject = "BioDose Email Verification" if purpose == "signup" else "BioDose Password Reset Verification"
+        intro_text = (
+            "Thank you for joining BioDose. Please verify your email address to complete your registration."
+            if purpose == "signup"
+            else "We received a request to reset your BioDose account password. Please use the verification code below to proceed."
+        )
+
+        html_message = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <style>
+                body {{
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                    background-color: #0b0f19;
+                    color: #f3f4f6;
+                    margin: 0;
+                    padding: 0;
+                }}
+                .container {{
+                    max-width: 480px;
+                    margin: 40px auto;
+                    padding: 32px;
+                    background-color: #111827;
+                    border: 1px solid #1f2937;
+                    border-radius: 24px;
+                    text-align: center;
+                }}
+                .logo {{
+                    font-size: 24px;
+                    font-weight: 800;
+                    color: #10b981;
+                    letter-spacing: -0.05em;
+                    margin-bottom: 24px;
+                    text-transform: uppercase;
+                }}
+                .title {{
+                    font-size: 20px;
+                    font-weight: 700;
+                    margin-bottom: 12px;
+                    color: #ffffff;
+                }}
+                .intro {{
+                    font-size: 14px;
+                    line-height: 1.6;
+                    color: #9ca3af;
+                    margin-bottom: 32px;
+                }}
+                .code-box {{
+                    display: inline-block;
+                    padding: 16px 32px;
+                    font-size: 32px;
+                    font-weight: 800;
+                    letter-spacing: 6px;
+                    color: #10b981;
+                    background-color: #0b0f19;
+                    border: 1px solid #1f2937;
+                    border-radius: 16px;
+                    margin-bottom: 32px;
+                    font-family: Courier, monospace;
+                }}
+                .footer {{
+                    font-size: 12px;
+                    color: #6b7280;
+                    border-top: 1px solid #1f2937;
+                    padding-top: 20px;
+                }}
+                .warning {{
+                    color: #ef4444;
+                    font-weight: 600;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="logo">BioDose</div>
+                <div class="title">{subject}</div>
+                <div class="intro">{intro_text}</div>
+                <div class="code-box">{otp}</div>
+                <div class="footer">
+                    This code is valid for <span class="warning">10 minutes</span> and can only be used once.<br>
+                    If you did not request this email, please ignore it.
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        plain_message = f"{intro_text}\n\nYour BioDose verification code is: {otp}\n\nThis code will expire in 10 minutes."
+
         try:
             send_mail(
-                subject=f"BioDose Verification Code ({purpose})",
-                message=f"Your BioDose verification code is: {otp}. It will expire in 10 minutes.",
+                subject=subject,
+                message=plain_message,
                 from_email=settings.DEFAULT_FROM_EMAIL or "noreply@biodose.com",
                 recipient_list=[email],
                 fail_silently=False,
+                html_message=html_message,
             )
         except Exception:
             pass
