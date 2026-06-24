@@ -21,13 +21,10 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         write_only=True, required=True,
         style={"input_type": "password"},
     )
-    otp = serializers.CharField(
-        write_only=True, required=True
-    )
 
     class Meta:
         model = UserProfile
-        fields = ["email", "full_name", "username", "password", "confirm_password", "otp"]
+        fields = ["email", "full_name", "username", "password", "confirm_password"]
 
     def validate(self, attrs):
         if attrs["password"] != attrs["confirm_password"]:
@@ -44,28 +41,10 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         if not re.search(r'[!@#$&*]', pwd):
             raise serializers.ValidationError({"password": "Password must contain at least one special character (!@#$&*)."})
             
-        # OTP verification
-        from models.user_models import EmailOTP
-        email = attrs.get("email")
-        otp = attrs.get("otp")
-        
-        otp_record = EmailOTP.objects.filter(email=email).first()
-        if not otp_record:
-            raise serializers.ValidationError({"otp": "No verification request found for this email."})
-            
-        if otp_record.is_expired():
-            raise serializers.ValidationError({"otp": "OTP has expired. Please request a new one."})
-            
-        if otp_record.otp != otp:
-            raise serializers.ValidationError({"otp": "Invalid OTP code."})
-            
         return attrs
 
     def create(self, validated_data):
         validated_data.pop("confirm_password")
-        otp_val = validated_data.pop("otp")
-        from models.user_models import EmailOTP
-        EmailOTP.objects.filter(email=validated_data["email"], otp=otp_val).delete()
         return UserProfile.objects.create_user(**validated_data)
 
 

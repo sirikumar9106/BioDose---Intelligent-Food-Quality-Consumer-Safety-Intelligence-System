@@ -47,10 +47,16 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return f"{self.username} <{self.email}>"
 
 
-class EmailOTP(models.Model):
-    email = models.EmailField(unique=True)
+class OTPVerification(models.Model):
+    PURPOSE_CHOICES = [
+        ("signup", "Signup"),
+        ("reset", "Reset"),
+    ]
+    email = models.EmailField()
     otp = models.CharField(max_length=6)
-    created_at = models.DateTimeField(auto_now=True)
+    purpose = models.CharField(max_length=10, choices=PURPOSE_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
 
     class Meta:
         app_label = "users"
@@ -58,5 +64,26 @@ class EmailOTP(models.Model):
     def is_expired(self):
         from django.utils import timezone
         import datetime
-        return timezone.now() > self.created_at + datetime.timedelta(seconds=150) # 2.5 minutes
+        return timezone.now() > self.created_at + datetime.timedelta(minutes=10)
+
+
+class TempToken(models.Model):
+    PURPOSE_CHOICES = [
+        ("signup", "Signup"),
+        ("reset", "Reset"),
+    ]
+    email = models.EmailField()
+    token = models.UUIDField(default=uuid.uuid4, unique=True)
+    purpose = models.CharField(max_length=10, choices=PURPOSE_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+
+    class Meta:
+        app_label = "users"
+
+    def is_expired(self):
+        from django.utils import timezone
+        import datetime
+        return timezone.now() > self.created_at + datetime.timedelta(minutes=15)
+
 

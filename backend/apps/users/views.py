@@ -140,113 +140,179 @@ class LogoutView(APIView):
 
 
 import random
+import uuid
+from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
-from models.user_models import EmailOTP
+from models.user_models import OTPVerification, TempToken
 
-def generate_otp():
-    return f"{random.randint(100000, 999999)}"
-
-
-class SendSignupOTPView(APIView):
+class SendOTPView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
         email = request.data.get("email", "").strip().lower()
-        if not email:
-            return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
-        
-        if UserProfile.objects.filter(email=email).exists():
-            return Response({"error": "Email is already registered."}, status=status.HTTP_400_BAD_REQUEST)
-            
-        otp = generate_otp()
-        EmailOTP.objects.update_or_create(email=email, defaults={"otp": otp})
-        
+        purpose = request.data.get("purpose", "").strip()
+
+        if not email or not purpose:
+            return Response({"error": "Email and purpose are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if purpose not in ["signup", "reset"]:
+            return Response({"error": "Invalid purpose."}, status=status.HTTP_400_BAD_REQUEST)
+
+        email_exists = UserProfile.objects.filter(email=email).exists()
+
+        if purpose == "signup" and email_exists:
+            return Response({"error": "Account already exists with this email."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if purpose == "reset" and not email_exists:
+            return Response({"error": "No account found with this email."}, status=status.HTTP_400_BAD_REQUEST)
+
+        otp = str(random.randint(100000, 999999))
+        OTPVerification.objects.update_or_create(
+            email=email,
+            purpose=purpose,
+            defaults={"otp": otp, "is_used": False, "created_at": timezone.now() if 'timezone' in globals() else timezone.now()}
+        )
+
         try:
             send_mail(
-                subject="BioDose Signup Verification Code",
-                message=f"Your BioDose verification code is: {otp}. It will expire in 2.5 minutes.",
+                subject=f"BioDose Verification Code ({purpose})",
+                message=f"Your BioDose verification code is: {otp}. It will expire in 10 minutes.",
                 from_email=settings.DEFAULT_FROM_EMAIL or "noreply@biodose.com",
                 recipient_list=[email],
                 fail_silently=False,
             )
         except Exception:
             pass
-        
-        # Always output to console for development environment fallback
-        print(f"\n--- EMAIL OTP SENT TO {email}: {otp} ---\n")
-            
-        return Response({"success": True, "message": "Verification code sent."})
+
+        # Console print fallback for local development
+        print(f"\n--- EMAIL OTP SENT TO {email} for {purpose}: {otp} ---\n")
+
+        return Response({"message": "OTP sent"})
 
 
-class VerifySignupOTPView(APIView):
+class VerifyOTPView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
         email = request.data.get("email", "").strip().lower()
         otp = request.data.get("otp", "").strip()
-        
-        if not email or not otp:
-            return Response({"error": "Email and OTP are required."}, status=status.HTTP_400_BAD_REQUEST)
-            
-        otp_record = EmailOTP.objects.filter(email=email).first()
-        if not otp_record:
-            return Response({"error": "No OTP verification request found for this email."}, status=status.HTTP_404_NOT_FOUND)
-            
-        if otp_record.is_expired():
-            return Response({"error": "OTP has expired. Please request a new one."}, status=status.HTTP_400_BAD_REQUEST)
-            
-        if otp_record.otp != otp:
-            return Response({"error": "Invalid OTP verification code."}, status=status.HTTP_400_BAD_REQUEST)
-            
-        return Response({"success": True, "message": "OTP verified successfully."})
+        purpose = request.data.get("purpose", "").strip()
+
+        if not email or not otp or not purpose:
+            return Response({"error": "Email, OTP, and purpose are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        verification = OTPVerification.objects.filter(
+            email=email,
+            otp=otp,
+            purpose=purpose,
+            is_used=False
+        ).order_by("-created_at").first()
+
+        if not verification:
+            return Response({"error": "Wrong OTP code."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if verification.is_expired():
+            return Response({"error": "Expired OTP. Please request a new one."}, status=status.HTTP_400_BAD_REQUEST)
+
+        verification.is_used = True
+        verification.save()
+
+        # Generate TempToken
+        temp_token = TempToken.objects.create(
+            email=email,
+            purpose=purpose
+        )
+
+        return Response({
+            "verified": True,
+            "token": str(temp_token.token)
+        })
 
 
-class SendForgotPasswordOTPView(APIView):
+class CompleteSignupView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        email = request.data.get("email", "").strip().lower()
-        if not email:
-            return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
-            
-        if not UserProfile.objects.filter(email=email).exists():
-            return Response({"error": "No account associated with this email address."}, status=status.HTTP_404_NOT_FOUND)
-            
-        otp = generate_otp()
-        EmailOTP.objects.update_or_create(email=email, defaults={"otp": otp})
-        
+        token_str = request.data.get("token", "").strip()
+        full_name = request.data.get("full_name", "").strip()
+        username = request.data.get("username", "").strip()
+        password = request.data.get("password", "")
+
+        if not token_str or not full_name or not username or not password:
+            return Response({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
-            send_mail(
-                subject="BioDose Password Reset Code",
-                message=f"Your BioDose password reset verification code is: {otp}. It will expire in 2.5 minutes.",
-                from_email=settings.DEFAULT_FROM_EMAIL or "noreply@biodose.com",
-                recipient_list=[email],
-                fail_silently=False,
-            )
-        except Exception:
-            pass
-            
-        print(f"\n--- PASSWORD RESET OTP SENT TO {email}: {otp} ---\n")
-            
-        return Response({"success": True, "message": "Password reset code sent."})
+            token_uuid = uuid.UUID(token_str)
+        except ValueError:
+            return Response({"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST)
+
+        temp_token = TempToken.objects.filter(
+            token=token_uuid,
+            purpose="signup",
+            is_used=False
+        ).first()
+
+        if not temp_token:
+            return Response({"error": "Invalid or already used verification token."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if temp_token.is_expired():
+            return Response({"error": "Verification token expired. Please verify your email again."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if UserProfile.objects.filter(username__iexact=username).exists():
+            return Response({"error": "Username already taken."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if UserProfile.objects.filter(email=temp_token.email).exists():
+            return Response({"error": "Account already exists with this email."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Create user
+        user = UserProfile.objects.create_user(
+            email=temp_token.email,
+            username=username,
+            full_name=full_name,
+            password=password
+        )
+
+        temp_token.is_used = True
+        temp_token.save()
+
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            "message": "Account created successfully.",
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+            "profile_complete": user.profile_complete
+        })
 
 
 class ResetPasswordView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        email = request.data.get("email", "").strip().lower()
-        otp = request.data.get("otp", "").strip()
+        token_str = request.data.get("token", "").strip()
         new_password = request.data.get("new_password", "")
-        confirm_password = request.data.get("confirm_password", "")
-        
-        if not email or not otp or not new_password or not confirm_password:
-            return Response({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
-            
-        if new_password != confirm_password:
-            return Response({"error": "Passwords do not match."}, status=status.HTTP_400_BAD_REQUEST)
-            
+
+        if not token_str or not new_password:
+            return Response({"error": "Token and new password are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            token_uuid = uuid.UUID(token_str)
+        except ValueError:
+            return Response({"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST)
+
+        temp_token = TempToken.objects.filter(
+            token=token_uuid,
+            purpose="reset",
+            is_used=False
+        ).first()
+
+        if not temp_token:
+            return Response({"error": "Invalid or already used reset token."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if temp_token.is_expired():
+            return Response({"error": "Reset token expired. Please request a new OTP."}, status=status.HTTP_400_BAD_REQUEST)
+
         import re
         if len(new_password) < 8:
             return Response({"error": "Password must be at least 8 characters long."}, status=status.HTTP_400_BAD_REQUEST)
@@ -256,31 +322,16 @@ class ResetPasswordView(APIView):
             return Response({"error": "Password must contain at least one alphabet character."}, status=status.HTTP_400_BAD_REQUEST)
         if not re.search(r'[!@#$&*]', new_password):
             return Response({"error": "Password must contain at least one special character (!@#$&*)."}, status=status.HTTP_400_BAD_REQUEST)
-            
-        otp_record = EmailOTP.objects.filter(email=email).first()
-        if not otp_record:
-            return Response({"error": "No verification request found for this email."}, status=status.HTTP_404_NOT_FOUND)
-            
-        if otp_record.is_expired():
-            return Response({"error": "OTP has expired. Please request a new one."}, status=status.HTTP_400_BAD_REQUEST)
-            
-        if otp_record.otp != otp:
-            return Response({"error": "Invalid OTP code."}, status=status.HTTP_400_BAD_REQUEST)
-            
-        user = UserProfile.objects.filter(email=email).first()
+
+        user = UserProfile.objects.filter(email=temp_token.email).first()
         if not user:
             return Response({"error": "User account not found."}, status=status.HTTP_404_NOT_FOUND)
-            
+
         user.set_password(new_password)
         user.save()
-        otp_record.delete()
-        
-        refresh = RefreshToken.for_user(user)
-        
-        return Response({
-            "success": True,
-            "message": "Password reset successfully.",
-            "access": str(refresh.access_token),
-            "refresh": str(refresh),
-            "profile_complete": user.profile_complete
-        })
+
+        temp_token.is_used = True
+        temp_token.save()
+
+        return Response({"message": "Password updated successfully."})
+

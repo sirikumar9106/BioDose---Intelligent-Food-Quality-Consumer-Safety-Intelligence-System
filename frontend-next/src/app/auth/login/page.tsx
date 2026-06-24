@@ -291,18 +291,12 @@ function LoginForm() {
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <Label htmlFor="password">Password</Label>
-              <button
-                type="button"
-                onClick={() => {
-                  setForgotError("")
-                  setForgotSuccess("")
-                  setForgotStep(1)
-                  setShowForgotModal(true)
-                }}
+              <Link
+                href="/forgot-password"
                 className="text-xs text-primary hover:underline cursor-pointer focus:outline-none"
               >
                 Forgot password?
-              </button>
+              </Link>
             </div>
             <div className="relative">
               <Input 
@@ -330,137 +324,13 @@ function LoginForm() {
           </motion.div>
         </form>
 
-        <div className="mt-6 text-center text-sm text-muted-foreground">
+        <div className="mt-6 text-center text-sm text-muted-foreground font-inter">
           Don't have an account?{" "}
           <Link href="/auth/signup" className="text-primary hover:underline font-medium">
             Sign Up
           </Link>
         </div>
       </motion.div>
-
-      {/* Forgot Password Modal */}
-      <AnimatePresence>
-        {showForgotModal && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-          >
-            <motion.div 
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-card border border-border w-full max-w-md rounded-2xl p-6 shadow-2xl relative"
-            >
-              <button 
-                onClick={() => setShowForgotModal(false)}
-                className="absolute right-4 top-4 text-muted-foreground hover:text-foreground cursor-pointer"
-              >
-                <X size={20} />
-              </button>
-
-              <h3 className="text-2xl font-bold font-syne text-primary mb-1">Reset Password</h3>
-              <p className="text-xs text-muted-foreground mb-4">
-                We'll send a 6-digit verification code to reset your account credentials.
-              </p>
-
-              {forgotError && (
-                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 text-red-500 rounded-md text-xs flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                  <span>{forgotError}</span>
-                </div>
-              )}
-
-              {forgotSuccess && (
-                <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/50 text-emerald-500 rounded-md text-xs flex items-start gap-2">
-                  <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                  <span>{forgotSuccess}</span>
-                </div>
-              )}
-
-              {forgotStep === 1 ? (
-                <form onSubmit={handleSendForgotOTP} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="forgot_email">Email Address</Label>
-                    <Input 
-                      id="forgot_email" 
-                      type="email" 
-                      required
-                      placeholder="you@example.com"
-                      value={forgotEmail}
-                      onChange={(e) => setForgotEmail(e.target.value)}
-                      className="bg-background"
-                    />
-                  </div>
-                  <Button type="submit" className="w-full rounded-full" disabled={forgotLoading}>
-                    {forgotLoading ? "Sending Code..." : "Send Verification Code"}
-                  </Button>
-                </form>
-              ) : (
-                <form onSubmit={handleResetPassword} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-semibold">Verification Code</Label>
-                    
-                    {/* 6 Individual Digit Inputs */}
-                    <div className="flex justify-between gap-2 my-4">
-                      {forgotOtpValues.map((digit, idx) => (
-                        <input
-                          key={idx}
-                          id={`forgot-otp-${idx}`}
-                          type="text"
-                          maxLength={1}
-                          value={digit}
-                          onChange={(e) => handleForgotOtpChange(e.target.value, idx)}
-                          onKeyDown={(e) => handleForgotOtpKeyDown(e, idx)}
-                          className="w-11 h-12 text-center text-xl font-extrabold bg-background border border-border rounded-xl focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all text-foreground"
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="new_password">New Password</Label>
-                    <div className="relative">
-                      <Input 
-                        id="new_password" 
-                        type={showNewPassword ? "text" : "password"} 
-                        required
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        className="bg-background pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
-                      >
-                        {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="confirm_new_password">Confirm New Password</Label>
-                    <Input 
-                      id="confirm_new_password" 
-                      type={showNewPassword ? "text" : "password"} 
-                      required
-                      value={confirmNewPassword}
-                      onChange={(e) => setConfirmNewPassword(e.target.value)}
-                      className="bg-background"
-                    />
-                  </div>
-
-                  <Button type="submit" className="w-full rounded-full" disabled={forgotLoading || forgotOtpValues.join("").length !== 6}>
-                    {forgotLoading ? "Resetting Password..." : "Reset Password & Log In"}
-                  </Button>
-                </form>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   )
 }

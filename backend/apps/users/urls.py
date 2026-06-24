@@ -2,8 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (
     RegisterView, LogoutView, ProfileView, ProfileSetupView, CustomLoginView,
-    CheckUsernameView, UpdateUsernameView, UpdateConditionsView,
-    SendSignupOTPView, VerifySignupOTPView, SendForgotPasswordOTPView, ResetPasswordView
+    CheckUsernameView, UpdateUsernameView, UpdateConditionsView
 )
 
 urlpatterns = [
@@ -16,8 +15,4 @@ urlpatterns = [
     path("profile/setup/",       ProfileSetupView.as_view(),   name="auth_profile_setup"),
     path("update-username/",      UpdateUsernameView.as_view(), name="auth_update_username"),
     path("update-conditions/",    UpdateConditionsView.as_view(), name="auth_update_conditions"),
-    path("signup-otp/",           SendSignupOTPView.as_view(),    name="auth_signup_otp"),
-    path("verify-signup-otp/",    VerifySignupOTPView.as_view(),   name="auth_verify_signup_otp"),
-    path("forgot-password/",      SendForgotPasswordOTPView.as_view(), name="auth_forgot_password"),
-    path("reset-password/",       ResetPasswordView.as_view(),    name="auth_reset_password"),
 ]
