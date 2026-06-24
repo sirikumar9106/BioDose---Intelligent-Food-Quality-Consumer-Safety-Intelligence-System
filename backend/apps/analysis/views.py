@@ -86,17 +86,27 @@ class ChatbotView(APIView):
         # Get or create UserChatContext
         chat_context, created = UserChatContext.objects.get_or_create(user=request.user)
 
-        # Handle barcode context
-        if barcode:
-            chat_context.temp_barcode = barcode
+        # ── Barcode context isolation ────────────────────────────────────────────
+        # If the incoming barcode is different from the one stored in the session,
+        # this is a NEW product context. Clear the chat history so conversations
+        # about the old product NEVER bleed into the new product's Groq context.
+        incoming_barcode = barcode
+        stored_barcode = chat_context.temp_barcode or ""
+
+        if incoming_barcode and incoming_barcode != stored_barcode:
+            # New product — wipe history to prevent cross-product context leaking
+            chat_context.chat_history = []
+            chat_context.temp_barcode = incoming_barcode
             chat_context.save()
-        elif "barcode" in request.data:
-            # Explicit empty barcode sent by client: clear the session context barcode
+        elif not incoming_barcode and "barcode" in request.data:
+            # Explicit empty barcode from client: clear both barcode and history
+            chat_context.chat_history = []
             chat_context.temp_barcode = ""
             chat_context.save()
             barcode = ""
-        else:
-            barcode = chat_context.temp_barcode
+        elif not incoming_barcode:
+            # No barcode sent at all — reuse whatever was stored
+            barcode = stored_barcode
 
         product_info = None
         if barcode:
@@ -115,77 +125,195 @@ class ChatbotView(APIView):
         user_age = request.user.age or 0
         user_conditions = request.user.health_conditions or []
         user_conditions_str = ", ".join([mdc_to_display(c) for c in user_conditions]) if user_conditions else "No health conditions registered"
-
         msg_lower = user_message.lower()
 
-        # Pleasantry/Coffee check using whole-word matching
+        # ── Pure greeting shortcut ───────────────────────────────────────────────
         msg_words = set(msg_lower.replace("?", "").replace(".", "").replace("!", "").replace(",", "").split())
         pleasantry_reply = None
-        
-        is_pure_greeting = len(msg_words) <= 3 and any(greet in msg_words for greet in ["hi", "hello", "hey", "hola", "yo", "morning", "afternoon"])
-        is_pure_howareyou = len(msg_words) <= 5 and any(phrase in msg_lower for phrase in ["how are you", "how's it going", "how you doing", "how are you doing"])
-
+        is_pure_greeting = len(msg_words) <= 3 and any(g in msg_words for g in ["hi", "hello", "hey", "hola", "yo", "morning", "afternoon"])
+        is_pure_howareyou = len(msg_words) <= 5 and any(p in msg_lower for p in ["how are you", "how's it going", "how you doing", "how are you doing"])
         if "coffee" in msg_words and len(msg_words) <= 5:
-            pleasantry_reply = "I just refreshed my circuits! As an AI, I cannot consume physical coffee. Let's get back to your dietary health. How can I help you today?"
+            pleasantry_reply = "I just refreshed my circuits! As an AI I cannot consume coffee, but I am fully charged to help with your dietary and health questions. What would you like to know?"
         elif is_pure_greeting or is_pure_howareyou:
             pleasantry_reply = "Hello! I am MedSensei, your medical and food-safety assistant. How can I help you today?"
 
-        # Condition lookup check - flexible root checks
-        profile_query_reply = None
-        is_profile_query = any(k in msg_lower for k in ["condition", "allerg", "profile", "what should i avoid", "food should i not eat", "what to avoid", "risk for me"])
-        if is_profile_query:
-            profile_query_reply = f"Based on your locked profile, you have the following registered conditions: {user_conditions_str}. "
-            if user_conditions:
-                profile_query_reply += "You should be cautious and avoid foods containing ingredients/additives flagged for these conditions. How can I assist you further with this?"
-            else:
-                profile_query_reply += "Since you have no registered conditions, general food safety guidelines apply. How can I help?"
-
-        # Fetch free web search results for medical/safety queries
-        search_context = ""
-        web_results = []
-        if not pleasantry_reply and not profile_query_reply:
-            web_results = free_web_search(user_message)
-            if web_results:
-                search_context = "\n".join([
-                    f"- Source: {res['title']} ({res['link']}): {res['snippet']}"
-                    for res in web_results
-                ])
-
-        # Prepare system prompt
-        system_prompt = f"""You are MedSensei, a professional, highly curated and friendly medical, dietary, and food safety chatbot for the BioDose app.
-Your strict rules:
-1. ONLY discuss medical, health, diet, food ingredients, food additives, allergies, and safety topics.
-2. Accept normal daily pleasantries, but steer the conversation back to medical topics immediately.
-3. Strictly decline any non-medical/non-dietary tasks (e.g. math homework, programming help, general history, sports) with a polite reminder of your role.
-4. Keep the user's details in mind: Age: {user_age}, Registered conditions: {user_conditions_str}.
-5. If you need to ask clarifying questions, provide 2–4 quick reply choices using the format [OPTIONS: Choice1, Choice2] (replace Choice1 and Choice2 with actual context-specific options like [OPTIONS: Yes, No] or [OPTIONS: Mild, Severe, None] depending on your question). NEVER output the literal word 'Opt1' or 'Opt2'—always use context-relevant option text.
-6. If the user confirms a condition, suggest adding it to their profile by outputting the tag: [SUGGEST_CONDITION: MDC_ID] where MDC_ID is the matching code. Crucial: NEVER suggest, recommend, or output [SUGGEST_CONDITION: MDC_ID] for any condition that is ALREADY in the user's registered conditions list ({user_conditions_str}). Only suggest new/unregistered conditions. Codes:
-- Diabetes Type 2: MDC01
-- Hypertension: MDC02
-- Asthma: MDC03
-- Celiac Disease: MDC04
-- IBS: MDC05
-- Chronic Kidney Disease: MDC06
-- Liver Disease: MDC07
-- Thyroid Disorders: MDC08
-- Autoimmune Conditions: MDC09
-- ADHD: MDC10
-- Heart Disease: MDC11
-- Pregnancy: MDC12
-- Lactation: MDC13
-- Peanut Allergy: MDC17
-- Shellfish Allergy: MDC18
-- Dairy Allergy: MDC19
-- Gluten Sensitivity: MDC20
-- Soy Allergy: MDC21
-7. If a product context (barcode/ingredients) is active, restrict your advice to how that product affects their health and conditions. Product: {product_info}.
-8. Rely strictly on the following curated web search results to answer the user query accurately without making up facts. Search Context: {search_context}.
-"""
-
-        # Update chat history in context
+        # ── Load chat history early (needed for streak detection) ───────────────
         history = chat_context.chat_history or []
         trimmed_history = history[-10:]
 
+        # ── Health-anchor vocabulary ─────────────────────────────────────────────
+        # Any message containing even ONE of these words is treated as health-related
+        # and goes straight to Groq regardless of other words present.
+        HEALTH_ANCHORS = {
+            "diet", "food", "eat", "eating", "meal", "drink", "ingredient",
+            "additive", "allerg", "allergy", "allergic", "condition", "medicine",
+            "drug", "supplement", "calorie", "nutrition", "nutrient", "vitamin",
+            "mineral", "protein", "fat", "carb", "sugar", "sodium", "salt",
+            "pressure", "blood", "heart", "kidney", "liver", "thyroid", "lung",
+            "gut", "bowel", "asthma", "diabetes", "health", "healthy", "safe",
+            "safety", "risk", "harmful", "symptom", "disease", "disorder",
+            "product", "barcode", "scan", "pregnancy", "pregnant", "infant",
+            "child", "elderly", "gluten", "lactose", "soy", "peanut", "shellfish",
+            "dairy", "wheat", "ibs", "immune", "autoimmune", "adhd", "hypertension",
+            "cholesterol", "iron", "calcium", "obesity", "weight", "digest",
+            "digestive", "intolerance", "preservative", "colouring", "emulsifier",
+            "flavour", "flavor", "organic", "processed", "fiber", "fibre",
+            "carbohydrate", "glycemic", "toxin", "carcinogen", "e-number",
+            "msg", "aspartame", "stevia", "sucrose", "fructose", "glucose",
+            "omega", "fatty acid", "trans fat", "saturated", "antioxidant",
+            "probiotic", "prebiotic", "enzyme", "medication", "prescription",
+            "body", "metabol", "absorb", "nutrient", "hypo", "hyper",
+        }
+
+        # Signals that a message is likely purely off-topic
+        OFFTOPIC_SIGNALS = [
+            "cricket", "football", "soccer", "basketball", "tennis", "ipl",
+            "movie", "film", "actor", "actress", "song", "music", "lyrics",
+            "celebrity", "gaming", "valorant", "pubg", "fortnite", "minecraft",
+            "stock market", "crypto", "bitcoin", "ethereum", "trading", "nifty",
+            "sensex", "algebra", "geometry", "calculus", "differential equation",
+            "politics", "election", "parliament", "president", "prime minister",
+            "astronomy", "galaxy", "rocket", "spacecraft",
+            "who won", "what is the score", "who is the president",
+        ]
+
+        msg_has_health = any(h in msg_lower for h in HEALTH_ANCHORS)
+        msg_is_purely_offtopic = (
+            not msg_has_health
+            and not pleasantry_reply
+            and any(s in msg_lower for s in OFFTOPIC_SIGNALS)
+        )
+
+        # ── Consecutive off-topic streak counter ─────────────────────────────────
+        # Count how many of the most-recent user messages were ALSO purely off-topic
+        # (no health anchor). The current message is not yet in history.
+        offtopic_streak = 0
+        if msg_is_purely_offtopic:
+            for entry in reversed(trimmed_history):
+                if entry.get("role") == "user":
+                    prev = entry.get("content", "").lower()
+                    if not any(h in prev for h in HEALTH_ANCHORS) and any(s in prev for s in OFFTOPIC_SIGNALS):
+                        offtopic_streak += 1
+                    else:
+                        break
+            offtopic_streak += 1  # count current message
+
+        # Friendly nudge fires ONLY after 3 consecutive purely off-topic messages
+        out_of_domain_nudge = None
+        if offtopic_streak >= 3:
+            out_of_domain_nudge = (
+                "Hey, looks like we've drifted a little off the health trail! 😄 "
+                "I'm MedSensei — food safety and medical conditions are my world. "
+                "I'd love to help with anything on that front. "
+                "Got a question about a product, ingredient, or your health profile?"
+            )
+
+        # ── Profile-query context enrichment ────────────────────────────────────
+        # Detected when the user is asking about personal risk, conditions, or
+        # product safety. Adds a structured block to the system prompt so Groq
+        # explicitly references the user's conditions rather than giving generic info.
+        is_profile_query = any(k in msg_lower for k in [
+            "condition", "allerg", "profile", "what should i avoid",
+            "food should i not eat", "what to avoid", "risk for me", "risky",
+            "risk", "safe for me", "harmful", "avoid", "dangerous", "bad for me",
+            "affect me", "my health", "i have", "my condition",
+        ])
+        profile_context_block = ""
+        if is_profile_query or msg_has_health:
+            profile_context_block = (
+                f"\n\n=== USER HEALTH PROFILE ===\n"
+                f"Age: {user_age}\n"
+                f"Registered conditions / allergies: {user_conditions_str}\n"
+                f"When answering, explicitly name which of these conditions are relevant "
+                f"to the user's question and explain the mechanism in plain language. "
+                f"Never give a generic answer when you have personal profile data."
+            )
+
+        # Emergency fallback text — only used when BOTH Groq and HF fail entirely
+        profile_fallback_reply = None
+        if user_conditions:
+            profile_fallback_reply = (
+                f"Your profile shows: {user_conditions_str}. "
+                f"You should be mindful of ingredients and additives flagged for these conditions. "
+                f"How can I assist you further?"
+            )
+
+        # ── Web search context ───────────────────────────────────────────────────
+        # Run for all real queries. Results are passed to Groq as source material.
+        search_context = ""
+        web_results = []
+        if not pleasantry_reply and not out_of_domain_nudge:
+            web_results = free_web_search(user_message)
+            if web_results:
+                search_context = "\n".join([
+                    f"- [{res['title']}] {res['snippet']} (source: {res['link']})"
+                    for res in web_results
+                ])
+
+        # ── Product context block ────────────────────────────────────────────────
+        product_context_block = ""
+        if product_info:
+            product_context_block = (
+                f"\n\n=== ACTIVE PRODUCT CONTEXT ===\n"
+                f"Name: {product_info.get('product_name', 'Unknown')}\n"
+                f"Brand: {product_info.get('brand', 'Unknown')}\n"
+                f"Ingredients text: {product_info.get('ingredients', 'Not available')}\n"
+                f"Number of additives: {product_info.get('additives_count', 0)}\n"
+                f"Nutrition per 100g: {product_info.get('nutrition', {})}\n"
+                f"Ground your answer in these specifics. Explain how each relevant "
+                f"ingredient or additive interacts with the user's registered conditions."
+            )
+
+        # ── Condition code reference ─────────────────────────────────────────────
+        condition_code_ref = (
+            "Diabetes Type 2→MDC01, Hypertension→MDC02, Asthma→MDC03, "
+            "Celiac Disease→MDC04, IBS→MDC05, Chronic Kidney Disease→MDC06, "
+            "Liver Disease→MDC07, Thyroid Disorders→MDC08, "
+            "Autoimmune Conditions→MDC09, ADHD→MDC10, Heart Disease→MDC11, "
+            "Pregnancy→MDC12, Lactation→MDC13, Peanut Allergy→MDC17, "
+            "Shellfish Allergy→MDC18, Dairy Allergy→MDC19, "
+            "Gluten Sensitivity→MDC20, Soy Allergy→MDC21"
+        )
+
+        # ── System prompt ────────────────────────────────────────────────────────
+        system_prompt = f"""You are MedSensei, an expert, warm, and highly personalised \
+medical, dietary, and food-safety assistant embedded in the BioDose app.
+
+YOUR DOMAIN:
+  • Food ingredients, additives, preservatives, and E-numbers
+  • Nutritional values and dietary guidance
+  • Health conditions, allergies, and their relation to food/products
+  • Supplement and medicine safety as it relates to diet
+  • Product-specific risk analysis based on the user's health profile
+
+BEHAVIOUR RULES:
+1. STAY IN DOMAIN — If the conversation touches health, food, or ingredients in ANY way, \
+engage helpfully. Do NOT refuse just because a non-health word appears. \
+If someone frames a health question with math analogies or casual language, \
+laugh it off lightly and answer the underlying health question — the spirit matters more than the words.
+   Only redirect if the user is clearly asking about something with ZERO health relevance \
+(e.g. "solve this integral", "who won the cricket match"). Even then: one warm, brief \
+redirect sentence is enough — never preachy.
+2. GREETINGS — Warm and natural. Immediately offer relevant health assistance.
+3. PERSONALISE — Always tailor answers to the user's specific conditions and age. \
+Never give one-size-fits-all advice when profile data is available.
+4. TONE — Friendly, knowledgeable, concise. Vary phrasing naturally every reply. \
+Never sound robotic or copy-pasted.
+5. QUICK REPLY OPTIONS — When clarification helps, offer 2–4 specific options: \
+[OPTIONS: Choice1, Choice2]. Use real context words.
+6. CONDITION SUGGESTIONS — If the user mentions a NEW condition not yet in their profile, \
+suggest adding it: [SUGGEST_CONDITION: MDC_ID]. \
+NEVER suggest conditions already registered ({user_conditions_str}). \
+Codes: {condition_code_ref}
+7. USE ALL CONTEXT — The sections below are your primary source materials. \
+Use them to give specific, evidence-backed answers. Do not fabricate or generalise \
+when real data is available.{profile_context_block}{product_context_block}
+
+=== WEB SEARCH EVIDENCE ===
+{search_context if search_context else "No web results available — rely on your medical training."}
+"""
+
+        # ── Decide reply ─────────────────────────────────────────────────────────
         bot_reply = None
         groq_failed = False
         hf_failed = False
@@ -193,168 +321,103 @@ Your strict rules:
 
         if pleasantry_reply:
             bot_reply = pleasantry_reply
-        elif profile_query_reply:
-            bot_reply = profile_query_reply
+
+        elif out_of_domain_nudge:
+            # 3+ consecutive purely off-topic messages → friendly nudge
+            bot_reply = out_of_domain_nudge
+
         else:
-            # 1. Attempt Groq API (Primary choice, Jio DNS friendly, highly conversational)
+            # ── Primary: Groq ────────────────────────────────────────────────────
             groq_api_key = os.environ.get("GROQ_API_KEY")
             if groq_api_key:
                 try:
-                    # Print diagnostics (safe first 6 chars of key)
-                    print(f"[Chatbot] GROQ_API_KEY found. Length: {len(groq_api_key)}, starts with: {groq_api_key[:6]}...")
-                    
                     groq_messages = [{"role": "system", "content": system_prompt}]
-                    for msg in trimmed_history:
+                    for entry in trimmed_history:
                         groq_messages.append({
-                            "role": msg.get("role", "user"),
-                            "content": msg.get("content", "")
+                            "role": entry.get("role", "user"),
+                            "content": entry.get("content", ""),
                         })
                     groq_messages.append({"role": "user", "content": user_message})
 
-                    headers = {
-                        "Authorization": f"Bearer {groq_api_key}",
-                        "Content-Type": "application/json"
-                    }
-                    payload = {
-                        "model": "llama-3.1-8b-instant",
-                        "messages": groq_messages,
-                        "temperature": 0.2,
-                        "max_tokens": 256
-                    }
-
                     response = requests.post(
                         "https://api.groq.com/openai/v1/chat/completions",
-                        headers=headers,
-                        json=payload,
-                        timeout=15
+                        headers={
+                            "Authorization": f"Bearer {groq_api_key}",
+                            "Content-Type": "application/json",
+                        },
+                        json={
+                            "model": "llama-3.1-8b-instant",
+                            "messages": groq_messages,
+                            "temperature": 0.72,
+                            "max_tokens": 320,
+                        },
+                        timeout=15,
                     )
                     if response.ok:
-                        res_data = response.json()
-                        bot_reply = res_data["choices"][0]["message"]["content"].strip()
-                        print("[Chatbot] Groq request succeeded.")
+                        bot_reply = response.json()["choices"][0]["message"]["content"].strip()
                     else:
                         groq_failed = True
-                        print(f"[Chatbot] Groq API returned HTTP {response.status_code}: {response.text}")
-                except Exception as e:
+                except Exception:
                     groq_failed = True
-                    print(f"[Chatbot] Groq connection failure: {e}")
             else:
                 groq_failed = True
-                print("[Chatbot] GROQ_API_KEY is not set or empty in environment!")
 
-            # 2. Attempt Hugging Face (Secondary backup choice)
+            # ── Secondary: Hugging Face ──────────────────────────────────────────
             if groq_failed and not bot_reply:
                 try:
                     formatted_prompt = f"<|im_start|>system\n{system_prompt}<|im_end|>\n"
-                    for msg in trimmed_history:
-                        role = msg.get("role")
-                        content = msg.get("content")
-                        formatted_prompt += f"<|im_start|>{role}\n{content}<|im_end|>\n"
+                    for entry in trimmed_history:
+                        formatted_prompt += f"<|im_start|>{entry.get('role')}\n{entry.get('content')}<|im_end|>\n"
                     formatted_prompt += f"<|im_start|>user\n{user_message}<|im_end|>\n<|im_start|>assistant\n"
-                    
-                    headers = {}
+
+                    hf_headers = {}
                     hf_token = os.environ.get("HUGGINGFACE_API_KEY") or os.environ.get("HF_API_KEY")
                     if hf_token:
-                        headers["Authorization"] = f"Bearer {hf_token}"
-                        
-                    payload = {
-                        "inputs": formatted_prompt,
-                        "parameters": {
-                            "max_new_tokens": 256,
-                            "temperature": 0.2,
-                            "return_full_text": False
-                        },
-                        "options": {
-                            "wait_for_model": True
-                        }
-                    }
-                    
-                    response = requests.post(
+                        hf_headers["Authorization"] = f"Bearer {hf_token}"
+
+                    hf_response = requests.post(
                         "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-1.5B-Instruct",
-                        headers=headers,
-                        json=payload,
-                        timeout=35
+                        headers=hf_headers,
+                        json={
+                            "inputs": formatted_prompt,
+                            "parameters": {"max_new_tokens": 280, "temperature": 0.6, "return_full_text": False},
+                            "options": {"wait_for_model": True},
+                        },
+                        timeout=35,
                     )
-                    if response.ok:
-                        res_data = response.json()
-                        if isinstance(res_data, list) and len(res_data) > 0:
-                            text = res_data[0].get("generated_text", "")
-                            if "<|im_end|>" in text:
-                                text = text.split("<|im_end|>")[0]
-                            bot_reply = text.strip()
-                        elif isinstance(res_data, dict) and "generated_text" in res_data:
-                            text = res_data["generated_text"]
-                            if "<|im_end|>" in text:
-                                text = text.split("<|im_end|>")[0]
-                            bot_reply = text.strip()
+                    if hf_response.ok:
+                        res_data = hf_response.json()
+                        raw = (res_data[0].get("generated_text", "") if isinstance(res_data, list)
+                               else res_data.get("generated_text", ""))
+                        if "<|im_end|>" in raw:
+                            raw = raw.split("<|im_end|>")[0]
+                        bot_reply = raw.strip() or None
                     else:
                         hf_failed = True
-                        error_reason = f"Hugging Face Inference API returned HTTP {response.status_code}: {response.text}"
-                except requests.exceptions.Timeout:
+                except Exception:
                     hf_failed = True
-                    error_reason = "Hugging Face Inference API timed out after 35 seconds."
-                except Exception as e:
-                    print(f"[Chatbot] HF API call error: {e}")
-                    hf_failed = True
-                    error_reason = f"Connection error or network failure: {str(e)}"
 
-        # Log Hugging Face error but do not raise a hard gateway crash. Fall back to local rules.
-        if hf_failed and error_reason:
-            print(f"[Chatbot View] Hugging Face Inference API error: {error_reason}")
-
-        # Fallback to local rule-based expert parser
+        # ── Last-resort fallbacks (both APIs failed) ─────────────────────────────
         if not bot_reply:
-            # Check for specific quick replies
-            if msg_lower == "yes" or msg_lower == "dairy allergy":
-                last_assistant_msg = next((m["content"] for m in reversed(trimmed_history) if m["role"] == "assistant"), "")
-                if "dairy" in last_assistant_msg.lower() or "milk" in last_assistant_msg.lower():
-                    bot_reply = "Understood. I recommend adding Dairy Allergy to your health profile. Please confirm this change. [SUGGEST_CONDITION: MDC19]"
-                else:
-                    bot_reply = "Could you please specify which condition you would like to confirm?"
-            elif msg_lower == "peanut allergy":
-                bot_reply = "Understood. I recommend adding Peanut Allergy to your health profile. Please confirm this change. [SUGGEST_CONDITION: MDC17]"
-            elif msg_lower == "shellfish allergy":
-                bot_reply = "Understood. I recommend adding Shellfish Allergy to your health profile. Please confirm this change. [SUGGEST_CONDITION: MDC18]"
-            elif msg_lower == "soy allergy":
-                bot_reply = "Understood. I recommend adding Soy Allergy to your health profile. Please confirm this change. [SUGGEST_CONDITION: MDC21]"
-            elif msg_lower == "gluten sensitivity":
-                bot_reply = "Understood. I recommend adding Gluten Sensitivity to your health profile. Please confirm this change. [SUGGEST_CONDITION: MDC20]"
-            elif msg_lower == "celiac disease":
-                bot_reply = "Understood. I recommend adding Celiac Disease to your health profile. Please confirm this change. [SUGGEST_CONDITION: MDC04]"
-            elif msg_lower == "ibs":
-                bot_reply = "Understood. I recommend adding IBS to your health profile. Please confirm this change. [SUGGEST_CONDITION: MDC05]"
-            elif msg_lower == "diabetes":
-                bot_reply = "Understood. I recommend adding Diabetes Type 2 to your health profile. Please confirm this change. [SUGGEST_CONDITION: MDC01]"
-            elif msg_lower == "hypertension":
-                bot_reply = "Understood. I recommend adding Hypertension to your health profile. Please confirm this change. [SUGGEST_CONDITION: MDC02]"
-            # Keyword condition detection
-            elif any(w in msg_lower for w in ["milk", "dairy", "lactose", "cheese"]):
-                bot_reply = "I noticed you mentioned dairy or milk-related terms. Do you have a Dairy Allergy? [OPTIONS: Dairy Allergy, None]"
-            elif any(w in msg_lower for w in ["peanut", "nut", "almonds", "cashew"]):
-                bot_reply = "I noticed you mentioned nuts or peanuts. Do you have a Peanut Allergy? [OPTIONS: Peanut Allergy, None]"
-            elif any(w in msg_lower for w in ["shrimp", "crab", "shellfish", "lobster"]):
-                bot_reply = "I noticed you mentioned shellfish. Do you have a Shellfish Allergy? [OPTIONS: Shellfish Allergy, None]"
-            elif any(w in msg_lower for w in ["soy", "tofu", "soybean"]):
-                bot_reply = "I noticed you mentioned soy. Do you have a Soy Allergy? [OPTIONS: Soy Allergy, None]"
-            elif any(w in msg_lower for w in ["gluten", "wheat", "celiac"]):
-                bot_reply = "I noticed you mentioned gluten or wheat. Do you have Gluten Sensitivity or Celiac Disease? [OPTIONS: Gluten Sensitivity, Celiac Disease, None]"
-            elif any(w in msg_lower for w in ["diabetes", "sugar", "insulin"]):
-                bot_reply = "I noticed you mentioned diabetes or sugar. Do you have Diabetes Type 2? [OPTIONS: Diabetes, None]"
-            elif any(w in msg_lower for w in ["hypertension", "salt", "blood pressure"]):
-                bot_reply = "I noticed you mentioned high blood pressure or salt. Do you have Hypertension? [OPTIONS: Hypertension, None]"
+            if is_profile_query and profile_fallback_reply:
+                bot_reply = profile_fallback_reply
+            elif web_results:
+                snippets = " ".join(r["snippet"] for r in web_results[:3])
+                bot_reply = f"Based on available sources: {snippets} Let me know if you'd like more detail."
+            elif product_info:
+                bot_reply = (
+                    f"This product ({product_info['product_name']} by {product_info['brand']}) "
+                    f"contains {product_info['additives_count']} additives. "
+                    f"Given your profile ({user_conditions_str}), consulting a dietitian is recommended. "
+                    f"What else would you like to know?"
+                )
             else:
-                # Compile response from DDG search results
-                if web_results:
-                    snippets = " ".join([res["snippet"] for res in web_results[:3]])
-                    bot_reply = f"Based on verified resources: {snippets} Let me know if you want to know more about this."
-                elif product_info:
-                    bot_reply = f"For the product {product_info['product_name']} ({product_info['brand']}), it contains {product_info['additives_count']} additives. Given your profile ({user_conditions_str}), please consult a doctor for personalized dietary advice. How else can I help?"
-                else:
-                    bot_reply = "As MedSensei, I'm here to answer your food safety, health, and dietary queries. Could you describe your symptoms, ingredients of concern, or health goals?"
+                bot_reply = (
+                    "I'm here for all your food safety and health queries! "
+                    "Could you share more — a product, ingredient, or health concern?"
+                )
 
-
-
-        # Save to chat history
+        # ── Persist to chat history ──────────────────────────────────────────────
         history.append({"role": "user", "content": user_message})
         history.append({"role": "assistant", "content": bot_reply})
         chat_context.chat_history = history
