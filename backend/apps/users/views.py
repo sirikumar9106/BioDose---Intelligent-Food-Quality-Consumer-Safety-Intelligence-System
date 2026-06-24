@@ -187,8 +187,10 @@ class SendOTPView(APIView):
         <head>
             <meta charset="utf-8">
             <style>
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@700&family=Syne:wght@700;800&display=swap');
+                
                 body {{
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
                     background-color: #0b0f19;
                     color: #f3f4f6;
                     margin: 0;
@@ -203,21 +205,20 @@ class SendOTPView(APIView):
                     border-radius: 24px;
                     text-align: center;
                 }}
-                .logo {{
-                    font-size: 24px;
-                    font-weight: 800;
-                    color: #10b981;
-                    letter-spacing: -0.05em;
-                    margin-bottom: 24px;
-                    text-transform: uppercase;
+                .logo-container {{
+                    margin-bottom: 20px;
+                    display: inline-block;
                 }}
                 .title {{
-                    font-size: 20px;
-                    font-weight: 700;
-                    margin-bottom: 12px;
+                    font-family: 'Syne', -apple-system, sans-serif;
+                    font-size: 24px;
+                    font-weight: 800;
+                    margin-bottom: 16px;
                     color: #ffffff;
+                    letter-spacing: -0.02em;
                 }}
                 .intro {{
+                    font-family: 'Inter', sans-serif;
                     font-size: 14px;
                     line-height: 1.6;
                     color: #9ca3af;
@@ -227,20 +228,22 @@ class SendOTPView(APIView):
                     display: inline-block;
                     padding: 16px 32px;
                     font-size: 32px;
-                    font-weight: 800;
+                    font-weight: 700;
                     letter-spacing: 6px;
                     color: #10b981;
                     background-color: #0b0f19;
                     border: 1px solid #1f2937;
                     border-radius: 16px;
                     margin-bottom: 32px;
-                    font-family: Courier, monospace;
+                    font-family: 'JetBrains Mono', Courier, monospace;
                 }}
                 .footer {{
+                    font-family: 'Inter', sans-serif;
                     font-size: 12px;
                     color: #6b7280;
                     border-top: 1px solid #1f2937;
                     padding-top: 20px;
+                    line-height: 1.5;
                 }}
                 .warning {{
                     color: #ef4444;
@@ -250,7 +253,13 @@ class SendOTPView(APIView):
         </head>
         <body>
             <div class="container">
-                <div class="logo">BioDose</div>
+                <div class="logo-container">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        <path d="M12 8v8"/>
+                        <path d="M8 12h8"/>
+                    </svg>
+                </div>
                 <div class="title">{subject}</div>
                 <div class="intro">{intro_text}</div>
                 <div class="code-box">{otp}</div>
