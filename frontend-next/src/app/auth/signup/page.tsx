@@ -385,7 +385,7 @@ export default function SignupPage() {
                   </span>
                 </div>
                 
-                <div className="flex justify-between gap-2 my-5">
+                <div className="flex justify-center gap-2 sm:gap-3 my-5 w-full">
                   {otpValues.map((digit, idx) => (
                     <input
                       key={idx}
@@ -396,7 +396,7 @@ export default function SignupPage() {
                       onChange={(e) => handleOtpChange(e.target.value, idx)}
                       onKeyDown={(e) => handleOtpKeyDown(e, idx)}
                       disabled={countdown === 0}
-                      className="w-11 h-12 sm:w-12 sm:h-14 text-center text-xl font-extrabold bg-background border border-border rounded-xl focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all text-foreground shadow-sm"
+                      className="w-full max-w-[42px] sm:max-w-[48px] aspect-square text-center text-lg sm:text-xl font-extrabold bg-background border border-border rounded-xl focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all text-foreground shadow-sm"
                     />
                   ))}
                 </div>
