@@ -45,3 +45,18 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f"{self.username} <{self.email}>"
+
+
+class EmailOTP(models.Model):
+    email = models.EmailField(unique=True)
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        app_label = "users"
+
+    def is_expired(self):
+        from django.utils import timezone
+        import datetime
+        return timezone.now() > self.created_at + datetime.timedelta(seconds=150) # 2.5 minutes
+
