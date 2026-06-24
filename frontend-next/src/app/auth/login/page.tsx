@@ -98,7 +98,7 @@ function LoginForm() {
       const res = await fetch(`${API_BASE_URL}/api/v1/auth/forgot-password/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: forgotEmail.trim().lower() })
+        body: JSON.stringify({ email: forgotEmail.trim().toLowerCase() })
       })
       const data = await res.json()
       
@@ -137,7 +137,7 @@ function LoginForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: forgotEmail.trim().lower(),
+          email: forgotEmail.trim().toLowerCase(),
           otp: forgotOtp.trim(),
           new_password: newPassword,
           confirm_password: confirmNewPassword

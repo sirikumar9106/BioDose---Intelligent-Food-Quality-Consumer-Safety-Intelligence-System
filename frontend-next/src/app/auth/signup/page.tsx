@@ -108,7 +108,7 @@ export default function SignupPage() {
       const res = await fetch(`${API_BASE_URL}/api/v1/auth/signup-otp/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim().lower() })
+        body: JSON.stringify({ email: email.trim().toLowerCase() })
       })
       const data = await res.json()
       
@@ -137,7 +137,7 @@ export default function SignupPage() {
       const res = await fetch(`${API_BASE_URL}/api/v1/auth/signup-otp/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim().lower() })
+        body: JSON.stringify({ email: email.trim().toLowerCase() })
       })
       const data = await res.json()
       
@@ -172,7 +172,7 @@ export default function SignupPage() {
       const res = await fetch(`${API_BASE_URL}/api/v1/auth/verify-signup-otp/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim().lower(), otp: otp.trim() })
+        body: JSON.stringify({ email: email.trim().toLowerCase(), otp: otp.trim() })
       })
       const data = await res.json()
       
@@ -220,7 +220,7 @@ export default function SignupPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: email.trim().lower(),
+          email: email.trim().toLowerCase(),
           otp: otp.trim(),
           full_name: formData.full_name.trim(),
           username: formData.username.trim(),
