@@ -19,7 +19,7 @@ export default function SignupPage() {
   const [step, setStep] = useState<1 | 2 | 3>(1)
   
   const [email, setEmail] = useState("")
-  const [otp, setOtp] = useState("")
+  const [otpValues, setOtpValues] = useState<string[]>(["", "", "", "", "", ""])
   
   const [formData, setFormData] = useState({
     full_name: "",
@@ -41,6 +41,13 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+  // Focus OTP box helper
+  useEffect(() => {
+    if (step === 2) {
+      document.getElementById("otp-0")?.focus()
+    }
+  }, [step])
 
   // Live Username Check (only triggers in step 3)
   useEffect(() => {
@@ -92,6 +99,48 @@ export default function SignupPage() {
     return null
   }
 
+  // Handle individual OTP input changes
+  const handleOtpChange = (val: string, index: number) => {
+    const cleanVal = val.replace(/\D/g, "")
+    if (!cleanVal && val !== "") return
+
+    const newValues = [...otpValues]
+    
+    // Paste support
+    if (cleanVal.length > 1) {
+      const pasted = cleanVal.slice(0, 6).split("")
+      for (let i = 0; i < 6; i++) {
+        newValues[i] = pasted[i] || ""
+      }
+      setOtpValues(newValues)
+      const nextIndex = Math.min(pasted.length, 5)
+      document.getElementById(`otp-${nextIndex}`)?.focus()
+      return
+    }
+
+    newValues[index] = cleanVal
+    setOtpValues(newValues)
+
+    if (cleanVal && index < 5) {
+      document.getElementById(`otp-${index + 1}`)?.focus()
+    }
+  }
+
+  const handleOtpKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === "Backspace") {
+      if (!otpValues[index] && index > 0) {
+        const newValues = [...otpValues]
+        newValues[index - 1] = ""
+        setOtpValues(newValues)
+        document.getElementById(`otp-${index - 1}`)?.focus()
+      } else {
+        const newValues = [...otpValues]
+        newValues[index] = ""
+        setOtpValues(newValues)
+      }
+    }
+  }
+
   // STEP 1: Send OTP
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -117,6 +166,7 @@ export default function SignupPage() {
       } else {
         setStep(2)
         setCountdown(150) // 2.5 minutes
+        setOtpValues(["", "", "", "", "", ""])
         setIsTimerActive(true)
         setInfoMessage(`Verification code sent to ${email}`)
       }
@@ -145,9 +195,13 @@ export default function SignupPage() {
         setError(data.error || "Failed to send verification code.")
       } else {
         setCountdown(150)
+        setOtpValues(["", "", "", "", "", ""])
         setIsTimerActive(true)
         setResendCount((prev) => prev + 1)
         setInfoMessage("A new verification code has been sent.")
+        setTimeout(() => {
+          document.getElementById("otp-0")?.focus()
+        }, 50)
       }
     } catch (err) {
       setError("An unexpected connection error occurred.")
@@ -162,7 +216,8 @@ export default function SignupPage() {
     setError("")
     setInfoMessage("")
     
-    if (otp.length !== 6) {
+    const combinedOtp = otpValues.join("")
+    if (combinedOtp.length !== 6) {
       setError("Verification code must be exactly 6 digits.")
       return
     }
@@ -172,7 +227,7 @@ export default function SignupPage() {
       const res = await fetch(`${API_BASE_URL}/api/v1/auth/verify-signup-otp/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim().toLowerCase(), otp: otp.trim() })
+        body: JSON.stringify({ email: email.trim().toLowerCase(), otp: combinedOtp })
       })
       const data = await res.json()
       
@@ -221,7 +276,7 @@ export default function SignupPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: email.trim().toLowerCase(),
-          otp: otp.trim(),
+          otp: otpValues.join(""),
           full_name: formData.full_name.trim(),
           username: formData.username.trim(),
           password: formData.password
@@ -238,7 +293,7 @@ export default function SignupPage() {
         localStorage.setItem("refresh_token", data.refresh)
         localStorage.setItem("session_start_time", Date.now().toString())
         
-        // Push user directly to profile setup or dashboard
+        // Push user directly to profile setup
         router.push("/profile-setup")
       }
     } catch (err) {
@@ -249,24 +304,25 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center text-foreground p-4 py-8 sm:py-12">
+    <div className="relative min-h-[100dvh] w-full flex items-center justify-center text-foreground p-4 sm:p-6 md:p-8">
       <InteractiveBackground />
-      <div className="w-full max-w-md p-6 sm:p-8 rounded-2xl border border-border bg-card shadow-xl glass-panel mx-auto my-auto relative overflow-hidden">
+      
+      <div className="w-full max-w-md p-6 sm:p-8 rounded-3xl border border-border bg-card shadow-2xl glass-panel relative overflow-hidden flex flex-col justify-center my-auto">
         
-        <h2 className="text-3xl font-bold font-syne mb-1 text-center text-primary">Create Account</h2>
-        <p className="text-sm text-muted-foreground text-center mb-6 font-inter">
+        <h2 className="text-3xl font-extrabold font-syne mb-1 text-center text-primary">Create Account</h2>
+        <p className="text-xs sm:text-sm text-muted-foreground text-center mb-6 font-inter">
           Join BioDose and take control of your food safety.
         </p>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 text-red-500 rounded-md text-sm flex items-start gap-2">
+          <div className="mb-4 p-3.5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl text-xs sm:text-sm flex items-start gap-2.5">
             <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {infoMessage && (
-          <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/50 text-emerald-500 rounded-md text-sm flex items-start gap-2">
+          <div className="mb-4 p-3.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-2xl text-xs sm:text-sm flex items-start gap-2.5">
             <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
             <span>{infoMessage}</span>
           </div>
@@ -277,10 +333,10 @@ export default function SignupPage() {
           {step === 1 && (
             <motion.form
               key="step1"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
               onSubmit={handleSendOTP}
               className="space-y-4 font-inter"
             >
@@ -293,12 +349,12 @@ export default function SignupPage() {
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-background"
+                  className="bg-background rounded-2xl h-11"
                 />
               </div>
 
-              <motion.div whileTap={{ scale: 0.98 }} className="pt-4">
-                <Button type="submit" className="w-full rounded-full" disabled={loading}>
+              <motion.div whileTap={{ scale: 0.97 }} className="pt-2">
+                <Button type="submit" className="w-full rounded-full h-11 text-sm font-bold" disabled={loading}>
                   {loading ? "Sending Code..." : "Verify Email"}
                 </Button>
               </motion.div>
@@ -309,64 +365,70 @@ export default function SignupPage() {
           {step === 2 && (
             <motion.form
               key="step2"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
               onSubmit={handleVerifyOTP}
               className="space-y-4 font-inter"
             >
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2 cursor-pointer hover:text-foreground" onClick={() => setStep(1)}>
-                <ArrowLeft size={14} />
+              <div className="flex items-center gap-1 text-[11px] sm:text-xs text-muted-foreground mb-2 cursor-pointer hover:text-foreground transition-colors" onClick={() => setStep(1)}>
+                <ArrowLeft size={13} />
                 <span>Change email ({email})</span>
               </div>
 
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label htmlFor="otp">Enter Verification Code</Label>
-                  <span className={`text-xs font-mono font-bold ${countdown < 30 ? "text-red-500 animate-pulse" : "text-primary"}`}>
+                  <Label className="text-xs sm:text-sm font-semibold">Enter Verification Code</Label>
+                  <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 ${countdown < 30 ? "text-red-500 animate-pulse bg-red-500/10 border-red-500/20" : "text-primary"}`}>
                     {formatTime(countdown)}
                   </span>
                 </div>
-                <Input 
-                  id="otp" 
-                  type="text" 
-                  maxLength={6}
-                  required
-                  placeholder="6-digit code"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                  disabled={countdown === 0}
-                  className="bg-background tracking-widest text-center text-lg font-bold"
-                />
+                
+                {/* 6 Individual Digit Inputs */}
+                <div className="flex justify-between gap-2 my-5">
+                  {otpValues.map((digit, idx) => (
+                    <input
+                      key={idx}
+                      id={`otp-${idx}`}
+                      type="text"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleOtpChange(e.target.value, idx)}
+                      onKeyDown={(e) => handleOtpKeyDown(e, idx)}
+                      disabled={countdown === 0}
+                      className="w-11 h-12 sm:w-12 sm:h-14 text-center text-xl font-extrabold bg-background border border-border rounded-xl focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all text-foreground shadow-sm"
+                    />
+                  ))}
+                </div>
               </div>
 
               {countdown === 0 && (
-                <p className="text-xs text-red-500 text-center">
+                <p className="text-xs text-red-500 text-center font-medium">
                   The verification code has expired. Please request a new one.
                 </p>
               )}
 
               {resendCount >= 3 && (
-                <div className="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 rounded-lg text-xs leading-relaxed">
+                <div className="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 rounded-2xl text-[11px] leading-relaxed">
                   <strong>Not receiving the code?</strong> There might be a typo in your email address. Feel free to click "Change email" above to correct it.
                 </div>
               )}
 
-              <div className="flex gap-3 pt-2">
+              <div className="flex gap-3 pt-3">
                 <Button 
                   type="button" 
                   variant="outline" 
                   onClick={handleResendOTP} 
                   disabled={loading || isTimerActive}
-                  className="flex-1 rounded-full text-xs"
+                  className="flex-1 rounded-full text-xs font-bold h-11"
                 >
                   Resend Code
                 </Button>
                 <Button 
                   type="submit" 
-                  disabled={loading || countdown === 0 || otp.length !== 6}
-                  className="flex-1 rounded-full text-xs"
+                  disabled={loading || countdown === 0 || otpValues.join("").length !== 6}
+                  className="flex-1 rounded-full text-xs font-bold h-11"
                 >
                   {loading ? "Verifying..." : "Verify Code"}
                 </Button>
@@ -378,10 +440,10 @@ export default function SignupPage() {
           {step === 3 && (
             <motion.form
               key="step3"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
               onSubmit={handleFinalSignup}
               className="space-y-4 font-inter"
             >
@@ -393,7 +455,7 @@ export default function SignupPage() {
                   placeholder="John Doe"
                   value={formData.full_name}
                   onChange={(e) => setFormData({...formData, full_name: e.target.value})}
-                  className="bg-background"
+                  className="bg-background rounded-2xl h-11"
                 />
               </div>
 
@@ -405,7 +467,7 @@ export default function SignupPage() {
                   placeholder="johndoe"
                   value={formData.username}
                   onChange={(e) => setFormData({...formData, username: e.target.value.toLowerCase().replace(/\s/g, "")})}
-                  className={`bg-background ${usernameAvailable === false ? 'border-red-500 focus-visible:ring-red-500' : ''} ${usernameAvailable === true ? 'border-green-500 focus-visible:ring-green-500' : ''}`}
+                  className={`bg-background rounded-2xl h-11 ${usernameAvailable === false ? 'border-red-500 focus-visible:ring-red-500' : ''} ${usernameAvailable === true ? 'border-green-500 focus-visible:ring-green-500' : ''}`}
                 />
                 {usernameChecking && <p className="text-[10px] text-muted-foreground">Checking availability...</p>}
                 {usernameAvailable === false && <p className="text-[10px] text-red-500">Username already exists</p>}
@@ -421,7 +483,7 @@ export default function SignupPage() {
                     required
                     value={formData.password}
                     onChange={(e) => setFormData({...formData, password: e.target.value})}
-                    className="bg-background pr-10"
+                    className="bg-background rounded-2xl h-11 pr-10"
                   />
                   <button
                     type="button"
@@ -445,7 +507,7 @@ export default function SignupPage() {
                     required
                     value={formData.confirm_password}
                     onChange={(e) => setFormData({...formData, confirm_password: e.target.value})}
-                    className="bg-background pr-10"
+                    className="bg-background rounded-2xl h-11 pr-10"
                   />
                   <button
                     type="button"
@@ -468,8 +530,8 @@ export default function SignupPage() {
                 </Label>
               </div>
 
-              <motion.div whileTap={{ scale: 0.98 }} className="pt-4">
-                <Button type="submit" className="w-full rounded-full" disabled={loading || usernameAvailable === false}>
+              <motion.div whileTap={{ scale: 0.97 }} className="pt-2">
+                <Button type="submit" className="w-full rounded-full h-11 font-bold text-sm" disabled={loading || usernameAvailable === false}>
                   {loading ? "Creating Account..." : "Sign Up"}
                 </Button>
               </motion.div>
@@ -477,7 +539,7 @@ export default function SignupPage() {
           )}
         </AnimatePresence>
 
-        <div className="mt-6 text-center text-sm text-muted-foreground">
+        <div className="mt-6 text-center text-sm text-muted-foreground font-inter">
           Already have an account?{" "}
           <Link href="/auth/login" className="text-primary hover:underline font-medium">
             Log In

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -30,13 +30,22 @@ function LoginForm() {
   const [showForgotModal, setShowForgotModal] = useState(false)
   const [forgotStep, setForgotStep] = useState<1 | 2>(1)
   const [forgotEmail, setForgotEmail] = useState("")
-  const [forgotOtp, setForgotOtp] = useState("")
+  const [forgotOtpValues, setForgotOtpValues] = useState<string[]>(["", "", "", "", "", ""])
   const [newPassword, setNewPassword] = useState("")
   const [confirmNewPassword, setConfirmNewPassword] = useState("")
   const [forgotError, setForgotError] = useState("")
   const [forgotSuccess, setForgotSuccess] = useState("")
   const [forgotLoading, setForgotLoading] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
+
+  // Autofocus the first OTP box when entering Step 2 in forgot password
+  useEffect(() => {
+    if (showForgotModal && forgotStep === 2) {
+      setTimeout(() => {
+        document.getElementById("forgot-otp-0")?.focus()
+      }, 50)
+    }
+  }, [forgotStep, showForgotModal])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -82,6 +91,48 @@ function LoginForm() {
     }
   }
 
+  // Handle forgot password OTP changes
+  const handleForgotOtpChange = (val: string, index: number) => {
+    const cleanVal = val.replace(/\D/g, "")
+    if (!cleanVal && val !== "") return
+
+    const newValues = [...forgotOtpValues]
+    
+    // Paste support
+    if (cleanVal.length > 1) {
+      const pasted = cleanVal.slice(0, 6).split("")
+      for (let i = 0; i < 6; i++) {
+        newValues[i] = pasted[i] || ""
+      }
+      setForgotOtpValues(newValues)
+      const nextIndex = Math.min(pasted.length, 5)
+      document.getElementById(`forgot-otp-${nextIndex}`)?.focus()
+      return
+    }
+
+    newValues[index] = cleanVal
+    setForgotOtpValues(newValues)
+
+    if (cleanVal && index < 5) {
+      document.getElementById(`forgot-otp-${index + 1}`)?.focus()
+    }
+  }
+
+  const handleForgotOtpKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === "Backspace") {
+      if (!forgotOtpValues[index] && index > 0) {
+        const newValues = [...forgotOtpValues]
+        newValues[index - 1] = ""
+        setForgotOtpValues(newValues)
+        document.getElementById(`forgot-otp-${index - 1}`)?.focus()
+      } else {
+        const newValues = [...forgotOtpValues]
+        newValues[index] = ""
+        setForgotOtpValues(newValues)
+      }
+    }
+  }
+
   // Send Forgot Password OTP
   const handleSendForgotOTP = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -106,6 +157,7 @@ function LoginForm() {
         setForgotError(data.error || "No account found with this email.")
       } else {
         setForgotStep(2)
+        setForgotOtpValues(["", "", "", "", "", ""])
         setForgotSuccess("Verification code sent to your email.")
       }
     } catch (err) {
@@ -120,6 +172,12 @@ function LoginForm() {
     e.preventDefault()
     setForgotError("")
     setForgotSuccess("")
+
+    const combinedOtp = forgotOtpValues.join("")
+    if (combinedOtp.length !== 6) {
+      setForgotError("Verification code must be exactly 6 digits.")
+      return
+    }
 
     if (newPassword !== confirmNewPassword) {
       setForgotError("Passwords do not match.")
@@ -138,7 +196,7 @@ function LoginForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: forgotEmail.trim().toLowerCase(),
-          otp: forgotOtp.trim(),
+          otp: combinedOtp,
           new_password: newPassword,
           confirm_password: confirmNewPassword
         })
@@ -342,17 +400,23 @@ function LoginForm() {
               ) : (
                 <form onSubmit={handleResetPassword} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="forgot_otp">Verification Code</Label>
-                    <Input 
-                      id="forgot_otp" 
-                      type="text" 
-                      maxLength={6}
-                      required
-                      placeholder="Enter 6-digit code"
-                      value={forgotOtp}
-                      onChange={(e) => setForgotOtp(e.target.value.replace(/\D/g, ""))}
-                      className="bg-background text-center font-bold tracking-widest"
-                    />
+                    <Label className="text-sm font-semibold">Verification Code</Label>
+                    
+                    {/* 6 Individual Digit Inputs */}
+                    <div className="flex justify-between gap-2 my-4">
+                      {forgotOtpValues.map((digit, idx) => (
+                        <input
+                          key={idx}
+                          id={`forgot-otp-${idx}`}
+                          type="text"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => handleForgotOtpChange(e.target.value, idx)}
+                          onKeyDown={(e) => handleForgotOtpKeyDown(e, idx)}
+                          className="w-11 h-12 text-center text-xl font-extrabold bg-background border border-border rounded-xl focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all text-foreground"
+                        />
+                      ))}
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -388,7 +452,7 @@ function LoginForm() {
                     />
                   </div>
 
-                  <Button type="submit" className="w-full rounded-full" disabled={forgotLoading}>
+                  <Button type="submit" className="w-full rounded-full" disabled={forgotLoading || forgotOtpValues.join("").length !== 6}>
                     {forgotLoading ? "Resetting Password..." : "Reset Password & Log In"}
                   </Button>
                 </form>
