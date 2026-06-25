@@ -151,6 +151,22 @@ function ChatContent() {
   
   const [productName, setProductName] = useState<string>("")
   const [productLoading, setProductLoading] = useState(false)
+  const [profileName, setProfileName] = useState<string>("")
+
+  // Fetch user profile on load to greet them by name
+  useEffect(() => {
+    fetchWithAuth(`${API_URL}/api/v1/auth/profile/`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.full_name) {
+          setProfileName(data.full_name)
+        } else if (data.username) {
+          setProfileName(data.username)
+        }
+      })
+      .catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Cinematic State: "intro" (centered logo) -> "chat" (content top & chat box fades in)
   const [stage, setStage] = useState<"intro" | "chat">("intro")
@@ -290,7 +306,7 @@ function ChatContent() {
           setMessages([
             {
               role: "assistant",
-              content: "Hello! I am MedSensei, your personal medical and dietary safety assistant. How can I help you today?"
+              content: `Hello ${profileName || "there"}! How may I help you today?`
             }
           ])
         }
@@ -298,7 +314,7 @@ function ChatContent() {
 
       return () => clearTimeout(timer)
     }
-  }, [stage, barcode, productName])
+  }, [stage, barcode, productName, profileName])
 
   const handleSendMessage = async (textToSend?: string) => {
     const text = (textToSend || inputValue).trim()

@@ -45,6 +45,7 @@ export function MedSenseiChat({ barcode, productName }: MedSenseiChatProps) {
   const [inputValue, setInputValue] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [profileName, setProfileName] = useState<string>("")
   
   // Password Suggest Condition State
   const [pendingCondition, setPendingCondition] = useState<string | null>(null)
@@ -87,12 +88,12 @@ export function MedSenseiChat({ barcode, productName }: MedSenseiChatProps) {
         setMessages([
           {
             role: "assistant",
-            content: "Hello! I am MedSensei, your personal medical and dietary safety assistant. How can I help you today?"
+            content: `Hello ${profileName || "there"}! How may I help you today?`
           }
         ])
       }
     }
-  }, [isOpen, barcode, productName])
+  }, [isOpen, barcode, productName, profileName])
 
   const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
     let token = localStorage.getItem("access_token") ?? ""
@@ -128,6 +129,21 @@ export function MedSenseiChat({ barcode, productName }: MedSenseiChatProps) {
     }
     return res
   }
+
+  // Fetch user profile on load to greet them by name
+  useEffect(() => {
+    fetchWithAuth(`${API_URL}/api/v1/auth/profile/`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.full_name) {
+          setProfileName(data.full_name)
+        } else if (data.username) {
+          setProfileName(data.username)
+        }
+      })
+      .catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleSendMessage = async (textToSend?: string) => {
     const text = (textToSend || inputValue).trim()

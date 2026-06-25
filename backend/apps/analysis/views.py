@@ -99,26 +99,23 @@ class ChatbotView(APIView):
         chat_context, created = UserChatContext.objects.get_or_create(user=request.user)
 
         # ── Barcode context isolation ────────────────────────────────────────────
-        # If the incoming barcode is different from the one stored in the session,
-        # this is a NEW product context. Clear the chat history so conversations
-        # about the old product NEVER bleed into the new product's Groq context.
         incoming_barcode = barcode
         stored_barcode = chat_context.temp_barcode or ""
 
-        if incoming_barcode and incoming_barcode != stored_barcode:
-            # New product — wipe history to prevent cross-product context leaking
-            chat_context.chat_history = []
-            chat_context.temp_barcode = incoming_barcode
-            chat_context.save()
-        elif not incoming_barcode and "barcode" in request.data:
-            # Explicit empty barcode from client: clear both barcode and history
-            chat_context.chat_history = []
-            chat_context.temp_barcode = ""
-            chat_context.save()
+        if incoming_barcode:
+            if incoming_barcode != stored_barcode:
+                # New product context — wipe history to prevent cross-product context leaking
+                chat_context.chat_history = []
+                chat_context.temp_barcode = incoming_barcode
+                chat_context.save()
+        else:
+            # No incoming barcode (General Chat context)
+            if stored_barcode:
+                # Switching from a product context to general chat context — wipe history
+                chat_context.chat_history = []
+                chat_context.temp_barcode = ""
+                chat_context.save()
             barcode = ""
-        elif not incoming_barcode:
-            # No barcode sent at all — reuse whatever was stored
-            barcode = stored_barcode
 
         product_info = None
         if barcode:
@@ -308,7 +305,8 @@ laugh it off lightly and answer the underlying health question — the spirit ma
 redirect sentence is enough — never preachy.
 2. GREETINGS — Warm and natural. Immediately offer relevant health assistance.
 3. PERSONALISE — Always tailor answers to the user's specific conditions and age. \
-Never give one-size-fits-all advice when profile data is available.
+Never give one-size-fits-all advice when profile data is available. \
+When NO product context is provided (general chat), explicitly guide the user on what types of food to avoid, healthy dietary/lifestyle choices, and general healthcare practices suitable for their registered health conditions and allergies.
 4. TONE — Friendly, knowledgeable, concise. Vary phrasing naturally every reply. \
 Never sound robotic or copy-pasted.
 5. QUICK REPLY OPTIONS — When clarification helps, offer 2–4 specific options: \
